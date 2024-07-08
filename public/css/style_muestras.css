@@ -1,0 +1,71 @@
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.contenedor{
+    width: 70%;
+    margin: auto;
+}
+
+h1{
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-bottom: 18px;
+}
+
+form{
+    width: 70%;
+    margin: auto;
+}
+
+form label{
+    font-weight: 500;
+}
+
+h2{
+    text-align: center;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.sect-muestras{
+    border: 3px solid #eee;
+    margin-top: 50px;
+    padding: 15px;
+}
+
+.sect-muestras #btn-codigo{
+    border: none;
+    background-color: transparent;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.sect-muestras #btn-codigo:hover{
+    color: green;
+    font-weight: bold;
+}
+
+h3{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12pt;
+    margin-bottom: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+table{
+    text-align: center;
+}
+
+table thead th{
+    width: 30%;
+}
+
+table td img{
+    width: 6%;
+    cursor: pointer;
+}

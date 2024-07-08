@@ -1,0 +1,111 @@
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.contenedor{
+    width: 70%;
+    margin: 50px auto;
+}
+
+h1{
+    font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    font-weight: 600;
+    text-decoration: underline;
+    margin-bottom: 18px;
+}
+
+form{
+    width: 50%;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.filtros form{
+    border: 3px solid #eee;
+    padding: 20px;
+    background-color: #eeeeee2d;
+}
+
+label{
+    font-weight: 500;
+}
+
+h3{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16pt;
+    margin-bottom: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+table{
+    text-align: center;
+    width: 100%;
+}
+
+.resultados-pruebas table thead th{
+    width: 20%;
+}
+
+.resultado-pruebas-personas table thead th{
+    width: 30%;
+}
+
+.resultados-pruebas table tbody tr{
+    height: 50px;
+}
+
+.resultados-pruebas table tbody tr td{
+    font-size: 16pt;
+    font-weight: 400;
+}
+
+.tabla-personas{
+    overflow-y: scroll; 
+    max-height: 500px;
+}
+ 
+.tabla-personas table tbody tr{
+    height: 50px;
+}
+
+.resultados{
+    display: none;
+}
+
+.active{
+    display: block;
+}
+
+/* SCROLL TABLA */
+.tabla-personas::-webkit-scrollbar-track {
+    border-radius: 10px;  
+}
+.tabla-personas::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.tabla-personas::-webkit-scrollbar:vertical {
+    width:10px;
+}
+
+.tabla-personas::-webkit-scrollbar-button:increment,.tabla-personas::-webkit-scrollbar-button {
+    display: none;
+} 
+
+.tabla-personas::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+.tabla-personas::-webkit-scrollbar-thumb {
+    background-color: #a09f9f;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+.tabla-personas::-webkit-scrollbar-track {
+    border-radius: 10px;  
+}

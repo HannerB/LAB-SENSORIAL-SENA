@@ -1,0 +1,149 @@
+body{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+section{
+    width: 100%;
+}
+
+section .contenido{
+    background-color: #d6d5d570;
+    border-radius: 15px;
+    width: 70%;
+    margin: 20px auto;
+    padding: 50px;
+}
+
+.contenido .cont-title{
+    font-family: sans-serif;
+    font-size: 17pt;
+    color: var(--color1);
+    letter-spacing: 5px; 
+    text-transform: uppercase;  
+    text-decoration: underline;
+}
+
+
+.contenido .form-config{
+    border: 2px solid black;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+label{
+    font-weight: 600;
+    margin: 0;
+    margin-right: 10px;
+}
+
+.form-cabina .div1{
+    width: 50%;
+    text-align: left;
+}
+
+.form-cabina .div1 input{
+    width: 8%;
+    height: 30px;
+    font-weight: bold;
+    font-size: 16pt;
+    text-align: center;
+    background-color: transparent;
+    outline: none;
+    border: transparent;
+    border-bottom: 3px solid black;
+}
+
+
+#form-producto{
+    padding: 10px;
+}
+
+#form-producto input{
+    width: 30%;
+    display: inline;
+}
+
+#form-producto button{
+    padding: 4px 6px;
+    background-color: transparent;
+    border: 2px solid #4b4b4b;
+    border-radius: 5px;
+    font-family: cursive;
+    transition:  background-color 0.3s ease;
+}
+
+#form-producto button:hover{
+    background-color: #4b4b4b;
+    color: white;
+}
+
+
+.tabla-productos{
+   overflow-y: scroll; 
+   height: 380px;
+}
+
+.tabla-productos table tbody tr{
+    height: 50px;
+}
+
+table tbody tr td img{
+    cursor: pointer;
+}
+
+
+/* Estilos para motores Webkit y blink (Chrome, Safari, Opera... )*/
+
+body::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+body::-webkit-scrollbar:vertical {
+    width:12px;
+}
+
+body::-webkit-scrollbar-button:increment,body::-webkit-scrollbar-button {
+    display: none;
+} 
+
+body::-webkit-scrollbar:horizontal {
+    height: 5px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #797979;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+/* SCROLL TABLA */
+.tabla-productos::-webkit-scrollbar-track {
+    border-radius: 10px;  
+}
+.tabla-productos::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.tabla-productos::-webkit-scrollbar:vertical {
+    width:10px;
+}
+
+.tabla-productos::-webkit-scrollbar-button:increment,.tabla-productos::-webkit-scrollbar-button {
+    display: none;
+} 
+
+.tabla-productos::-webkit-scrollbar:horizontal {
+    height: 10px;
+}
+
+.tabla-productos::-webkit-scrollbar-thumb {
+    background-color: #a09f9f;
+    border-radius: 20px;
+    border: 2px solid #f1f2f3;
+}
+
+.tabla-productos::-webkit-scrollbar-track {
+    border-radius: 10px;  
+}
