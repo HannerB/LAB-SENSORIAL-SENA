@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PruebaController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +14,6 @@ use App\Http\Controllers\PruebaController;
 |
 */
 
-Route::get('/', [PruebaController::class, 'index'])->name('pruebas.index');
-Route::post('/guardar-tri', [PruebaController::class, 'guardarTri'])->name('pruebas.guardarTri');
-Route::post('/guardar-duo', [PruebaController::class, 'guardarDuo'])->name('pruebas.guardarDuo');
-Route::post('/guardar-orden', [PruebaController::class, 'guardarOrden'])->name('pruebas.guardarOrden');
+Route::get('/', function () {
+    return view('index');
+});
