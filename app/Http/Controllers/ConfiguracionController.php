@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Configuracion;
+use Illuminate\Support\Facades\Session;
 
 class ConfiguracionController extends Controller
 {
@@ -52,5 +53,37 @@ class ConfiguracionController extends Controller
         $configuracion->delete();
         return redirect()->route('configuracion.index');
     }
-}
 
+    public function showLoginForm()
+    {
+        return view('login');
+    }
+
+    public function authenticate(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $password = $request->input('password');
+
+        // Buscar la configuración en la base de datos
+        $configuracion = Configuracion::first();
+
+        if ($configuracion) {
+            $clave_acceso = $configuracion->clave_acceso;
+
+            if ($password === $clave_acceso) {
+                // Autenticación exitosa
+                Session::put('accesoadmin', true);
+                return redirect()->route('admin.resultados'); // Redirige a la ruta del panel administrativo
+            } else {
+                // Contraseña incorrecta
+                return redirect()->back()->with('alerta', 'Clave de acceso incorrecta!');
+            }
+        } else {
+            // No se encontró la configuración
+            return redirect()->back()->with('alerta', 'Configuración no encontrada!');
+        }
+    }
+}

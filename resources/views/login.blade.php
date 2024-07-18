@@ -34,17 +34,17 @@
                 Laboratorio sensorial de alimentos - Sena Cedagro
             </a>
             <form class="d-flex" role="search">
-                {{-- <a href="{{ route('index') }}" class="btn btn-outline-light">VOLVER FORMULARIO</a> --}}
+                <a href="{{ route('index') }}" class="btn btn-outline-light">VOLVER FORMULARIO</a>
             </form>
         </div>
     </nav>
 
-    <form action="{{ route('admin.authenticate') }}" method="POST" class="formulario border p-3">
+    <form action="{{ route('authenticate') }}" method="POST" class="formulario border p-3">
         @csrf
         <h2 class="text-success mb-4">Acceso administración</h2>
         <div class="mb-3">
             <label for="contra-access" class="form-label">Contraseña de acceso</label>
-            <input type="password" name="contra" id="contra-access" class="form-control">
+            <input type="password" name="password" id="contra-access" class="form-control" required>
         </div>
         @if(session('alerta'))
         <div class="alert alert-danger" role="alert">
@@ -52,9 +52,9 @@
         </div>
         @endif
         <div class="text-center">
-            <input type="submit" class="btn btn-outline-success">
+            <input type="submit" class="btn btn-outline-success" value="Acceder">
         </div>
-    </form>
+    </form>    
 
 </body>
 </html>

@@ -1,13 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\MuestraController;
 use App\Http\Controllers\CalificacionesController;
 use App\Http\Controllers\ResultadoController;
-
+use App\Http\Controllers\PanelistaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,15 +21,32 @@ use App\Http\Controllers\ResultadoController;
 */
 
 Route::get('/', function () {
-    return view('index');
-});
+    return view('index'); // Esta es la vista index.blade.php
+})->name('index');
 
-// ADMIN CONTROLLER 
-Route::get('login', [AdminController::class, 'showLoginForm'])->name('login');
-Route::post('/admin/authenticate', [AdminController::class, 'authenticate'])->name('admin.authenticate');
-Route::get('/admin/panel', function () {
-    return view('admin.panel');
+Route::get('admin/panel', function () {
+    return view('src.panel_administracion'); // Esta es la vista index.blade.php
 })->name('admin.panel');
+
+
+
+// Ruta para mostrar el formulario de login
+Route::get('login', [ConfiguracionController::class, 'showLoginForm'])->name('login');
+
+// Ruta para procesar el login y autenticación
+Route::post('login', [ConfiguracionController::class, 'authenticate'])->name('authenticate');
+
+// Ruta para el panel administrativo
+Route::get('admin/resultados', function () {
+    if (Session::has('accesoadmin') && Session::get('accesoadmin') === true) {
+        // Retornar la vista del panel administrativo
+        return view('src.panel_resultados'); // Asegúrate de tener esta vista creada
+    } else {
+        return redirect()->route('login')->with('alerta', 'Debes iniciar sesión primero.');
+    }
+})->name('admin.resultados');
+
+
 
 // Rutas para Configuracion
 Route::get('configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
@@ -70,3 +87,6 @@ Route::post('resultado', [ResultadoController::class, 'store'])->name('resultado
 Route::get('resultado/{resultado}/edit', [ResultadoController::class, 'edit'])->name('resultado.edit');
 Route::put('resultado/{resultado}', [ResultadoController::class, 'update'])->name('resultado.update');
 Route::delete('resultado/{resultado}', [ResultadoController::class, 'destroy'])->name('resultado.destroy');
+
+// Rutas para Panelista
+Route::resource('panelistas', PanelistaController::class);

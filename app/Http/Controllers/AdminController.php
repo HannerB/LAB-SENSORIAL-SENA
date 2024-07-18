@@ -15,9 +15,13 @@ class AdminController extends Controller
 
     public function authenticate(Request $request)
     {
+        $request->validate([
+            'contra' => 'required|string',
+        ]);
+
         $contra = $request->input('contra');
 
-        $configuracion = Configuracion::find(1);
+        $configuracion = Configuracion::first();
 
         if ($configuracion) {
             $contra_config = $configuracion->clave_acceso;
@@ -26,9 +30,10 @@ class AdminController extends Controller
                 Session::put('accesoadmin', true);
                 return redirect()->route('admin.panel');
             } else {
-                $alerta = "Clave de acceso incorrecta!";
-                return redirect()->back()->with('alerta', $alerta);
+                return redirect()->back()->with('alerta', 'Clave de acceso incorrecta!');
             }
+        } else {
+            return redirect()->back()->with('alerta', 'Configuración no encontrada!');
         }
     }
 }
