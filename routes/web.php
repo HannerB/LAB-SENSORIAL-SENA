@@ -15,7 +15,7 @@ use App\Http\Controllers\PanelistaController;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
+| routes are loaded by the RouteServiceProvider  and all of them will
 | be assigned to the "web" middleware group. Make something great!
 |
 */
@@ -23,12 +23,6 @@ use App\Http\Controllers\PanelistaController;
 Route::get('/', function () {
     return view('index'); // Esta es la vista index.blade.php
 })->name('index');
-
-Route::get('admin/panel', function () {
-    return view('src.panel_administracion'); // Esta es la vista index.blade.php
-})->name('admin.panel');
-
-
 
 // Ruta para mostrar el formulario de login
 Route::get('login', [ConfiguracionController::class, 'showLoginForm'])->name('login');
@@ -46,7 +40,7 @@ Route::get('admin/resultados', function () {
     }
 })->name('admin.resultados');
 
-
+Route::get('admin/panel', [ProductoController::class, 'index'])->name('admin.panel');
 
 // Rutas para Configuracion
 Route::get('configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');

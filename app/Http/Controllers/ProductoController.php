@@ -9,8 +9,8 @@ class ProductoController extends Controller
 {
     public function index()
     {
-        $productos = Producto::all();
-        return view('producto.index', compact('productos'));
+        $productos = Producto::all(); // Obtener todos los productos desde la base de datos
+        return view('src.panel_administracion', compact('productos')); // Pasar la variable $productos a la vista
     }
 
     public function create()
@@ -19,14 +19,17 @@ class ProductoController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'nombre' => 'required|string|max:50',
-        ]);
+{
+    $data = $request->validate([
+        'nombre' => 'required|string|max:50',
+    ]);
 
-        Producto::create($data);
-        return redirect()->route('producto.index');
-    }
+    $producto = Producto::create($data);
+
+    $productos = Producto::all(); // Obtener todos los productos desde la base de datos
+
+    return view('src.panel_administracion', compact('productos')); // Retornar los datos del producto creado como respuesta AJAX
+}
 
     public function edit(Producto $producto)
     {
