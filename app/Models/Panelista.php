@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Panelista extends Model
 {
-    use HasFactory;
+    protected $table = 'panelistas';
+    protected $primaryKey = 'idpane';
+    protected $fillable = ['nombres'];
 }

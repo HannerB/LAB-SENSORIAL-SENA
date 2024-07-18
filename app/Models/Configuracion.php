@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Configuracion extends Model
 {
-    use HasFactory;
+    protected $table = 'configuracion';
+    protected $primaryKey = 'id_config';
+    protected $fillable = ['num_cabina', 'producto_habilitado', 'clave_acceso'];
+
+    public function producto()
+    {
+        return $this->belongsTo(Producto::class, 'producto_habilitado', 'id_producto');
+    }
 }

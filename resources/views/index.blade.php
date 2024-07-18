@@ -17,7 +17,7 @@
           Laboratorio sensorial de alimentos - Sena Cedagro - Centro de Valor de Agregado
         </a>
         <form class="d-flex" role="search">
-          <a href="" class="btn btn-outline-light">ADMINISTRACION</a>
+          <a href="{{ route('login') }}" class="btn btn-outline-light">ADMINISTRACION</a>
         </form>
       </div>
     </nav>

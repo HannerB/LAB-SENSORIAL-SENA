@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('resultados', function (Blueprint $table) {
@@ -17,16 +14,17 @@ return new class extends Migration
             $table->tinyInteger('prueba')->comment('1=TRIANGULAR,2=DUO-TRIO,3=ORDENAMIENTO');
             $table->string('atributo', 50);
             $table->string('cod_muestra', 50)->nullable();
+            $table->string('resultado', 50)->nullable();
+            $table->date('fecha')->nullable();
+            $table->integer('cabina');
 
             $table->foreign('producto')->references('id_producto')->on('productos')->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('resultados');
     }
 };
+
