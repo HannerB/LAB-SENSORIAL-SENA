@@ -53,10 +53,10 @@ Route::delete('configuracion/{configuracion}', [ConfiguracionController::class, 
 // Rutas para Producto
 Route::get('producto', [ProductoController::class, 'index'])->name('producto.index');
 Route::get('producto/create', [ProductoController::class, 'create'])->name('producto.create');
-Route::post('producto', [ProductoController::class, 'store'])->name('producto.store');
 Route::get('producto/{producto}/edit', [ProductoController::class, 'edit'])->name('producto.edit');
-Route::put('producto/{producto}', [ProductoController::class, 'update'])->name('producto.update');
 Route::delete('producto/{producto}', [ProductoController::class, 'destroy'])->name('producto.destroy');
+Route::post('producto', [ProductoController::class, 'store'])->name('producto.store');
+Route::put('producto/{producto}', [ProductoController::class, 'update'])->name('producto.update');
 
 // Rutas para Muestra
 Route::get('muestra', [MuestraController::class, 'index'])->name('muestra.index');
