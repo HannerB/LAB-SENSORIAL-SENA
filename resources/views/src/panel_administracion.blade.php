@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PANEL DE ADMINISTRACION</title>
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style_config.css') }}">
@@ -33,7 +34,7 @@
         <div class="container-fluid">
             <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;">
                 <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}" alt="" width="50px">
-                Laboratorio sensorial de alimentos - Sena Cego
+                Laboratorio sensorial de alimentos - Sena Cedagro
             </a>
             <form class="d-flex" role="search">
                 <a href="{{ route('index') }}" class="btn btn-outline-light">cerrar sesion</a>
@@ -56,6 +57,7 @@
                     </div>
                 </form>
                 <hr>
+                <!-- Formulario para agregar productos -->
                 <form id="form-producto" class="mb-4" action="{{ route('producto.store') }}" method="POST">
                     @csrf
                     <label for="nombreProducto">NOMBRE DE PRODUCTO :</label>
@@ -108,6 +110,7 @@
                 <div class="modal-body">
                     <div class="contenedor">
                         <section>
+                            <!-- Formulario para actualizar nombre del producto -->
                             <form id="form-producto-modal" class="mb-4" method="POST"
                                 action="{{ route('producto.update', ':id') }}">
                                 @csrf
@@ -116,14 +119,22 @@
                                 <label for="nombreProductoModal">NOMBRE PRODUCTO</label>
                                 <input type="text" id="nombreProductoModal" class="form-control mb-2" name="nombre"
                                     required>
+                            </form>
+                            <!-- Formulario para habilitar producto -->
+                            <form id="form-habilitar-producto" class="mb-4" method="POST"
+                                action="{{ route('configuracion.update', 1) }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" id="productoHabilitadoId" name="producto_habilitado">
                                 <label for="habilitadoModal" class="me-2 mb-3">
-                                    <input type="checkbox" id="habilitadoModal">
+                                    <input type="checkbox" id="habilitadoModal" name="habilitado">
                                     Realizar pruebas con este producto
                                 </label>
-                                <div class="d-flex justify-content-center">
-                                    <input type="submit" class="btn btn-success" value="Actualizar Producto">
-                                </div>
                             </form>
+                            <div class="d-flex justify-content-center">
+                                <button type="button" class="btn btn-success" id="btn-submit">GUARDAR
+                                    CAMBIOS</button>
+                            </div>
                         </section>
 
                         <!-- Aquí va el resto del contenido del modal -->
@@ -199,8 +210,8 @@
                         </div>
 
                         <!-- PRUEBA ORDENAMIENTO -->
-                        <h3>MUESTRAS DE PRUEBA ORDENAMIENTO - (<span id="atributo-prueba-span">ATRIBUTO</span>)</h3>
-                        <div class="table-prueba-orden mb-5">
+                        <h3>MUESTRAS DE PRUEBA ORDENAMIENTO</h3>
+                        <div class="table-prueba-ordenamiento mb-5">
                             <table class="table table-success table-bordered">
                                 <thead>
                                     <tr>
@@ -213,98 +224,219 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
 
+                        <hr>
+                        <!-- ATRIBUTOS -->
+                        <h3>ATRIBUTOS</h3>
+                        <div class="table-atributos mb-5">
+                            <table class="table table-success table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">CODIGO</th>
+                                        <th scope="col">ELIMINAR ATRIBUTO</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="table-light" id="cuerpo-table-cuatro">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CERRAR</button>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
-    <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
-    <script src="{{ asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <script>
-        function abrirConfiguracion(idProducto, nombreProducto) {
-            $('#nombreProductoModal').val(nombreProducto);
-            $('#productoId').val(idProducto);
-            var form = $('#form-producto-modal');
-            var action = form.attr('action').replace(':id', idProducto);
-            form.attr('action', action);
-            $('#modalConfiguracion').modal('show');
+        function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
+            document.getElementById('productoId').value = idProducto;
+            document.getElementById('nombreProductoModal').value = nombreProducto;
+            document.getElementById('habilitadoModal').checked = habilitado;
+
+            // Actualizar la acción del formulario
+            const formProductoModal = document.getElementById('form-producto-modal');
+            formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
+
+            // Mostrar el modal
+            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
+        }
+
+        $(document).ready(function() {
+            $('#refrescar-productos').on('click', function() {
+                // Aquí puedes implementar la lógica para actualizar la tabla de productos
+                location.reload(); // Solo para refrescar la página, ajustar si usas AJAX
+            });
+
+            $('#form-producto-modal').on('submit', function(event) {
+                event.preventDefault();
+                const idProducto = $('#productoId').val();
+                const nombre = $('#nombreProductoModal').val();
+                const habilitado = $('#habilitadoModal').is(':checked');
+
+                fetch(`{{ route('producto.update', '') }}/${idProducto}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        body: JSON.stringify({
+                            nombre: nombre,
+                            habilitado: habilitado
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Producto actualizado con éxito');
+                            location.reload(); // Para refrescar la tabla
+                        } else {
+                            alert('Error al actualizar producto');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar producto');
+                    });
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById('btnguardar').addEventListener('click', function() {
+            document.getElementById('form-producto').submit();
+        });
+
+        document.getElementById('btn-submit').addEventListener('click', function() {
+            if (document.getElementById('habilitadoModal').checked) {
+                document.getElementById('productoHabilitadoId').value = document.getElementById('productoId').value;
+            } else {
+                document.getElementById('productoHabilitadoId').value = '';
+            }
+            document.getElementById('form-producto-modal').submit();
+            document.getElementById('form-habilitar-producto').submit();
+        });
+
+        function abrirConfiguracion(id, nombre) {
+            // Rellenar los campos del modal con los datos del producto
+            document.getElementById('productoId').value = id;
+            document.getElementById('nombreProductoModal').value = nombre;
+
+            // Abrir el modal
+            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
         }
     </script>
 
     <script>
-        // Función para generar códigos aleatorios
-        function generarCodigosAleatorios(ndigitos) {
-            let codigo = "";
-            for (let i = 0; i < ndigitos; i++) {
-                codigo += "" + Math.floor(Math.random() * 9);
+        document.addEventListener('DOMContentLoaded', function() {
+            const formProductoModal = document.getElementById('form-producto-modal');
+            const formHabilitarProducto = document.getElementById('form-habilitar-producto');
+            const btnSubmit = document.getElementById('btn-submit');
+
+            function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
+                document.getElementById('productoId').value = idProducto;
+                document.getElementById('nombreProductoModal').value = nombreProducto;
+                document.getElementById('habilitadoModal').checked = habilitado;
+                formProductoModal.action = formProductoModal.action.replace(':id', idProducto);
+
+                // Mostrar el modal (asumiendo que estás usando Bootstrap)
+                new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
             }
-            return codigo;
-        }
 
-        // Función para obtener el ID del producto desde la URL
-        function obtenerProducto() {
-            const url = window.location.href.split('=');
-            let id = 0;
-            if (url.length == 2) {
-                id = url[1];
-            }
-            return id;
-        }
+            btnSubmit.addEventListener('click', function() {
+                const productoId = document.getElementById('productoId').value;
+                const nombre = document.getElementById('nombreProductoModal').value;
+                const habilitado = document.getElementById('habilitadoModal').checked;
 
-        // Listener para el botón de generar código
-        document.getElementById('btn-generar-codigo').addEventListener('click', function() {
-            const codigoMuestra = document.getElementById('codigo-muestra');
-            const ndigitos = 4; // Número de dígitos para el código aleatorio, ajusta según tus necesidades
-            codigoMuestra.value = generarCodigosAleatorios(ndigitos);
-        });
+                // Actualizar nombre del producto
+                fetch(formProductoModal.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            _method: 'PUT',
+                            nombre: nombre
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Nombre del producto actualizado');
+                            // Actualizar el nombre en la tabla de productos
+                            const productoRow = document.querySelector(`tr[data-id="${productoId}"]`);
+                            if (productoRow) {
+                                productoRow.querySelector('td:nth-child(2)').textContent = nombre;
+                            }
+                        } else {
+                            console.error('Error al actualizar el nombre del producto:', data.message);
+                            alert('Error al actualizar el nombre del producto');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar el nombre del producto');
+                    });
 
-        // Listener para el envío del formulario de muestras
-        document.getElementById('form-muestras').addEventListener('submit', function(event) {
-            event.preventDefault(); // Evita que se envíe el formulario automáticamente
+                // Actualizar producto habilitado
+                document.getElementById('productoHabilitadoId').value = habilitado ? productoId : '';
+                fetch(formHabilitarProducto.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            _method: 'PUT',
+                            producto_habilitado: habilitado ? productoId : null
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Configuración actualizada correctamente');
+                            // Aquí puedes actualizar la interfaz de usuario si es necesario
+                        } else {
+                            console.error('Error al actualizar la configuración:', data.message);
+                            alert('Error al actualizar la configuración');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar la configuración');
+                    });
 
-            // Aquí puedes agregar la lógica para enviar los datos al servidor
-            const codigoMuestra = document.getElementById('codigo-muestra').value;
-            const tipoPrueba = document.getElementById('tipo-prueba').value;
-            const atributosPrueba = document.getElementById('atributos-prueba').value;
+                // Cerrar el modal
+                bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
 
-            // Ejemplo de cómo enviar los datos usando fetch API
-            fetch('/ruta/de/tu/api/para/guardar/muestra', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        codigo: codigoMuestra,
-                        tipoPrueba: tipoPrueba,
-                        atributos: atributosPrueba,
-                        idProducto: obtenerProducto(), // Llama a la función para obtener el ID del producto
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Aquí puedes manejar la respuesta del servidor
-                    console.log('Respuesta del servidor:', data);
-                    // Por ejemplo, mostrar una alerta o mensaje de éxito
-                    alert('Muestra guardada exitosamente');
-                    // O cerrar el modal si es necesario
-                    $('#modalConfiguracion').modal('hide');
-                })
-                .catch(error => {
-                    console.error('Error al guardar muestra:', error);
-                    alert('Ocurrió un error al guardar la muestra');
+                // Recargar la página después de un breve retraso
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+
+            // Asignar la función abrirConfiguracion a los botones de configuración
+            document.querySelectorAll('.btn-configuracion').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idProducto = this.dataset.id;
+                    const nombreProducto = this.closest('tr').querySelector('td:nth-child(2)')
+                        .textContent;
+                    const habilitado = this.dataset.habilitado === 'true';
+                    abrirConfiguracion(idProducto, nombreProducto, habilitado);
                 });
+            });
         });
     </script>
-
-
 </body>
 
 </html>

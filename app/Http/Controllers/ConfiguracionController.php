@@ -36,16 +36,13 @@ class ConfiguracionController extends Controller
         return view('configuracion.edit', compact('configuracion'));
     }
 
-    public function update(Request $request, Configuracion $configuracion)
+    public function update(Request $request, $id,)
     {
-        $data = $request->validate([
-            'num_cabina' => 'required|integer',
-            'producto_habilitado' => 'nullable|exists:productos,id_producto',
-            'clave_acceso' => 'required|string|max:250',
-        ]);
+        $configuracion = Configuracion::findOrFail($id);
+        $configuracion->producto_habilitado = $request->producto_habilitado;
+        $configuracion->save();
 
-        $configuracion->update($data);
-        return redirect()->route('configuracion.index');
+        return response()->json(['success' => true, 'message' => 'Configuración actualizada correctamente']);
     }
 
     public function destroy(Configuracion $configuracion)

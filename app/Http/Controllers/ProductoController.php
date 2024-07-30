@@ -36,14 +36,15 @@ class ProductoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $data = $request->validate([
+        $request->validate([
             'nombre' => 'required|string|max:50',
         ]);
 
         $producto = Producto::findOrFail($id);
-        $producto->update($data);
+        $producto->nombre = $request->nombre;
+        $producto->save();
 
-        return redirect()->route('admin.panel')->with('success', 'Producto actualizado correctamente.');
+        return response()->json(['success' => true, 'message' => 'Producto actualizado correctamente']);
     }
 
     public function destroy(Producto $producto)
