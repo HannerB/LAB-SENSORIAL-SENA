@@ -42,7 +42,8 @@ class ConfiguracionController extends Controller
         $configuracion->producto_habilitado = $request->producto_habilitado;
         $configuracion->save();
 
-        return response()->json(['success' => true, 'message' => 'Configuración actualizada correctamente']);
+        // return response()->json(['success' => true, 'message' => 'Configuración actualizada correctamente']);
+        return redirect()->route('admin.panel')->with('success', 'Producto actualizado correctamente.');
     }
 
     public function destroy(Configuracion $configuracion)

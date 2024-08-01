@@ -83,8 +83,10 @@
                                     <td>{{ $producto->id_producto }}</td>
                                     <td>{{ $producto->nombre }}</td>
                                     <td><img src="{{ asset('icons/gear.svg') }}" alt="" width="5%"
-                                            onclick="abrirConfiguracion('{{ $producto->id_producto }}', '{{ $producto->nombre }}')">
+                                            class="btn-configuracion" data-id="{{ $producto->id_producto }}"
+                                            data-habilitado="{{ $producto->habilitado }}">
                                     </td>
+
                                 </tr>
                             @endforeach
                         </tbody>
@@ -112,7 +114,7 @@
                         <section>
                             <!-- Formulario para actualizar nombre del producto -->
                             <form id="form-producto-modal" class="mb-4" method="POST"
-                                action="{{ route('producto.update', ':id') }}">
+                                action="{{ route('productos.update', ':id') }}">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" id="productoId" name="id_producto">
@@ -256,85 +258,6 @@
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
 
     <script>
-        function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
-            document.getElementById('productoId').value = idProducto;
-            document.getElementById('nombreProductoModal').value = nombreProducto;
-            document.getElementById('habilitadoModal').checked = habilitado;
-
-            // Actualizar la acción del formulario
-            const formProductoModal = document.getElementById('form-producto-modal');
-            formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
-
-            // Mostrar el modal
-            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
-        }
-
-        $(document).ready(function() {
-            $('#refrescar-productos').on('click', function() {
-                // Aquí puedes implementar la lógica para actualizar la tabla de productos
-                location.reload(); // Solo para refrescar la página, ajustar si usas AJAX
-            });
-
-            $('#form-producto-modal').on('submit', function(event) {
-                event.preventDefault();
-                const idProducto = $('#productoId').val();
-                const nombre = $('#nombreProductoModal').val();
-                const habilitado = $('#habilitadoModal').is(':checked');
-
-                fetch(`{{ route('producto.update', '') }}/${idProducto}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        body: JSON.stringify({
-                            nombre: nombre,
-                            habilitado: habilitado
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Producto actualizado con éxito');
-                            location.reload(); // Para refrescar la tabla
-                        } else {
-                            alert('Error al actualizar producto');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al actualizar producto');
-                    });
-            });
-        });
-    </script>
-
-    <script>
-        document.getElementById('btnguardar').addEventListener('click', function() {
-            document.getElementById('form-producto').submit();
-        });
-
-        document.getElementById('btn-submit').addEventListener('click', function() {
-            if (document.getElementById('habilitadoModal').checked) {
-                document.getElementById('productoHabilitadoId').value = document.getElementById('productoId').value;
-            } else {
-                document.getElementById('productoHabilitadoId').value = '';
-            }
-            document.getElementById('form-producto-modal').submit();
-            document.getElementById('form-habilitar-producto').submit();
-        });
-
-        function abrirConfiguracion(id, nombre) {
-            // Rellenar los campos del modal con los datos del producto
-            document.getElementById('productoId').value = id;
-            document.getElementById('nombreProductoModal').value = nombre;
-
-            // Abrir el modal
-            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
-        }
-    </script>
-
-    <script>
         document.addEventListener('DOMContentLoaded', function() {
             const formProductoModal = document.getElementById('form-producto-modal');
             const formHabilitarProducto = document.getElementById('form-habilitar-producto');
@@ -344,9 +267,8 @@
                 document.getElementById('productoId').value = idProducto;
                 document.getElementById('nombreProductoModal').value = nombreProducto;
                 document.getElementById('habilitadoModal').checked = habilitado;
-                formProductoModal.action = formProductoModal.action.replace(':id', idProducto);
+                formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
 
-                // Mostrar el modal (asumiendo que estás usando Bootstrap)
                 new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
             }
 
@@ -405,7 +327,6 @@
                     .then(data => {
                         if (data.success) {
                             console.log('Configuración actualizada correctamente');
-                            // Aquí puedes actualizar la interfaz de usuario si es necesario
                         } else {
                             console.error('Error al actualizar la configuración:', data.message);
                             alert('Error al actualizar la configuración');
@@ -436,6 +357,16 @@
                 });
             });
         });
+
+        function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
+            console.log('abrirConfiguracion llamada'); // Agrega esto para depurar
+            document.getElementById('productoId').value = idProducto;
+            document.getElementById('nombreProductoModal').value = nombreProducto;
+            document.getElementById('habilitadoModal').checked = habilitado;
+            formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
+
+            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
+        }
     </script>
 </body>
 

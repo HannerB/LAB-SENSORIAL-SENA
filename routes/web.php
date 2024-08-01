@@ -47,7 +47,7 @@ Route::get('configuracion', [ConfiguracionController::class, 'index'])->name('co
 Route::get('configuracion/create', [ConfiguracionController::class, 'create'])->name('configuracion.create');
 Route::post('configuracion', [ConfiguracionController::class, 'store'])->name('configuracion.store');
 Route::get('configuracion/{configuracion}/edit', [ConfiguracionController::class, 'edit'])->name('configuracion.edit');
-Route::put('configuracion/{configuracion}', [ConfiguracionController::class, 'update'])->name('configuracion.update');
+Route::put('configuracion/{id}', [ConfiguracionController::class, 'update'])->name('configuracion.update');
 Route::delete('configuracion/{configuracion}', [ConfiguracionController::class, 'destroy'])->name('configuracion.destroy');
 
 // Rutas para Producto
@@ -56,7 +56,7 @@ Route::get('producto/create', [ProductoController::class, 'create'])->name('prod
 Route::get('producto/{producto}/edit', [ProductoController::class, 'edit'])->name('producto.edit');
 Route::delete('producto/{producto}', [ProductoController::class, 'destroy'])->name('producto.destroy');
 Route::post('producto', [ProductoController::class, 'store'])->name('producto.store');
-Route::put('producto/{producto}', [ProductoController::class, 'update'])->name('producto.update');
+Route::put('productos/{id}', [ProductoController::class, 'update'])->name('productos.update');
 
 // Rutas para Muestra
 Route::get('muestra', [MuestraController::class, 'index'])->name('muestra.index');
