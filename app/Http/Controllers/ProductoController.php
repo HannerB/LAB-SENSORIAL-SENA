@@ -43,8 +43,9 @@ class ProductoController extends Controller
 
         $producto->update($data);
 
-        return redirect()->route('admin.panel')->with('success', 'Producto agregado correctamente.');
+        return response()->json(['success' => true], 200);
     }
+
 
     public function destroy(Producto $producto)
     {
