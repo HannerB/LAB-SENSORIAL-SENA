@@ -79,14 +79,21 @@
                         </thead>
                         <tbody id="listado-productos">
                             @foreach ($productos as $producto)
-                                <tr>
+                                <tr data-id="{{ $producto->id_producto }}">
                                     <td>{{ $producto->id_producto }}</td>
                                     <td>{{ $producto->nombre }}</td>
-                                    <td><img src="{{ asset('icons/gear.svg') }}" alt="" width="5%"
-                                            class="btn-configuracion" data-id="{{ $producto->id_producto }}"
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-configuracion"
+                                            data-id="{{ $producto->id_producto }}"
+                                            data-nombre="{{ $producto->nombre }}">
+                                            <img src="{{ asset('icons/gear.svg') }}" alt="Configurar" width="20">
+                                        </button>
+                                        <button class="btn btn-outline-success btn-habilitar"
+                                            data-id="{{ $producto->id_producto }}"
                                             data-habilitado="{{ $producto->habilitado }}">
+                                            {{ $producto->habilitado ? 'Deshabilitar' : 'Habilitar' }}
+                                        </button>
                                     </td>
-
                                 </tr>
                             @endforeach
                         </tbody>
@@ -122,25 +129,12 @@
                                 <input type="text" id="nombreProductoModal" class="form-control mb-2" name="nombre"
                                     required>
                             </form>
-                            <!-- Formulario para habilitar producto -->
-                            <form id="form-habilitar-producto" class="mb-4" method="POST"
-                                action="{{ route('configuracion.update', 1) }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" id="productoHabilitadoId" name="producto_habilitado">
-                                <label for="habilitadoModal" class="me-2 mb-3">
-                                    <input type="checkbox" id="habilitadoModal" name="habilitado">
-                                    Realizar pruebas con este producto
-                                </label>
-                            </form>
                             <div class="d-flex justify-content-center">
                                 <button type="button" class="btn btn-success" id="btn-submit">GUARDAR
                                     CAMBIOS</button>
                             </div>
                         </section>
-
                         <!-- Aquí va el resto del contenido del modal -->
-
                         <section class="sect-muestras mb-5">
                             <h2>Mis Muestras</h2>
                             <form class="mb-5" id="form-muestras">
@@ -177,7 +171,6 @@
                                 </div>
                             </form>
                         </section>
-
                         <hr>
                         <!-- PRUEBA TRIANGULAR -->
                         <h3>MUESTRAS DE PRUEBA TRIANGULAR</h3>
@@ -194,7 +187,6 @@
                                 </tbody>
                             </table>
                         </div>
-
                         <!-- PRUEBA DUO - TRIO -->
                         <h3>MUESTRAS DE PRUEBA DUO - TRIO</h3>
                         <div class="table-prueba-duo mb-5">
@@ -210,9 +202,8 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- PRUEBA ORDENAMIENTO -->
-                        <h3>MUESTRAS DE PRUEBA ORDENAMIENTO</h3>
+                        <!-- PRUEBA DE ORDENAMIENTO -->
+                        <h3>MUESTRAS DE PRUEBA DE ORDENAMIENTO</h3>
                         <div class="table-prueba-ordenamiento mb-5">
                             <table class="table table-success table-bordered">
                                 <thead>
@@ -223,23 +214,6 @@
                                     </tr>
                                 </thead>
                                 <tbody class="table-light" id="cuerpo-table-tres">
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <hr>
-                        <!-- ATRIBUTOS -->
-                        <h3>ATRIBUTOS</h3>
-                        <div class="table-atributos mb-5">
-                            <table class="table table-success table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">CODIGO</th>
-                                        <th scope="col">ELIMINAR ATRIBUTO</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="table-light" id="cuerpo-table-cuatro">
                                 </tbody>
                             </table>
                         </div>
@@ -256,17 +230,15 @@
     <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const formProductoModal = document.getElementById('form-producto-modal');
-            const formHabilitarProducto = document.getElementById('form-habilitar-producto');
             const btnSubmit = document.getElementById('btn-submit');
 
-            function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
+            function abrirConfiguracion(idProducto, nombreProducto) {
                 document.getElementById('productoId').value = idProducto;
                 document.getElementById('nombreProductoModal').value = nombreProducto;
-                document.getElementById('habilitadoModal').checked = habilitado;
+
                 formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
 
                 new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
@@ -275,9 +247,7 @@
             btnSubmit.addEventListener('click', function() {
                 const productoId = document.getElementById('productoId').value;
                 const nombre = document.getElementById('nombreProductoModal').value;
-                const habilitado = document.getElementById('habilitadoModal').checked;
 
-                // Actualizar nombre del producto
                 fetch(formProductoModal.action, {
                         method: 'POST',
                         headers: {
@@ -309,34 +279,6 @@
                         alert('Error al actualizar el nombre del producto');
                     });
 
-                // Actualizar producto habilitado
-                document.getElementById('productoHabilitadoId').value = habilitado ? productoId : '';
-                fetch(formHabilitarProducto.action, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content')
-                        },
-                        body: JSON.stringify({
-                            _method: 'PUT',
-                            producto_habilitado: habilitado ? productoId : null
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            console.log('Configuración actualizada correctamente');
-                        } else {
-                            console.error('Error al actualizar la configuración:', data.message);
-                            alert('Error al actualizar la configuración');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al actualizar la configuración');
-                    });
-
                 // Cerrar el modal
                 bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
 
@@ -350,23 +292,159 @@
             document.querySelectorAll('.btn-configuracion').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const idProducto = this.dataset.id;
-                    const nombreProducto = this.closest('tr').querySelector('td:nth-child(2)')
-                        .textContent;
-                    const habilitado = this.dataset.habilitado === 'true';
-                    abrirConfiguracion(idProducto, nombreProducto, habilitado);
+                    const nombreProducto = this.dataset.nombre;
+                    abrirConfiguracion(idProducto, nombreProducto);
                 });
             });
+
+            // Manejar habilitación y deshabilitación de productos
+            document.querySelectorAll('.btn-habilitar').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idProducto = this.dataset.id;
+                    const habilitado = this.dataset.habilitado === 'true';
+                    const nuevoEstado = !habilitado;
+
+                    // Deshabilitar todos los productos
+                    document.querySelectorAll('.btn-habilitar').forEach(button => {
+                        if (button !== this) {
+                            button.textContent = 'Habilitar';
+                            button.dataset.habilitado = 'false';
+                        }
+                    });
+
+                    fetch('{{ route('configuracion.update', 1) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                _method: 'PUT',
+                                producto_habilitado: nuevoEstado ? idProducto : null
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Estado del producto actualizado');
+                                // Actualizar el texto del botón y el estado de los productos
+                                this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
+                                this.dataset.habilitado = nuevoEstado;
+                            } else {
+                                console.error('Error al actualizar el estado del producto:',
+                                    data.message);
+                                alert('Error al actualizar el estado del producto');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al actualizar el estado del producto');
+                        });
+                });
+            });
+
+            // Funcionalidad de actualización de productos
+            document.getElementById('refrescar-productos').addEventListener('click', function() {
+                fetch('{{ route('producto.index') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.getElementById('listado-productos');
+                        tbody.innerHTML = '';
+                        data.productos.forEach(producto => {
+                            const tr = document.createElement('tr');
+                            tr.setAttribute('data-id', producto.id_producto);
+                            tr.innerHTML = `
+                            <td>${producto.id_producto}</td>
+                            <td>${producto.nombre}</td>
+                            <td>
+                            <button class="btn btn-outline-primary btn-configuracion"
+                            data-id="${producto.id_producto}"
+                            data-nombre="${producto.nombre}">
+                            <img src="{{ asset('icons/gear.svg') }}" alt="Configurar" width="20">
+                            </button>
+                            <button class="btn btn-outline-success btn-habilitar"
+                            data-id="${producto.id_producto}"
+                            data-habilitado="${producto.habilitado}">
+                            ${producto.habilitado ? 'Deshabilitar' : 'Habilitar'}
+                            </button>
+                            </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        // Reasignar eventos de botones después de actualizar la lista
+                        document.querySelectorAll('.btn-configuracion').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const idProducto = this.dataset.id;
+                                const nombreProducto = this.dataset.nombre;
+                                abrirConfiguracion(idProducto, nombreProducto);
+                            });
+                        });
+
+                        document.querySelectorAll('.btn-habilitar').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const idProducto = this.dataset.id;
+                                const habilitado = this.dataset.habilitado === 'true';
+                                const nuevoEstado = !habilitado;
+
+                                // Deshabilitar todos los productos
+                                document.querySelectorAll('.btn-habilitar').forEach(
+                                    button => {
+                                        if (button !== this) {
+                                            button.textContent = 'Habilitar';
+                                            button.dataset.habilitado = 'false';
+                                        }
+                                    });
+
+                                fetch('{{ route('configuracion.update', 1) }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector(
+                                                    'meta[name="csrf-token"]')
+                                                .getAttribute('content')
+                                        },
+                                        body: JSON.stringify({
+                                            _method: 'PUT',
+                                            producto_habilitado: nuevoEstado ?
+                                                idProducto : null
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            console.log(
+                                                'Estado del producto actualizado'
+                                            );
+                                            // Actualizar el texto del botón y el estado de los productos
+                                            this.textContent = nuevoEstado ?
+                                                'Deshabilitar' : 'Habilitar';
+                                            this.dataset.habilitado = nuevoEstado;
+                                        } else {
+                                            console.error(
+                                                'Error al actualizar el estado del producto:',
+                                                data.message);
+                                            alert(
+                                                'Error al actualizar el estado del producto'
+                                            );
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        alert(
+                                            'Error al actualizar el estado del producto'
+                                        );
+                                    });
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar la lista de productos');
+                    });
+            });
         });
-
-        function abrirConfiguracion(idProducto, nombreProducto, habilitado) {
-            console.log('abrirConfiguracion llamada'); // Agrega esto para depurar
-            document.getElementById('productoId').value = idProducto;
-            document.getElementById('nombreProductoModal').value = nombreProducto;
-            document.getElementById('habilitadoModal').checked = habilitado;
-            formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
-
-            new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
-        }
     </script>
 </body>
 
