@@ -24,7 +24,6 @@ Route::get('/', function () {
     return view('index'); // Esta es la vista index.blade.php
 })->name('index');
 
-// Ruta para mostrar el formulario de login
 Route::get('login', [ConfiguracionController::class, 'showLoginForm'])->name('login');
 
 // Ruta para procesar el login y autenticación
@@ -49,6 +48,9 @@ Route::post('configuracion', [ConfiguracionController::class, 'store'])->name('c
 Route::get('configuracion/{configuracion}/edit', [ConfiguracionController::class, 'edit'])->name('configuracion.edit');
 Route::put('configuracion/{id}', [ConfiguracionController::class, 'update'])->name('configuracion.update');
 Route::delete('configuracion/{configuracion}', [ConfiguracionController::class, 'destroy'])->name('configuracion.destroy');
+Route::get('admin/resultados', [ConfiguracionController::class, 'showResultados'])->name('admin.resultados');
+Route::get('/', [ConfiguracionController::class, 'formIndex'])->name('index');
+
 
 // Rutas para Producto
 Route::get('producto', [ProductoController::class, 'index'])->name('producto.index');

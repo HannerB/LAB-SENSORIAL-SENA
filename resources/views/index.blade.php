@@ -34,9 +34,9 @@
                 </form>
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="text" id="productoPrueba1" readonly>
+                    <input type="text" id="productoPrueba1" readonly value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
                 </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">nombre del producto</span>) dos son iguales y una diferente, saboree cada una con cuidado y seleccione la muestra diferente.</p>
+                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre_producto : 'nombre del producto' }}</span>) dos son iguales y una diferente, saboree cada una con cuidado y seleccione la muestra diferente.</p>
                 <table class="table table-bordered table-hover table-secondary mb-3">
                     <thead class="table-dark">
                       <tr>
@@ -73,9 +73,9 @@
                 </form>
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="text" id="productoPrueba2" readonly>
+                    <input type="text" id="productoPrueba2" readonly value="{{ $productoHabilitado ? $productoHabilitado->nombre_producto : '' }}">
                 </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">nombre del producto</span>) una de referencia marcada con R y dos codificadas.</p>
+                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre_producto : 'nombre del producto' }}</span>) una de referencia marcada con R y dos codificadas.</p>
                 <p class="text-start mt-5 mb-5">Una de las muestras codificadas es igual a R.</p>
                 <p class="text-start mt-5 mb-5">¿Cual de las muestras codificadas es diferente a la de referencia R? Seleccione la muestra diferente.</p>
                 <table class="table table-bordered table-hover table-secondary mb-3">
@@ -115,9 +115,9 @@
                 </form>
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="text" id="productoPrueba3" readonly>
+                    <input type="text" id="productoPrueba3" readonly value="{{ $productoHabilitado ? $productoHabilitado->nombre_producto : '' }}">
                 </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">nombre del producto</span>) que usted debe ordenar en forma creciente de acuerdo al grado de <span class="atributo-span">dulzura<span>.</p>
+                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre_producto : 'nombre del producto' }}</span>) que usted debe ordenar en forma creciente de acuerdo al grado de <span class="atributo-span">dulzura<span>.</p>
                 <p class="text-start mt-5 mb-5">Cada Muestra debe llevar un orden diferente, dos muestras no deben tener el mismo orden.</p>
                 <table class="table table-bordered table-hover table-secondary mb-3">
                     <thead class="table-dark">

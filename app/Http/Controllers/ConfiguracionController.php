@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\Session;
 
 class ConfiguracionController extends Controller
 {
-    public function index()
+    // En ConfiguracionController (u otro controlador relevante)
+    public function formIndex()
     {
-        $configuraciones = Configuracion::all();
-        return view('configuracion.index', compact('configuraciones'));
+        $configuracion = Configuracion::first(); // Obtiene la configuración actual
+        $productoHabilitado = $configuracion ? $configuracion->producto : null;
+
+        return view('index', compact('productoHabilitado'));
     }
 
     public function create()
@@ -83,5 +86,17 @@ class ConfiguracionController extends Controller
             // No se encontró la configuración
             return redirect()->back()->with('alerta', 'Configuración no encontrada!');
         }
+    }
+
+    public function showResultados()
+    {
+        if (!Session::has('accesoadmin') || Session::get('accesoadmin') !== true) {
+            return redirect()->route('login')->with('alerta', 'Debes iniciar sesión primero.');
+        }
+
+        $configuracion = Configuracion::first(); // Obtiene la configuración actual
+        $productoHabilitado = $configuracion ? $configuracion->producto : null;
+
+        return view('src.panel_resultados', compact('productoHabilitado'));
     }
 }

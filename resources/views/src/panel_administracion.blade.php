@@ -9,24 +9,6 @@
     <title>PANEL DE ADMINISTRACION</title>
     <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style_config.css') }}">
-    <style>
-        .modal-lg {
-            max-width: 1200px;
-        }
-
-        .modal-body {
-            max-height: calc(100vh - 210px);
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            padding: 20px;
-        }
-
-        .form-control {
-            width: 100%;
-        }
-    </style>
 </head>
 
 <body>
@@ -37,7 +19,7 @@
                 Laboratorio sensorial de alimentos - Sena Cedagro
             </a>
             <form class="d-flex" role="search">
-                <a href="{{ route('index') }}" class="btn btn-outline-light">cerrar sesion</a>
+                <a href="{{ route('index') }}" class="btn btn-outline-light">Cerrar Sesión</a>
             </form>
         </div>
     </nav>
@@ -52,7 +34,7 @@
                         <input type="number" id="cabina" min="1" max="3" value="1">
                     </div>
                     <div>
-                        <a href="{{ route('admin.resultados') }}" class="btn btn-outline-success">visualizar resultados
+                        <a href="{{ route('admin.resultados') }}" class="btn btn-outline-success">Visualizar resultados
                             de cabina</a>
                     </div>
                 </form>
@@ -62,7 +44,7 @@
                     @csrf
                     <label for="nombreProducto">NOMBRE DE PRODUCTO :</label>
                     <input type="text" class="form-control me-2" id="nombreProducto" name="nombre">
-                    <button type="submit" id="btnAgregarProducto">Agregar</button>
+                    <button  class="btn btn-outline-success" type="submit" id="btnAgregarProducto">Agregar</button>
                 </form>
                 
                 <div class="tabla-productos mb-5">
@@ -71,7 +53,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Nombre Producto</th>
-                                <th scope="col">Configuracion</th>
+                                <th scope="col">Configuración</th>
                             </tr>
                         </thead>
                         <tbody id="listado-productos">

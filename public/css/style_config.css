@@ -147,3 +147,20 @@ body::-webkit-scrollbar-thumb {
 .tabla-productos::-webkit-scrollbar-track {
     border-radius: 10px;  
 }
+
+.modal-lg {
+    max-width: 1200px;
+}
+
+.modal-body {
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.form-control {
+    width: 100%;
+}
