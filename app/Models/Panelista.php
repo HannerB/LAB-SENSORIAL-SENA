@@ -8,5 +8,5 @@ class Panelista extends Model
 {
     protected $table = 'panelistas';
     protected $primaryKey = 'idpane';
-    protected $fillable = ['nombres'];
+    protected $fillable = ['nombres', 'fecha'];
 }

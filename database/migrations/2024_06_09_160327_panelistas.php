@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('panelistas', function (Blueprint $table) {
             $table->id('idpane');
             $table->string('nombres', 50);
+            $table->date('fecha'); // Agrega el campo fecha aquí
+            $table->timestamps();
         });
     }
 

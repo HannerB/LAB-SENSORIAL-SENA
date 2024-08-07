@@ -31,12 +31,12 @@ class PanelistaController extends Controller
     {
         $request->validate([
             'nombres' => 'required|string|max:50',
+            'fecha' => 'required|date',
         ]);
 
         Panelista::create($request->all());
 
-        return redirect()->route('panelistas.index')
-                         ->with('success', 'Panelista creado exitosamente.');
+        return redirect()->route('index')->with('success', 'Panelista creado exitosamente.');
     }
 
     /**
