@@ -34,9 +34,10 @@ class PanelistaController extends Controller
             'fecha' => 'required|date',
         ]);
 
-        Panelista::create($request->all());
+        $panelista = Panelista::create($request->all());
 
-        return redirect()->route('index')->with('success', 'Panelista creado exitosamente.');
+        // Retornar el ID del panelista creado
+        return response()->json(['idpane' => $panelista->idpane]);
     }
 
     /**
@@ -67,7 +68,7 @@ class PanelistaController extends Controller
         $panelista->update($request->all());
 
         return redirect()->route('panelistas.index')
-                         ->with('success', 'Panelista actualizado exitosamente.');
+            ->with('success', 'Panelista actualizado exitosamente.');
     }
 
     /**
@@ -78,6 +79,6 @@ class PanelistaController extends Controller
         $panelista->delete();
 
         return redirect()->route('panelistas.index')
-                         ->with('success', 'Panelista eliminado exitosamente.');
+            ->with('success', 'Panelista eliminado exitosamente.');
     }
 }

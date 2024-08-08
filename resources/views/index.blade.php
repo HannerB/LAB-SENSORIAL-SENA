@@ -143,9 +143,84 @@
         </div>
     </section>
 
+    <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
+    <script src="{{ asset('js/scriptMain.js') }}"></script>
+    <script>
+      document.getElementById('btnguardar-tri').addEventListener('click', function() {
+          savePanelistaData('nombrePanelista1', 'fechaPanelista1');
+      });
+  
+      document.getElementById('btnguardar-duo').addEventListener('click', function() {
+          savePanelistaData('nombrePanelista2', 'fechaPanelista2');
+      });
+  
+      document.getElementById('btnguardar-respuesta-orden').addEventListener('click', function() {
+          savePanelistaData('nombrePanelista3', 'fechaPanelista3');
+      });
+  
+      function savePanelistaData(nameInputId, dateInputId) {
+    var nombrePanelista = document.getElementById(nameInputId).value;
+    var fechaPanelista = document.getElementById(dateInputId).value;
+
+    // Guardar datos del panelista
+    $.ajax({
+        url: '{{ route("panelistas.store") }}',
+        type: 'POST',
+        data: {
+            nombres: nombrePanelista,
+            fecha: fechaPanelista,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.idpane) {
+                console.log('Panelista guardado con ID:', response.idpane);
+                // Guardar datos de la calificación
+                saveCalificacionData(response.idpane, nombrePanelista, fechaPanelista);
+            } else {
+                console.error('ID de panelista no retornado');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error guardando datos del panelista:', xhr.responseText);
+        }
+    });
+}
+
+function saveCalificacionData(idpane, nombrePanelista, fechaPanelista) {
+    // Obtener los datos necesarios del formulario
+    var producto = document.getElementById('productoPrueba1').value;
+    var prueba = 1; // Suposición de que es una prueba triangular
+    var atributo = 'Dulzura'; // Suposición de que es una prueba triangular
+    var codMuestras = ''; // Rellena esto con las muestras seleccionadas
+    var comentario = document.getElementById('comentario-triangular').value;
+    var fecha = fechaPanelista;
+    var cabina = 1; // Suposición de que es una prueba triangular
+
+    // Guardar datos de la calificación
+    $.ajax({
+        url: '{{ route("calificacion.store") }}',
+        type: 'POST',
+        data: {
+            idpane: idpane,
+            producto: producto,
+            prueba: prueba,
+            atributo: atributo,
+            cod_muestras: codMuestras,
+            comentario: comentario,
+            fecha: fecha,
+            cabina: cabina,
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            console.log('Datos de calificación guardados correctamente.');
+        },
+        error: function(xhr, status, error) {
+            console.error('Error guardando datos de calificación:', xhr.responseText);
+        }
+    });
+}
+  </script> 
 </body>
-<script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
-<script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
-<script src="{{ asset('js/scriptMain.js') }}"></script>
 </html>

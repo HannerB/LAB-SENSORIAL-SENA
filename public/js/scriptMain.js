@@ -37,251 +37,251 @@ $("#btnsiguiente2").on('click',function(){
 })
 
 
-$("#btnguardar-respuesta").on('click',function(){
-    /* const nombre_tres = nombreP_Ord.value;
-    const fecha_tres = fechaP_Ord.value;
-    const producto_tres = producto_Ord.value;
+// $("#btnguardar-respuesta").on('click',function(){
+//     /* const nombre_tres = nombreP_Ord.value;
+//     const fecha_tres = fechaP_Ord.value;
+//     const producto_tres = producto_Ord.value;
 
-    if (nombre_tres != "" && fecha_tres != "" && producto_tres !=  null) {
-        let numitem = 1;
-        let ordenMuestras =  [];
-        while (true) {
-            const seleccion = document.getElementById("select"+numitem);
-            if (seleccion != null) {
-                let muestra = seleccion.value;
-                ordenMuestras.push(muestra);
-                numitem++
-            }else{
-                break
-            }
-        }
+//     if (nombre_tres != "" && fecha_tres != "" && producto_tres !=  null) {
+//         let numitem = 1;
+//         let ordenMuestras =  [];
+//         while (true) {
+//             const seleccion = document.getElementById("select"+numitem);
+//             if (seleccion != null) {
+//                 let muestra = seleccion.value;
+//                 ordenMuestras.push(muestra);
+//                 numitem++
+//             }else{
+//                 break
+//             }
+//         }
 
-        if (!ordenMuestras.includes("select")) {
-            guardarResultadosPanelista();
-        }else{
-            Swal.fire(
-                'ESPERA!',
-                'Te faltan valores por seleccionar, recuerda que debes posicionar todas las muestras en la casilla correspondiente!',
-                'warning'
-            )
-        }
+//         if (!ordenMuestras.includes("select")) {
+//             guardarResultadosPanelista();
+//         }else{
+//             Swal.fire(
+//                 'ESPERA!',
+//                 'Te faltan valores por seleccionar, recuerda que debes posicionar todas las muestras en la casilla correspondiente!',
+//                 'warning'
+//             )
+//         }
 
-    }else{
-        Swal.fire(
-            'ALERTA!',
-            'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor!',
-            'warning'
-        )
-    } */
-})
+//     }else{
+//         Swal.fire(
+//             'ALERTA!',
+//             'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor!',
+//             'warning'
+//         )
+//     } */
+// })
 
-$("#btnguardar-tri").on('click',function(){
-    let nombre_uno = nombreP_Triangular.value;
-    const fecha_uno = fechaP_Triangular.value;
+// $("#btnguardar-tri").on('click',function(){
+//     let nombre_uno = nombreP_Triangular.value;
+//     const fecha_uno = fechaP_Triangular.value;
 
-    const producto_uno = producto_Triangular.value;
-    const seleccionPruebaTriangular = $('input:radio[name=rdtriangular]:checked').val();
-    const comentario_uno =  $("#comentario-triangular").val()
+//     const producto_uno = producto_Triangular.value;
+//     const seleccionPruebaTriangular = $('input:radio[name=rdtriangular]:checked').val();
+//     const comentario_uno =  $("#comentario-triangular").val()
     
-    if (nombre_uno != "" && fecha_uno != "" && producto_uno != "" && seleccionPruebaTriangular !=  null) {
-        nombre_uno = corregirFomatodeNombre(nombre_uno);
-        Swal.fire({
-            title: 'Listo',
-            text: "Estas seguro de tus respuestas?",
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, Guardar',
-            cancelButtonText: 'No, Quiero comprobar mis respuestas'
-          }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url:'clases/peticiones.php',
-                    type:'POST',
-                    data: {peticion: 'guardarResultadosTrigular',
-                           datos:{nombrePane: nombre_uno,fecha: fecha_uno},
-                           prueba_uno: {resultadoPruebaTriangular: seleccionPruebaTriangular,comentarioTriangular: comentario_uno}
-                        },
-                    success: function(data){
-                        if (data == "") {
-                            Swal.fire({
-                                title: 'PERFECTO',
-                                text: "Muchas gracias por participar!",
-                                icon: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#3085d6',
-                                confirmButtonText: 'Aceptar'
-                              }).then((result2) => {
-                                if (result2.isConfirmed) {
-                                    cargarInformacionFormulario();
-                                    nombreP_Triangular.value = null;
-                                    $("#comentario-triangular").val(null)
-                                }
-                            })
-                        }
-                        console.log(data);
-                    }
-                })
-            }
-          })
-    }else{
-        Swal.fire(
-            'ALERTA!',
-            'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor y por ultimo recuerda que debes seleccionar una muestra!',
-            'warning'
-        )
-    }
-})
+//     if (nombre_uno != "" && fecha_uno != "" && producto_uno != "" && seleccionPruebaTriangular !=  null) {
+//         nombre_uno = corregirFomatodeNombre(nombre_uno);
+//         Swal.fire({
+//             title: 'Listo',
+//             text: "Estas seguro de tus respuestas?",
+//             icon: 'info',
+//             showCancelButton: true,
+//             confirmButtonColor: '#3085d6',
+//             cancelButtonColor: '#d33',
+//             confirmButtonText: 'Si, Guardar',
+//             cancelButtonText: 'No, Quiero comprobar mis respuestas'
+//           }).then((result) => {
+//             if (result.isConfirmed) {
+//                 $.ajax({
+//                     url:'clases/peticiones.php',
+//                     type:'POST',
+//                     data: {peticion: 'guardarResultadosTrigular',
+//                            datos:{nombrePane: nombre_uno,fecha: fecha_uno},
+//                            prueba_uno: {resultadoPruebaTriangular: seleccionPruebaTriangular,comentarioTriangular: comentario_uno}
+//                         },
+//                     success: function(data){
+//                         if (data == "") {
+//                             Swal.fire({
+//                                 title: 'PERFECTO',
+//                                 text: "Muchas gracias por participar!",
+//                                 icon: 'success',
+//                                 showCancelButton: false,
+//                                 confirmButtonColor: '#3085d6',
+//                                 confirmButtonText: 'Aceptar'
+//                               }).then((result2) => {
+//                                 if (result2.isConfirmed) {
+//                                     cargarInformacionFormulario();
+//                                     nombreP_Triangular.value = null;
+//                                     $("#comentario-triangular").val(null)
+//                                 }
+//                             })
+//                         }
+//                         console.log(data);
+//                     }
+//                 })
+//             }
+//           })
+//     }else{
+//         Swal.fire(
+//             'ALERTA!',
+//             'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor y por ultimo recuerda que debes seleccionar una muestra!',
+//             'warning'
+//         )
+//     }
+// })
 
-$("#btnguardar-duo").on('click',function(){
-    let nombre_dos = nombreP_Duo.value;
-    const fecha_dos = fechaP_Duo.value;
+// $("#btnguardar-duo").on('click',function(){
+//     let nombre_dos = nombreP_Duo.value;
+//     const fecha_dos = fechaP_Duo.value;
 
-    const producto_dos = producto_Duo.value;
-    const seleccionPruebaDuo = $('input:radio[name=rdduo]:checked').val();
+//     const producto_dos = producto_Duo.value;
+//     const seleccionPruebaDuo = $('input:radio[name=rdduo]:checked').val();
 
-    const comentario_dos =  $("#comentario-duo").val()
+//     const comentario_dos =  $("#comentario-duo").val()
 
-    if (nombre_dos != "" && fecha_dos != "" && producto_dos != "" && seleccionPruebaDuo !=  null) {
-        nombre_dos = corregirFomatodeNombre(nombre_dos);
-        Swal.fire({
-            title: 'Listo',
-            text: "Estas seguro de tus respuestas?",
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Si, Guardar',
-            cancelButtonText: 'No, Quiero comprobar mis respuestas'
-          }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url:'clases/peticiones.php',
-                    type:'POST',
-                    data: {peticion: 'guardarResultadosDuo',
-                           datos:{nombrePane: nombre_dos,fecha: fecha_dos},
-                           prueba_dos: {resultadoPruebaDuo: seleccionPruebaDuo,comentarioDuo: comentario_dos},
-                        },
-                    success: function(data){
-                        if (data == "") {
-                            Swal.fire({
-                                title: 'PERFECTO',
-                                text: "Muchas gracias por participar!",
-                                icon: 'success',
-                                showCancelButton: false,
-                                confirmButtonColor: '#3085d6',
-                                confirmButtonText: 'Aceptar'
-                              }).then((result2) => {
-                                if (result2.isConfirmed) {
-                                    cargarInformacionFormulario();
-                                    cambiarFormulario('sect2','sect1')
-                                    nombreP_Duo.value = null;
-                                    $("#comentario-duo").val(null)
-                                }
-                            })
-                        }
-                        console.log(data);
-                    }
-                })
-            }
-        })
+//     if (nombre_dos != "" && fecha_dos != "" && producto_dos != "" && seleccionPruebaDuo !=  null) {
+//         nombre_dos = corregirFomatodeNombre(nombre_dos);
+//         Swal.fire({
+//             title: 'Listo',
+//             text: "Estas seguro de tus respuestas?",
+//             icon: 'info',
+//             showCancelButton: true,
+//             confirmButtonColor: '#3085d6',
+//             cancelButtonColor: '#d33',
+//             confirmButtonText: 'Si, Guardar',
+//             cancelButtonText: 'No, Quiero comprobar mis respuestas'
+//           }).then((result) => {
+//             if (result.isConfirmed) {
+//                 $.ajax({
+//                     url:'clases/peticiones.php',
+//                     type:'POST',
+//                     data: {peticion: 'guardarResultadosDuo',
+//                            datos:{nombrePane: nombre_dos,fecha: fecha_dos},
+//                            prueba_dos: {resultadoPruebaDuo: seleccionPruebaDuo,comentarioDuo: comentario_dos},
+//                         },
+//                     success: function(data){
+//                         if (data == "") {
+//                             Swal.fire({
+//                                 title: 'PERFECTO',
+//                                 text: "Muchas gracias por participar!",
+//                                 icon: 'success',
+//                                 showCancelButton: false,
+//                                 confirmButtonColor: '#3085d6',
+//                                 confirmButtonText: 'Aceptar'
+//                               }).then((result2) => {
+//                                 if (result2.isConfirmed) {
+//                                     cargarInformacionFormulario();
+//                                     cambiarFormulario('sect2','sect1')
+//                                     nombreP_Duo.value = null;
+//                                     $("#comentario-duo").val(null)
+//                                 }
+//                             })
+//                         }
+//                         console.log(data);
+//                     }
+//                 })
+//             }
+//         })
 
-    }else{
-        Swal.fire(
-            'ALERTA!',
-            'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor y por ultimo recuerda que debes seleccionar una muestra!',
-            'warning'
-        )
-    } 
+//     }else{
+//         Swal.fire(
+//             'ALERTA!',
+//             'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor y por ultimo recuerda que debes seleccionar una muestra!',
+//             'warning'
+//         )
+//     } 
 
-})
+// })
 
-$("#btnguardar-respuesta-orden").on('click',function(){
-    let nombre_tres = nombreP_Ord.value;
-    const fecha_tres = fechaP_Ord.value;
-    const producto_tres = producto_Ord.value;
+// $("#btnguardar-respuesta-orden").on('click',function(){
+//     let nombre_tres = nombreP_Ord.value;
+//     const fecha_tres = fechaP_Ord.value;
+//     const producto_tres = producto_Ord.value;
 
-    if (nombre_tres != "" && fecha_tres != "" && producto_tres !=  null) {
-        let numitem = 1;
-        let ordenMuestras =  [];
-        while (true) {
-            const seleccion = document.getElementById("select"+numitem);
-            if (seleccion != null) {
-                let muestra = seleccion.value;
-                ordenMuestras.push(muestra);
-                numitem++
-            }else{
-                break
-            }
-        }
+//     if (nombre_tres != "" && fecha_tres != "" && producto_tres !=  null) {
+//         let numitem = 1;
+//         let ordenMuestras =  [];
+//         while (true) {
+//             const seleccion = document.getElementById("select"+numitem);
+//             if (seleccion != null) {
+//                 let muestra = seleccion.value;
+//                 ordenMuestras.push(muestra);
+//                 numitem++
+//             }else{
+//                 break
+//             }
+//         }
 
-        if (!ordenMuestras.includes("select")) {
-            nombre_tres = corregirFomatodeNombre(nombre_tres);
-            const resultadoOrden = ""+ordenMuestras+""
-            const comentario_tres =  $("#comentario-orden").val()
-            const atributo = document.querySelector(".atributo-span").innerHTML;
+//         if (!ordenMuestras.includes("select")) {
+//             nombre_tres = corregirFomatodeNombre(nombre_tres);
+//             const resultadoOrden = ""+ordenMuestras+""
+//             const comentario_tres =  $("#comentario-orden").val()
+//             const atributo = document.querySelector(".atributo-span").innerHTML;
 
-            Swal.fire({
-                title: 'Listo',
-                text: "Estas seguro de tus respuestas?",
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Si, Guardar',
-                cancelButtonText: 'No, Quiero comprobar mis respuestas'
-              }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url:'clases/peticiones.php',
-                        type:'POST',
-                        data: {peticion: 'guardarResultadoOrden',
-                               datos:{nombrePane: nombre_tres,fecha: fecha_tres},
-                               prueba_tres: {resultadoOrden,comentario_tres,atributo}
-                            },
-                        success: function(data){
-                            if (data == "") {
-                                Swal.fire({
-                                    title: 'PERFECTO',
-                                    text: "Muchas gracias por participar!",
-                                    icon: 'success',
-                                    showCancelButton: false,
-                                    confirmButtonColor: '#3085d6',
-                                    confirmButtonText: 'Aceptar'
-                                  }).then((result2) => {
-                                    if (result2.isConfirmed) {
-                                        cargarInformacionFormulario();
-                                        cambiarFormulario('sect3','sect1')
-                                        nombreP_Ord.value = null;
-                                        $("#comentario-orden").val(null)
-                                    }
-                                })
-                            }
-                            console.log(data);
-                        }
-                    })
-                }
-            })
+//             Swal.fire({
+//                 title: 'Listo',
+//                 text: "Estas seguro de tus respuestas?",
+//                 icon: 'info',
+//                 showCancelButton: true,
+//                 confirmButtonColor: '#3085d6',
+//                 cancelButtonColor: '#d33',
+//                 confirmButtonText: 'Si, Guardar',
+//                 cancelButtonText: 'No, Quiero comprobar mis respuestas'
+//               }).then((result) => {
+//                 if (result.isConfirmed) {
+//                     $.ajax({
+//                         url:'clases/peticiones.php',
+//                         type:'POST',
+//                         data: {peticion: 'guardarResultadoOrden',
+//                                datos:{nombrePane: nombre_tres,fecha: fecha_tres},
+//                                prueba_tres: {resultadoOrden,comentario_tres,atributo}
+//                             },
+//                         success: function(data){
+//                             if (data == "") {
+//                                 Swal.fire({
+//                                     title: 'PERFECTO',
+//                                     text: "Muchas gracias por participar!",
+//                                     icon: 'success',
+//                                     showCancelButton: false,
+//                                     confirmButtonColor: '#3085d6',
+//                                     confirmButtonText: 'Aceptar'
+//                                   }).then((result2) => {
+//                                     if (result2.isConfirmed) {
+//                                         cargarInformacionFormulario();
+//                                         cambiarFormulario('sect3','sect1')
+//                                         nombreP_Ord.value = null;
+//                                         $("#comentario-orden").val(null)
+//                                     }
+//                                 })
+//                             }
+//                             console.log(data);
+//                         }
+//                     })
+//                 }
+//             })
 
 
-        }else{
-            Swal.fire(
-                'ESPERA!',
-                'Te faltan valores por seleccionar, recuerda que debes posicionar todas las muestras en la casilla correspondiente!',
-                'warning'
-            )
-        }
+//         }else{
+//             Swal.fire(
+//                 'ESPERA!',
+//                 'Te faltan valores por seleccionar, recuerda que debes posicionar todas las muestras en la casilla correspondiente!',
+//                 'warning'
+//             )
+//         }
 
-    }else{
-        Swal.fire(
-            'ALERTA!',
-            'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor!',
-            'warning'
-        )
-    }
+//     }else{
+//         Swal.fire(
+//             'ALERTA!',
+//             'Recuerda rellenar los campos de nombre y fecha, tambien verifica que la casilla de nombre de producto tenga un valor!',
+//             'warning'
+//         )
+//     }
 
-})
+// })
 
 
 //FUNCIONES
@@ -372,167 +372,167 @@ function cargarInformacionFormulario() {
     })
 }
 
-function consultarListadoMuestrasPorPruebas(producto) {
-    //MOSTRAR DATOS DE LAS PRUEBA
-    $.ajax({
-        url:'clases/peticiones.php',
-        type:'POST',
-        data: {peticion: 'consultarMuestras',producto},
-        success: function(data){
-            try {
+// function consultarListadoMuestrasPorPruebas(producto) {
+//     //MOSTRAR DATOS DE LAS PRUEBA
+//     $.ajax({
+//         url:'clases/peticiones.php',
+//         type:'POST',
+//         data: {peticion: 'consultarMuestras',producto},
+//         success: function(data){
+//             try {
 
-                let template = ``;
+//                 let template = ``;
 
-                const json = JSON.parse(data);
-                const nuevoOrden =  (arr) => arr.sort(() => Math.random()-0.5)
+//                 const json = JSON.parse(data);
+//                 const nuevoOrden =  (arr) => arr.sort(() => Math.random()-0.5)
 
-                let triangular = json.triangular
-                triangular = nuevoOrden(triangular);
+//                 let triangular = json.triangular
+//                 triangular = nuevoOrden(triangular);
 
-                let duo = json.duo
-                duo = nuevoOrden(duo);
+//                 let duo = json.duo
+//                 duo = nuevoOrden(duo);
 
-                let ordenamiento = json.ordenamiento
-                ordenamiento = nuevoOrden(ordenamiento);
+//                 let ordenamiento = json.ordenamiento
+//                 ordenamiento = nuevoOrden(ordenamiento);
 
-                const atributoPruebaOrdenamiento =  json.atributo
+//                 const atributoPruebaOrdenamiento =  json.atributo
 
-                // CARGAR EN TABLA FORMULARIO TRIANGULAR
-                triangular.forEach(element => {
-                    template+= `
-                    <tr>
-                        <td>${element.codigo}</td>
-                        <td><input type="radio" name="rdtriangular" value="${element.codigo}"></td>
-                    </tr>
-                    `
-                });                
-                $("#cuerpo-prueba-triangular").html(template);
+//                 // CARGAR EN TABLA FORMULARIO TRIANGULAR
+//                 triangular.forEach(element => {
+//                     template+= `
+//                     <tr>
+//                         <td>${element.codigo}</td>
+//                         <td><input type="radio" name="rdtriangular" value="${element.codigo}"></td>
+//                     </tr>
+//                     `
+//                 });                
+//                 $("#cuerpo-prueba-triangular").html(template);
                 
-                // CARGAR EN TABLA FORMULARIO DUO - TRIO
-                template = ``;
-                duo.forEach(element => {
-                    template+= `
-                    <tr>
-                        <td>${element.codigo}</td>
-                        <td><input type="radio" name="rdduo" value="${element.codigo}"></td>
-                    </tr>
-                    `
-                });                
-                $("#cuerpo-prueba-duo").html(template);
+//                 // CARGAR EN TABLA FORMULARIO DUO - TRIO
+//                 template = ``;
+//                 duo.forEach(element => {
+//                     template+= `
+//                     <tr>
+//                         <td>${element.codigo}</td>
+//                         <td><input type="radio" name="rdduo" value="${element.codigo}"></td>
+//                     </tr>
+//                     `
+//                 });                
+//                 $("#cuerpo-prueba-duo").html(template);
 
-                // CARGAR EN TABLA FORMULARIO ORDENAMIENTO
-                template = ``;
-                const listado_codigos_muestras_ordenamiento =  ordenamiento.map(valor => valor.codigo);
+//                 // CARGAR EN TABLA FORMULARIO ORDENAMIENTO
+//                 template = ``;
+//                 const listado_codigos_muestras_ordenamiento =  ordenamiento.map(valor => valor.codigo);
 
-                document.querySelectorAll(".atributo-span").forEach(element => {
-                    element.innerHTML = atributoPruebaOrdenamiento;
-                });
+//                 document.querySelectorAll(".atributo-span").forEach(element => {
+//                     element.innerHTML = atributoPruebaOrdenamiento;
+//                 });
                 
-                let num = 1;
-                let estado = {1: "Me gusta mucho",2:"Me gusta ligeramente",3:"Ni me gusta ni me disgusta",4:"Me gusta poco",5:"Me disgusta mucho"}
+//                 let num = 1;
+//                 let estado = {1: "Me gusta mucho",2:"Me gusta ligeramente",3:"Ni me gusta ni me disgusta",4:"Me gusta poco",5:"Me disgusta mucho"}
 
-                for (let i = 0; i < ordenamiento.length; i++) {
-                    template+= `
-                    <tr>
-                        <td>${estado[num]}</td>
-                        <td>${num}. <select class="select-ordenamiento" id="select${num}" onchange="actualizarCampos('select${num}',${ordenamiento.length})">
-                    `;
-                    template+= `<option value="select"></option>`;
-                    listado_codigos_muestras_ordenamiento.forEach(element2 => {
-                        template+= `<option value="${element2}">${element2}</option>`;
-                    });
-                    template+= `
-                        </select></td>
-                    </tr>
-                    `
-                    num++
-                }
+//                 for (let i = 0; i < ordenamiento.length; i++) {
+//                     template+= `
+//                     <tr>
+//                         <td>${estado[num]}</td>
+//                         <td>${num}. <select class="select-ordenamiento" id="select${num}" onchange="actualizarCampos('select${num}',${ordenamiento.length})">
+//                     `;
+//                     template+= `<option value="select"></option>`;
+//                     listado_codigos_muestras_ordenamiento.forEach(element2 => {
+//                         template+= `<option value="${element2}">${element2}</option>`;
+//                     });
+//                     template+= `
+//                         </select></td>
+//                     </tr>
+//                     `
+//                     num++
+//                 }
 
-                $("#cuerpo-selectores-odenamiento").html(template)
+//                 $("#cuerpo-selectores-odenamiento").html(template)
 
-            } catch (error) {
-                console.log(data);
-                console.log(error);
-            }
-        }
-    })
-}
-/* BRAYAN JESUS CHARRIS CANTILLO */
-function guardarResultadosPanelista() {
-    // CAPTURAR INFORMACION PERSONALES
-    const nombre_tres = corregirFomatodeNombre(nombreP_Ord.value);
-    const fecha_tres = fechaP_Ord.value;
+//             } catch (error) {
+//                 console.log(data);
+//                 console.log(error);
+//             }
+//         }
+//     })
+// }
+// /* BRAYAN JESUS CHARRIS CANTILLO */
+// function guardarResultadosPanelista() {
+//     // CAPTURAR INFORMACION PERSONALES
+//     const nombre_tres = corregirFomatodeNombre(nombreP_Ord.value);
+//     const fecha_tres = fechaP_Ord.value;
 
-    //RESPUESTA PRUEBA TRIANGULAR
-    const resultadoPruebaTriangular = $('input:radio[name=rdtriangular]:checked').val();
-    const comentario_uno =  $("#comentario-triangular").val()
+//     //RESPUESTA PRUEBA TRIANGULAR
+//     const resultadoPruebaTriangular = $('input:radio[name=rdtriangular]:checked').val();
+//     const comentario_uno =  $("#comentario-triangular").val()
     
-    //RESPUESTA PRUEBA DUO - TRIO
-    const resultadoPruebaDuo = $('input:radio[name=rdduo]:checked').val();
-    const comentario_dos =  $("#comentario-duo").val()
+//     //RESPUESTA PRUEBA DUO - TRIO
+//     const resultadoPruebaDuo = $('input:radio[name=rdduo]:checked').val();
+//     const comentario_dos =  $("#comentario-duo").val()
     
-    //RESPUESTA PRUEBA ORDENAMIENTO
-    let numitem = 1;
-    let ordenMuestras =  [];
-    while (true) {
-        const seleccion = document.getElementById("select"+numitem);
-        if (seleccion != null) {
-            let muestra = seleccion.value;
-            ordenMuestras.push(muestra);
-            numitem++
-        }else{
-            break
-        }
-    }
+//     //RESPUESTA PRUEBA ORDENAMIENTO
+//     let numitem = 1;
+//     let ordenMuestras =  [];
+//     while (true) {
+//         const seleccion = document.getElementById("select"+numitem);
+//         if (seleccion != null) {
+//             let muestra = seleccion.value;
+//             ordenMuestras.push(muestra);
+//             numitem++
+//         }else{
+//             break
+//         }
+//     }
 
-    const resultadoOrden = ""+ordenMuestras+""
-    const comentario_tres =  $("#comentario-orden").val()
-    const atributo = document.querySelector(".atributo-span").innerHTML;
+//     const resultadoOrden = ""+ordenMuestras+""
+//     const comentario_tres =  $("#comentario-orden").val()
+//     const atributo = document.querySelector(".atributo-span").innerHTML;
 
-    //GUARDAR RESULTADOS
+//     //GUARDAR RESULTADOS
 
-    Swal.fire({
-        title: 'Listo',
-        text: "Estas seguro de tus respuestas?",
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si, Guardar',
-        cancelButtonText: 'No, Quiero comprobar mis respuestas'
-      }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url:'clases/peticiones.php',
-                type:'POST',
-                data: {peticion: 'guardarResultados',
-                       datos:{nombrePane: nombre_tres,fecha: fecha_tres},
-                       prueba_uno: {resultadoPruebaTriangular,comentarioTriangular: comentario_uno},
-                       prueba_dos: {resultadoPruebaDuo,comentarioDuo: comentario_dos},
-                       prueba_tres: {resultadoOrden,comentario_tres,atributo}
-                    },
-                success: function(data){
-                    if (data == "") {
-                        Swal.fire({
-                            title: 'PERFECTO',
-                            text: "Muchas gracias por participar!",
-                            icon: 'success',
-                            showCancelButton: false,
-                            confirmButtonColor: '#3085d6',
-                            confirmButtonText: 'Aceptar'
-                          }).then((result2) => {
-                            if (result2.isConfirmed) {
-                                window.location.reload();
-                            }
-                        })
-                    }
-                    console.log(data);
-                }
-            })
-        }
-    })
+//     Swal.fire({
+//         title: 'Listo',
+//         text: "Estas seguro de tus respuestas?",
+//         icon: 'info',
+//         showCancelButton: true,
+//         confirmButtonColor: '#3085d6',
+//         cancelButtonColor: '#d33',
+//         confirmButtonText: 'Si, Guardar',
+//         cancelButtonText: 'No, Quiero comprobar mis respuestas'
+//       }).then((result) => {
+//         if (result.isConfirmed) {
+//             $.ajax({
+//                 url:'clases/peticiones.php',
+//                 type:'POST',
+//                 data: {peticion: 'guardarResultados',
+//                        datos:{nombrePane: nombre_tres,fecha: fecha_tres},
+//                        prueba_uno: {resultadoPruebaTriangular,comentarioTriangular: comentario_uno},
+//                        prueba_dos: {resultadoPruebaDuo,comentarioDuo: comentario_dos},
+//                        prueba_tres: {resultadoOrden,comentario_tres,atributo}
+//                     },
+//                 success: function(data){
+//                     if (data == "") {
+//                         Swal.fire({
+//                             title: 'PERFECTO',
+//                             text: "Muchas gracias por participar!",
+//                             icon: 'success',
+//                             showCancelButton: false,
+//                             confirmButtonColor: '#3085d6',
+//                             confirmButtonText: 'Aceptar'
+//                           }).then((result2) => {
+//                             if (result2.isConfirmed) {
+//                                 window.location.reload();
+//                             }
+//                         })
+//                     }
+//                     console.log(data);
+//                 }
+//             })
+//         }
+//     })
 
 
-}
+// }
 
-cargarInformacionFormulario();
+// cargarInformacionFormulario();
