@@ -7,11 +7,7 @@ use App\Models\Calificacion;
 
 class CalificacionesController extends Controller
 {
-    public function index()
-    {
-        $calificaciones = Calificacion::all();
-        return view('calificacion.index', compact('calificaciones'));
-    }
+
 
     public function create()
     {
@@ -32,7 +28,8 @@ class CalificacionesController extends Controller
         ]);
 
         Calificacion::create($data);
-        return redirect()->route('calificacion.index');
+
+        return redirect()->route('index');
     }
 
     public function edit(Calificacion $calificacion)

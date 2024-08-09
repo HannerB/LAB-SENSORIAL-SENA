@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('comentario', 250)->nullable();
             $table->date('fecha')->nullable();
             $table->integer('cabina');
+            $table->timestamps();
 
             // Definir claves foráneas
             $table->foreign('idpane')->references('idpane')->on('panelistas')->onDelete('set null');
