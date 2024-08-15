@@ -1,11 +1,3 @@
-<?php
-
-session_start();
-if (!isset($_SESSION['accesoadmin'])) {
-    header('location: ../index.php');
-}
-
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,7 +14,7 @@ if (!isset($_SESSION['accesoadmin'])) {
     <nav class="navbar bg-success">
         <div class="container-fluid">
             <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;"><img
-                    src="../img/logo-de-Sena-sin-fondo-Blanco.png" alt="" width="50px"> Laboratorio sensorial
+                src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}"" alt="" width="50px"> Laboratorio sensorial
                 de alimentos - Sena Cedagro</a>
             <a href="{{ route('admin.panel') }}" class="btn btn-outline-light">panel de administracion</a>
         </div>
@@ -45,6 +37,7 @@ if (!isset($_SESSION['accesoadmin'])) {
                 </div>
 
                 <div class="mb-3">
+                    <label for="" class="form-label">Producto</label>
                     <select name="" id="productos-filtro" class="form-select">
                         <option value="select">Seleccione producto</option>
                         @if ($productoHabilitado)

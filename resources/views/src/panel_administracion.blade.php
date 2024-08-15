@@ -44,7 +44,7 @@
                     @csrf
                     <label for="nombreProducto">NOMBRE DE PRODUCTO :</label>
                     <input type="text" class="form-control me-2" id="nombreProducto" name="nombre">
-                    <button  class="btn btn-outline-success" type="submit" id="btnAgregarProducto">Agregar</button>
+                    <button class="btn btn-outline-success" type="submit" id="btnAgregarProducto">Agregar</button>
                 </form>
                 
                 <div class="tabla-productos mb-5">
@@ -209,215 +209,135 @@
     <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
+    <script src="{{ asset('js/scriptMuestras.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    const formProductoModal = document.getElementById('form-producto-modal');
-    const btnSubmit = document.getElementById('btn-submit');
+            const formProductoModal = document.getElementById('form-producto-modal');
+            const btnSubmit = document.getElementById('btn-submit');
 
-    function abrirConfiguracion(idProducto, nombreProducto) {
-        document.getElementById('productoId').value = idProducto;
-        document.getElementById('nombreProductoModal').value = nombreProducto;
+            function abrirConfiguracion(idProducto, nombreProducto) {
+                document.getElementById('productoId').value = idProducto;
+                document.getElementById('nombreProductoModal').value = nombreProducto;
 
-        formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
+                formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
 
-        new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
-    }
+                new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
+            }
 
-    btnSubmit.addEventListener('click', function() {
-        const productoId = document.getElementById('productoId').value;
-        const nombre = document.getElementById('nombreProductoModal').value;
+            btnSubmit.addEventListener('click', function() {
+                const productoId = document.getElementById('productoId').value;
+                const nombre = document.getElementById('nombreProductoModal').value;
 
-        fetch(`/productos/${productoId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    _method: 'PUT',
-                    nombre: nombre
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Nombre del producto actualizado');
-                    // Actualizar el nombre en la tabla de productos
-                    const productoRow = document.querySelector(`tr[data-id="${productoId}"]`);
-                    if (productoRow) {
-                        productoRow.querySelector('td:nth-child(2)').textContent = nombre;
-                    }
-                } else {
-                    console.error('Error al actualizar el nombre del producto:', data.message);
-                    alert('Error al actualizar el nombre del producto');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al actualizar el nombre del producto');
-            });
-
-        // Cerrar el modal
-        bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
-
-        // Recargar la página después de un breve retraso
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    });
-
-    // Agregar el manejador de eventos para la tecla Enter
-    formProductoModal.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); // Evita que el formulario se envíe por defecto
-            btnSubmit.click(); // Simula el clic en el botón de submit
-        }
-    });
-
-    // Asignar la función abrirConfiguracion a los botones de configuración
-    document.querySelectorAll('.btn-configuracion').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idProducto = this.dataset.id;
-            const nombreProducto = this.dataset.nombre;
-            abrirConfiguracion(idProducto, nombreProducto);
-        });
-    });
-
-    // Manejar habilitación y deshabilitación de productos
-    document.querySelectorAll('.btn-habilitar').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const idProducto = this.dataset.id;
-            const habilitado = this.dataset.habilitado === 'true';
-            const nuevoEstado = !habilitado;
-
-            // Deshabilitar todos los productos
-            document.querySelectorAll('.btn-habilitar').forEach(button => {
-                if (button !== this) {
-                    button.textContent = 'Habilitar';
-                    button.dataset.habilitado = 'false';
-                }
-            });
-
-            fetch('{{ route('configuracion.update', 1) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        _method: 'PUT',
-                        producto_habilitado: nuevoEstado ? idProducto : null
+                fetch(`/productos/${productoId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            _method: 'PUT',
+                            nombre: nombre
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('Estado del producto actualizado');
-                        // Actualizar el texto del botón y el estado de los productos
-                        this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
-                        this.dataset.habilitado = nuevoEstado;
-                    } else {
-                        console.error('Error al actualizar el estado del producto:', data.message);
-                        alert('Error al actualizar el estado del producto');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al actualizar el estado del producto');
-                });
-        });
-    });
-
-    // Funcionalidad de actualización de productos
-    document.getElementById('refrescar-productos').addEventListener('click', function() {
-        fetch('{{ route('producto.index') }}')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.getElementById('listado-productos');
-                tbody.innerHTML = '';
-                data.productos.forEach(producto => {
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-id', producto.id_producto);
-                    tr.innerHTML = `
-                    <td>${producto.id_producto}</td>
-                    <td>${producto.nombre}</td>
-                    <td>
-                    <button class="btn btn-outline-primary btn-configuracion"
-                    data-id="${producto.id_producto}"
-                    data-nombre="${producto.nombre}">
-                    <img src="{{ asset('icons/gear.svg') }}" alt="Configurar" width="20">
-                    </button>
-                    <button class="btn btn-outline-success btn-habilitar"
-                    data-id="${producto.id_producto}"
-                    data-habilitado="${producto.habilitado}">
-                    ${producto.habilitado ? 'Deshabilitar' : 'Habilitar'}
-                    </button>
-                    </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                // Reasignar eventos de botones después de actualizar la lista
-                document.querySelectorAll('.btn-configuracion').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const idProducto = this.dataset.id;
-                        const nombreProducto = this.dataset.nombre;
-                        abrirConfiguracion(idProducto, nombreProducto);
-                    });
-                });
-
-                document.querySelectorAll('.btn-habilitar').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const idProducto = this.dataset.id;
-                        const habilitado = this.dataset.habilitado === 'true';
-                        const nuevoEstado = !habilitado;
-
-                        // Deshabilitar todos los productos
-                        document.querySelectorAll('.btn-habilitar').forEach(button => {
-                            if (button !== this) {
-                                button.textContent = 'Habilitar';
-                                button.dataset.habilitado = 'false';
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Nombre del producto actualizado');
+                            // Actualizar el nombre en la tabla de productos
+                            const productoRow = document.querySelector(`tr[data-id="${productoId}"]`);
+                            if (productoRow) {
+                                productoRow.querySelector('td:nth-child(2)').textContent = nombre;
                             }
-                        });
-
-                        fetch('{{ route('configuracion.update', 1) }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                                },
-                                body: JSON.stringify({
-                                    _method: 'PUT',
-                                    producto_habilitado: nuevoEstado ? idProducto : null
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    console.log('Estado del producto actualizado');
-                                    // Actualizar el texto del botón y el estado de los productos
-                                    this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
-                                    this.dataset.habilitado = nuevoEstado;
-                                } else {
-                                    console.error('Error al actualizar el estado del producto:', data.message);
-                                    alert('Error al actualizar el estado del producto');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error al actualizar el estado del producto');
-                            });
+                        } else {
+                            console.error('Error al actualizar el nombre del producto:', data.message);
+                            alert('Error al actualizar el nombre del producto');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al actualizar el nombre del producto');
                     });
-                });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al actualizar la lista de productos');
-            });
-    });
-});
 
+                // Cerrar el modal
+                bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
+
+                // Recargar la página después de un breve retraso
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+
+            // Agregar el manejador de eventos para la tecla Enter
+            formProductoModal.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Evita que el formulario se envíe por defecto
+                    btnSubmit.click(); // Simula el clic en el botón de submit
+                }
+            });
+
+            // Asignar la función abrirConfiguracion a los botones de configuración
+            document.querySelectorAll('.btn-configuracion').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idProducto = this.dataset.id;
+                    const nombreProducto = this.dataset.nombre;
+                    abrirConfiguracion(idProducto, nombreProducto);
+                });
+            });
+
+            // Manejar habilitación y deshabilitación de productos
+            document.querySelectorAll('.btn-habilitar').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idProducto = this.dataset.id;
+                    const habilitado = this.dataset.habilitado === 'true';
+                    const nuevoEstado = !habilitado;
+
+                    // Deshabilitar todos los productos
+                    document.querySelectorAll('.btn-habilitar').forEach(button => {
+                        if (button !== this) {
+                            button.textContent = 'Habilitar';
+                            button.dataset.habilitado = 'false';
+                        }
+                    });
+
+                    fetch('{{ route('configuracion.update', 1) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector(
+                                    'meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                _method: 'PUT',
+                                producto_habilitado: nuevoEstado ? idProducto : null
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Estado del producto actualizado');
+                                // Actualizar el texto del botón y el estado de los productos
+                                this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
+                                this.dataset.habilitado = nuevoEstado;
+                            } else {
+                                console.error('Error al actualizar el estado del producto:',
+                                    data.message);
+                                alert('Error al actualizar el estado del producto');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error al actualizar el estado del producto');
+                        });
+                });
+            });
+        });
     </script>
+
+<script>
+    
+</script>
+
 </body>
 
 </html>
