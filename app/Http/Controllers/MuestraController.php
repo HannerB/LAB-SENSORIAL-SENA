@@ -62,4 +62,14 @@ class MuestraController extends Controller
         $muestra->delete();
         return redirect()->route('muestra.index');
     }
+
+    public function muestrasPorProducto($productoId)
+    {
+        // Obtener muestras del producto seleccionado agrupadas por el tipo de prueba
+        $muestrasTriangular = Muestra::where('producto_id', $productoId)->where('prueba', 1)->get();
+        $muestrasDuoTrio = Muestra::where('producto_id', $productoId)->where('prueba', 2)->get();
+        $muestrasOrdenamiento = Muestra::where('producto_id', $productoId)->where('prueba', 3)->get();
+
+        return view('src.panel_administracion', compact('muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento'));
+    }
 }

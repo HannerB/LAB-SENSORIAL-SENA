@@ -51,7 +51,20 @@
                             <th scope="col">MUESTRA DIFERENTE</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-prueba-triangular"></tbody>
+                    <tbody id="cuerpo-prueba-triangular">
+                        @forelse($muestrasTriangular as $muestra)
+                            <tr>
+                                <td>{{ $muestra->cod_muestra }}</td>
+                                <td>
+                                    <input type="radio" name="muestra_diferente" value="{{ $muestra->cod_muestra }}">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2">No hay muestras disponibles para la prueba triangular.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                 </table>
                 <form id="form-comentarios" class="mb-5">
                     <label for="">COMENTARIOS:</label><br>
@@ -96,7 +109,20 @@
                             <th scope="col">MUESTRA IGUAL A LA REFERENCIA</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-prueba-duo"></tbody>
+                    <tbody id="cuerpo-prueba-duo">
+                        @forelse($muestrasDuoTrio as $muestra)
+                            <tr>
+                                <td>{{ $muestra->cod_muestra }}</td>
+                                <td>
+                                    <input type="radio" name="muestra_igual_referencia" value="{{ $muestra->cod_muestra }}">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2">No hay muestras disponibles para la prueba Duo-Trio.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                 </table>
                 <form id="form-comentarios" class="mb-5">
                     <label for="">COMENTARIOS:</label><br>
@@ -144,7 +170,20 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-selectores-odenamiento"></tbody>
+                    <tbody id="cuerpo-selectores-odenamiento">
+                        @forelse($muestrasOrdenamiento as $muestra)
+                            <tr>
+                                <td>{{ $muestra->cod_muestra }}</td>
+                                <td>
+                                    <input type="radio" name="muestra_ordenamiento" value="{{ $muestra->cod_muestra }}">
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="2">No hay muestras disponibles para la prueba de Ordenamiento.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                 </table>
                 <form id="form-comentarios" class="mb-5">
                     <label for="">COMENTARIOS:</label><br>

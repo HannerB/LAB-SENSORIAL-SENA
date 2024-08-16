@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Configuracion;
+use App\Models\Muestra;
 use Illuminate\Support\Facades\Session;
 
 class ConfiguracionController extends Controller
@@ -14,7 +15,13 @@ class ConfiguracionController extends Controller
         $configuracion = Configuracion::first(); // Obtiene la configuración actual
         $productoHabilitado = $configuracion ? $configuracion->producto : null;
 
-        return view('index', compact('productoHabilitado'));
+        // Filtra las muestras para diferentes pruebas
+        $muestras = $productoHabilitado ? Muestra::where('producto_id', $productoHabilitado->id_producto)->get() : collect();
+        $muestrasTriangular = $muestras->where('prueba', 1); // tipo 1 corresponde a la prueba triangular
+        $muestrasDuoTrio = $muestras->where('prueba', 2); // tipo 2 corresponde a la prueba Duo-Trio
+        $muestrasOrdenamiento = $muestras->where('prueba', 3); // tipo 3 corresponde a la prueba de Ordenamiento
+
+        return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento'));
     }
 
     public function create()
