@@ -46,7 +46,6 @@
                     <input type="text" class="form-control me-2" id="nombreProducto" name="nombre">
                     <button class="btn btn-outline-success" type="submit" id="btnAgregarProducto">Agregar</button>
                 </form>
-                
                 <div class="tabla-productos mb-5">
                     <table class="table table-bordered table-light table-hover">
                         <thead class="table-dark">
@@ -116,10 +115,14 @@
                         <!-- Aquí va el resto del contenido del modal -->
                         <section class="sect-muestras mb-5">
                             <h2>Mis Muestras</h2>
-                            <form class="mb-5" id="form-muestras">
+                            <form class="mb-5" id="form-muestras" method="POST"
+                                action="{{ route('muestra.store') }}">
+                                @csrf <!-- Token de seguridad para formularios en Laravel -->
                                 <div class="mb-3">
-                                    <label for="codigo-muestra" class="form-label">Codigo Muestra</label>
-                                    <input type="text" class="form-control" id="codigo-muestra" required>
+                                    <label for="codigo-muestra" class="form-label">Código Muestra</label>
+                                    <input type="text" class="form-control" id="codigo-muestra"
+                                        name="cod_muestra" required>
+                                    <input type="hidden" id="producto-id-muestra" name="producto_id">
                                 </div>
                                 <div class="text-center">
                                     <button id="btn-generar-codigo" type="button">Generar un código de
@@ -127,7 +130,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="tipo-prueba" class="form-label">Tipo de Prueba</label>
-                                    <select id="tipo-prueba" class="form-select">
+                                    <select id="tipo-prueba" class="form-select" name="prueba">
                                         <option value="1">PRUEBA TRIANGULAR</option>
                                         <option value="2">PRUEBA DUO-TRIO</option>
                                         <option value="3">PRUEBA ORDENAMIENTO</option>
@@ -135,7 +138,7 @@
                                 </div>
                                 <div class="mb-3" id="cont-atributos" style="display: none;">
                                     <label for="atributos-prueba" class="form-label">Tipo de atributos</label>
-                                    <select id="atributos-prueba" class="form-select">
+                                    <select id="atributos-prueba" class="form-select" name="atributo">
                                         <option value="sabor">SABOR</option>
                                         <option value="olor">OLOR</option>
                                         <option value="color">COLOR</option>
@@ -219,8 +222,10 @@
                 document.getElementById('productoId').value = idProducto;
                 document.getElementById('nombreProductoModal').value = nombreProducto;
 
-                formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
+                // Asigna el ID del producto al campo oculto en el formulario de muestras
+                document.getElementById('producto-id-muestra').value = idProducto;
 
+                formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
                 new bootstrap.Modal(document.getElementById('modalConfiguracion')).show();
             }
 
@@ -333,11 +338,6 @@
             });
         });
     </script>
-
-<script>
-    
-</script>
-
 </body>
 
 </html>

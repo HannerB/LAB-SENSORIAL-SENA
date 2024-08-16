@@ -20,15 +20,23 @@ class MuestraController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // dd($request->all());  // Agrega esta línea
+
+        $request->validate([
             'cod_muestra' => 'required|string|max:50',
-            'id_producto' => 'nullable|exists:productos,id_producto',
             'prueba' => 'required|integer',
-            'atributo' => 'required|string|max:250',
+            'atributo' => 'nullable|string|max:250',
+            'producto_id' => 'required|exists:productos,id_producto'
         ]);
 
-        Muestra::create($data);
-        return redirect()->route('muestra.index');
+        $muestra = Muestra::create([
+            'cod_muestra' => $request->input('cod_muestra'),
+            'prueba' => $request->input('prueba'),
+            'atributo' => $request->input('atributo'),
+            'producto_id' => $request->input('producto_id'),
+        ]);
+
+        return redirect()->route('admin.panel')->with('success', 'Muestra guardada correctamente.');
     }
 
     public function edit(Muestra $muestra)
@@ -40,9 +48,9 @@ class MuestraController extends Controller
     {
         $data = $request->validate([
             'cod_muestra' => 'required|string|max:50',
-            'id_producto' => 'nullable|exists:productos,id_producto',
+            'producto_id' => 'nullable|exists:productos,id_producto',
             'prueba' => 'required|integer',
-            'atributo' => 'required|string|max:250',
+            'atributo' => 'nullable|string|max:250',
         ]);
 
         $muestra->update($data);
