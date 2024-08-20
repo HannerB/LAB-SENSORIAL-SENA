@@ -20,8 +20,6 @@ class MuestraController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());  // Agrega esta línea
-
         $request->validate([
             'cod_muestra' => 'required|string|max:50',
             'prueba' => 'required|integer',
@@ -62,14 +60,16 @@ class MuestraController extends Controller
         $muestra->delete();
         return redirect()->route('muestra.index');
     }
-
-    public function muestrasPorProducto($productoId)
+    public function getMuestrasByProducto($id)
     {
-        // Obtener muestras del producto seleccionado agrupadas por el tipo de prueba
-        $muestrasTriangular = Muestra::where('producto_id', $productoId)->where('prueba', 1)->get();
-        $muestrasDuoTrio = Muestra::where('producto_id', $productoId)->where('prueba', 2)->get();
-        $muestrasOrdenamiento = Muestra::where('producto_id', $productoId)->where('prueba', 3)->get();
+        $muestrasTriangular = Muestra::where('producto_id', $id)->where('prueba', 1)->get();
+        $muestrasDuoTrio = Muestra::where('producto_id', $id)->where('prueba', 2)->get();
+        $muestrasOrdenamiento = Muestra::where('producto_id', $id)->where('prueba', 3)->get();
 
-        return view('src.panel_administracion', compact('muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento'));
+        return response()->json([
+            'triangular' => $muestrasTriangular,
+            'duo_trio' => $muestrasDuoTrio,
+            'ordenamiento' => $muestrasOrdenamiento
+        ]);
     }
 }

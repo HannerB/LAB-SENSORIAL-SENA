@@ -221,8 +221,6 @@
             function abrirConfiguracion(idProducto, nombreProducto) {
                 document.getElementById('productoId').value = idProducto;
                 document.getElementById('nombreProductoModal').value = nombreProducto;
-
-                // Asigna el ID del producto al campo oculto en el formulario de muestras
                 document.getElementById('producto-id-muestra').value = idProducto;
 
                 formProductoModal.action = formProductoModal.action.replace(/\/\d+$/, '/' + idProducto);
@@ -249,7 +247,6 @@
                     .then(data => {
                         if (data.success) {
                             console.log('Nombre del producto actualizado');
-                            // Actualizar el nombre en la tabla de productos
                             const productoRow = document.querySelector(`tr[data-id="${productoId}"]`);
                             if (productoRow) {
                                 productoRow.querySelector('td:nth-child(2)').textContent = nombre;
@@ -264,40 +261,33 @@
                         alert('Error al actualizar el nombre del producto');
                     });
 
-                // Cerrar el modal
                 bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
-
-                // Recargar la página después de un breve retraso
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                setTimeout(() => location.reload(), 1000);
             });
 
-            // Agregar el manejador de eventos para la tecla Enter
             formProductoModal.addEventListener('keypress', function(event) {
                 if (event.key === 'Enter') {
-                    event.preventDefault(); // Evita que el formulario se envíe por defecto
-                    btnSubmit.click(); // Simula el clic en el botón de submit
+                    event.preventDefault();
+                    btnSubmit.click();
                 }
             });
 
-            // Asignar la función abrirConfiguracion a los botones de configuración
             document.querySelectorAll('.btn-configuracion').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const idProducto = this.dataset.id;
                     const nombreProducto = this.dataset.nombre;
                     abrirConfiguracion(idProducto, nombreProducto);
+                    cargarMuestras(
+                        idProducto); // Cargar las muestras cuando se abre la configuración
                 });
             });
 
-            // Manejar habilitación y deshabilitación de productos
             document.querySelectorAll('.btn-habilitar').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const idProducto = this.dataset.id;
                     const habilitado = this.dataset.habilitado === 'true';
                     const nuevoEstado = !habilitado;
 
-                    // Deshabilitar todos los productos
                     document.querySelectorAll('.btn-habilitar').forEach(button => {
                         if (button !== this) {
                             button.textContent = 'Habilitar';
@@ -321,7 +311,6 @@
                         .then(data => {
                             if (data.success) {
                                 console.log('Estado del producto actualizado');
-                                // Actualizar el texto del botón y el estado de los productos
                                 this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
                                 this.dataset.habilitado = nuevoEstado;
                             } else {
@@ -336,8 +325,39 @@
                         });
                 });
             });
+
+            function cargarMuestras(idProducto) {
+                fetch(`/muestras/${idProducto}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tablas = {
+                            triangular: 'cuerpo-table-uno',
+                            duo_trio: 'cuerpo-table-dos',
+                            ordenamiento: 'cuerpo-table-tres'
+                        };
+
+                        Object.keys(tablas).forEach(tipo => {
+                            const tablaCuerpo = document.getElementById(tablas[tipo]);
+                            tablaCuerpo.innerHTML = ''; // Limpiar tabla
+                            data[tipo].forEach((muestra, index) => {
+                                tablaCuerpo.innerHTML += `
+                                <tr>
+                                <td>${index + 1}</td>
+                                <td>${muestra.cod_muestra}</td>
+                                <td>
+                                <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id}">Eliminar</button>
+                                </td>
+                                </tr>
+                                `;
+                            });
+                        });
+                    })
+                    .catch(error => console.error('Error al cargar las muestras:', error));
+            }
         });
     </script>
+
+
 </body>
 
 </html>
