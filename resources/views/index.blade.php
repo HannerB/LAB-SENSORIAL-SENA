@@ -56,7 +56,8 @@
                             <tr>
                                 <td>{{ $muestra->cod_muestra }}</td>
                                 <td>
-                                    <input type="radio" name="muestra_diferente" value="{{ $muestra->cod_muestra }}">
+                                    <input required type="radio" name="muestra_diferente"
+                                        value="{{ $muestra->cod_muestra }}">
                                 </td>
                             </tr>
                         @empty
@@ -114,7 +115,8 @@
                             <tr>
                                 <td>{{ $muestra->cod_muestra }}</td>
                                 <td>
-                                    <input type="radio" name="muestra_igual_referencia" value="{{ $muestra->cod_muestra }}">
+                                    <input required type="radio" name="muestra_igual_referencia"
+                                        value="{{ $muestra->cod_muestra }}">
                                 </td>
                             </tr>
                         @empty
@@ -175,7 +177,8 @@
                             <tr>
                                 <td>{{ $muestra->cod_muestra }}</td>
                                 <td>
-                                    <input type="radio" name="muestra_ordenamiento" value="{{ $muestra->cod_muestra }}">
+                                    <input type="radio" name="muestra_ordenamiento"
+                                        value="{{ $muestra->cod_muestra }}">
                                 </td>
                             </tr>
                         @empty
@@ -207,18 +210,18 @@
     <script src="{{ asset('js/scriptMain.js') }}"></script>
     <script>
         document.getElementById('btnguardar-tri').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista1', 'fechaPanelista1');
+            savePanelistaData('nombrePanelista1', 'fechaPanelista1', 'triangular');
         });
 
         document.getElementById('btnguardar-duo').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista2', 'fechaPanelista2');
+            savePanelistaData('nombrePanelista2', 'fechaPanelista2', 'duo');
         });
 
         document.getElementById('btnguardar-respuesta-orden').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista3', 'fechaPanelista3');
+            savePanelistaData('nombrePanelista3', 'fechaPanelista3', 'orden');
         });
 
-        function savePanelistaData(nameInputId, dateInputId) {
+        function savePanelistaData(nameInputId, dateInputId, tipoPrueba) {
             var nombrePanelista = document.getElementById(nameInputId).value;
             var fechaPanelista = document.getElementById(dateInputId).value;
 
@@ -234,9 +237,8 @@
                 success: function(response) {
                     if (response.idpane) {
                         console.log('Panelista guardado con ID:', response.idpane);
-                        // Esperar 5 segundos antes de guardar la calificación
                         setTimeout(function() {
-                            saveCalificacionData(response.idpane, nombrePanelista, fechaPanelista);
+                            saveCalificacionData(response.idpane, tipoPrueba, fechaPanelista);
                         }, 2000);
                     } else {
                         console.error('ID de panelista no retornado');
@@ -248,43 +250,67 @@
             });
         }
 
-        function saveCalificacionData(idpane, nombrePanelista, fechaPanelista) {
-            var producto = document.getElementById('productoIDPrueba1').value;
+        function saveCalificacionData(idpane, tipoPrueba, fechaPanelista) {
+            var productoID = document.getElementById('productoIDPrueba1').value;
 
-            // Verificación del valor de producto
-            if (!producto) {
-                console.error('El campo producto está vacío.');
-                alert('Error: El campo de producto está vacío. Por favor, asegúrese de que el producto esté seleccionado.');
+            if (!productoID) {
+                alert('Error: El campo de producto está vacío.');
                 return;
             }
 
-            console.log('Valor de producto:', producto);
-
-            // Asegúrate de que el valor de producto sea un ID válido
-            if (isNaN(producto)) {
-                console.error('El valor del producto no es un ID válido.');
+            if (isNaN(productoID)) {
                 alert('Error: El valor del producto no es un ID válido.');
                 return;
             }
 
-            var prueba = 1; // Suposición de que es una prueba triangular
-            var atributo = 'Dulzura'; // Suposición de que es una prueba triangular
-            var codMuestras = 123; // Rellena esto con las muestras seleccionadas
-            var comentario = document.getElementById('comentario-triangular').value;
-            var fecha = fechaPanelista;
-            var cabina = 1; // Suposición de que es una prueba triangular
+            var codMuestras, prueba, atributo, comentario, cabina;
+
+            switch (tipoPrueba) {
+                case 'triangular':
+                    codMuestras = document.querySelector('input[name="muestra_diferente"]:checked')?.value;
+                    prueba = 1; // Código de la prueba triangular
+                    atributo = 'Dulzura'; // Suponiendo que el atributo es dulzura
+                    comentario = document.getElementById('comentario-triangular').value;
+                    cabina = 1; // Código de cabina para esta prueba
+                    break;
+
+                case 'duo':
+                    codMuestras = document.querySelector('input[name="muestra_igual_referencia"]:checked')?.value;
+                    prueba = 2; // Código de la prueba duo-trio
+                    atributo = 'Similaridad'; // Atributo en este tipo de prueba
+                    comentario = document.getElementById('comentario-duo').value;
+                    cabina = 2; // Código de cabina para esta prueba
+                    break;
+
+                case 'orden':
+                    codMuestras = document.querySelector('input[name="muestra_ordenamiento"]:checked')?.value;
+                    prueba = 3; // Código de la prueba de ordenamiento
+                    atributo = 'Dulzura'; // Suponiendo que el atributo es dulzura
+                    comentario = document.getElementById('comentario-orden').value;
+                    cabina = 3; // Código de cabina para esta prueba
+                    break;
+
+                default:
+                    alert('Tipo de prueba no reconocido.');
+                    return;
+            }
+
+            if (!codMuestras) {
+                alert('Por favor, selecciona una muestra antes de continuar.');
+                return;
+            }
 
             $.ajax({
                 url: '{{ route('calificacion.store') }}',
                 type: 'POST',
                 data: {
                     idpane: idpane,
-                    producto: producto,
+                    producto: productoID,
                     prueba: prueba,
                     atributo: atributo,
                     cod_muestras: codMuestras,
                     comentario: comentario,
-                    fecha: fecha,
+                    fecha: fechaPanelista, // Pasando la fecha del panelista
                     cabina: cabina,
                     _token: '{{ csrf_token() }}'
                 },
@@ -294,9 +320,7 @@
                 error: function(xhr, status, error) {
                     console.error('Error guardando datos de calificación:', xhr.responseText);
 
-                    // Mostrar los errores si están disponibles
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        console.error('Errores de validación:', xhr.responseJSON.errors);
                         alert('Error de validación: ' + JSON.stringify(xhr.responseJSON.errors));
                     }
                 }
