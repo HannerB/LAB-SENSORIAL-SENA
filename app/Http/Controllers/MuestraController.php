@@ -34,7 +34,11 @@ class MuestraController extends Controller
             'producto_id' => $request->input('producto_id'),
         ]);
 
-        return redirect()->route('admin.panel')->with('success', 'Muestra guardada correctamente.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Muestra guardada correctamente.',
+            'muestra' => $muestra
+        ], 201);
     }
 
     public function edit(Muestra $muestra)

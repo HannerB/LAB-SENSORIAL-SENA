@@ -117,7 +117,7 @@
                             <h2>Mis Muestras</h2>
                             <form class="mb-5" id="form-muestras" method="POST"
                                 action="{{ route('muestra.store') }}">
-                                @csrf <!-- Token de seguridad para formularios en Laravel -->
+                                @csrf
                                 <div class="mb-3">
                                     <label for="codigo-muestra" class="form-label">Código Muestra</label>
                                     <input type="text" class="form-control" id="codigo-muestra"
@@ -136,20 +136,9 @@
                                         <option value="3">PRUEBA ORDENAMIENTO</option>
                                     </select>
                                 </div>
-                                <div class="mb-3" id="cont-atributos" style="display: none;">
-                                    <label for="atributos-prueba" class="form-label">Tipo de atributos</label>
-                                    <select id="atributos-prueba" class="form-select" name="atributo">
-                                        <option value="sabor">SABOR</option>
-                                        <option value="olor">OLOR</option>
-                                        <option value="color">COLOR</option>
-                                        <option value="textura">TEXTURA</option>
-                                        <option value="apariencia">APARIENCIA</option>
-                                    </select>
-                                </div>
                                 <div class="mb-3 text-center">
                                     <button class="btn btn-outline-success" type="submit"
                                         id="btn-guardar-muestra">GUARDAR</button>
-                                    <button class="btn btn-danger" type="button" id="btn-cancelar">CANCELAR</button>
                                 </div>
                             </form>
                         </section>
@@ -217,6 +206,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const formProductoModal = document.getElementById('form-producto-modal');
             const btnSubmit = document.getElementById('btn-submit');
+            const formMuestras = document.getElementById('form-muestras');
 
             function abrirConfiguracion(idProducto, nombreProducto) {
                 document.getElementById('productoId').value = idProducto;
@@ -326,6 +316,43 @@
                 });
             });
 
+            formMuestras.addEventListener('submit', function(e) {
+                e.preventDefault(); // Evitar que el formulario se envíe de forma tradicional
+
+                const formData = new FormData(formMuestras);
+
+                fetch(formMuestras.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content'),
+                        },
+                        body: formData,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Limpiar el formulario para permitir agregar otra muestra
+                            formMuestras.reset();
+
+                            // Recargar las muestras en las tablas sin cerrar el modal
+                            cargarMuestras(document.getElementById('producto-id-muestra').value);
+
+                            // Mostrar un mensaje de éxito
+                            Swal.fire('Éxito', 'Muestra agregada correctamente', 'success');
+                        } else {
+                            console.error('Error al agregar la muestra:', data);
+                            Swal.fire('Error', `No se pudo agregar la muestra: ${data.message}`,
+                                'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Ocurrió un error inesperado al agregar la muestra',
+                            'error');
+                    });
+            });
+
             function cargarMuestras(idProducto) {
                 fetch(`/muestras/${idProducto}`)
                     .then(response => response.json())
@@ -356,8 +383,6 @@
             }
         });
     </script>
-
-
 </body>
 
 </html>
