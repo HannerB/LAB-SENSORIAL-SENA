@@ -367,19 +367,78 @@
                             const tablaCuerpo = document.getElementById(tablas[tipo]);
                             tablaCuerpo.innerHTML = ''; // Limpiar tabla
                             data[tipo].forEach((muestra, index) => {
-                                tablaCuerpo.innerHTML += `
-                                <tr>
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
                                 <td>${index + 1}</td>
                                 <td>${muestra.cod_muestra}</td>
                                 <td>
-                                <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id}">Eliminar</button>
+                                <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id_muestras}">Eliminar</button>
                                 </td>
-                                </tr>
                                 `;
+                                tablaCuerpo.appendChild(row);
+                            });
+                        });
+
+                        // Agregar evento click a los botones de eliminar
+                        document.querySelectorAll('.btn-eliminar-muestra').forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                const id = this.dataset.id;
+                                eliminarMuestra(id);
                             });
                         });
                     })
                     .catch(error => console.error('Error al cargar las muestras:', error));
+            }
+
+            function eliminarMuestra(id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "No podrás revertir esta acción",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/muestra/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content'),
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire(
+                                        '¡Eliminado!',
+                                        'La muestra ha sido eliminada.',
+                                        'success'
+                                    );
+                                    cargarMuestras(document.getElementById('producto-id-muestra')
+                                    .value);
+                                } else {
+                                    Swal.fire(
+                                        'Error',
+                                        'No se pudo eliminar la muestra: ' + data.message,
+                                        'error'
+                                    );
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                Swal.fire(
+                                    'Error',
+                                    'Ocurrió un error al eliminar la muestra',
+                                    'error'
+                                );
+                            });
+                    }
+                });
             }
         });
     </script>

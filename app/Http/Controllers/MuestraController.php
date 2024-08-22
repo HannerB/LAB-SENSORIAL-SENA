@@ -59,11 +59,29 @@ class MuestraController extends Controller
         return redirect()->route('muestra.index');
     }
 
-    public function destroy(Muestra $muestra)
+    public function destroy($id)
     {
-        $muestra->delete();
-        return redirect()->route('muestra.index');
+        try {
+            $muestra = Muestra::findOrFail($id);
+            $muestra->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Muestra eliminada correctamente'
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La muestra no fue encontrada'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al eliminar la muestra: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
     public function getMuestrasByProducto($id)
     {
         $muestrasTriangular = Muestra::where('producto_id', $id)->where('prueba', 1)->get();

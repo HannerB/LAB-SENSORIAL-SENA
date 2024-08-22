@@ -66,7 +66,7 @@ Route::get('muestra/create', [MuestraController::class, 'create'])->name('muestr
 Route::post('muestra', [MuestraController::class, 'store'])->name('muestra.store');
 Route::get('muestra/{muestra}/edit', [MuestraController::class, 'edit'])->name('muestra.edit');
 Route::put('muestra/{muestra}', [MuestraController::class, 'update'])->name('muestra.update');
-Route::delete('muestra/{muestra}', [MuestraController::class, 'destroy'])->name('muestra.destroy');
+Route::delete('muestra/{id}', [MuestraController::class, 'destroy'])->name('muestra.destroy');
 Route::get('/muestras/{id}', [MuestraController::class, 'getMuestrasByProducto']);
 
 // Rutas para Calificacion
