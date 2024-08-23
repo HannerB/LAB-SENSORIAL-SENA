@@ -75,7 +75,7 @@
                 <h5>MUCHAS GRACIAS!</h5>
             </div>
             <div class="btns">
-                <button class="btn btn-success" id="btnguardar-tri">Guardar</button>
+                {{-- <button class="btn btn-success" id="btnguardar-tri">Guardar</button> --}}
                 <button class="btn btn-outline-primary" id="btnsiguiente1">Siguiente</button>
             </div>
             <br>
@@ -136,7 +136,7 @@
             <div class="btns">
                 <button class="btn btn-outline-primary me-2"
                     onclick="cambiarFormulario('sect1','sect2')">Anterior</button>
-                <button class="btn btn-success" id="btnguardar-duo">Guardar</button>
+                {{-- <button class="btn btn-success" id="btnguardar-duo">Guardar</button> --}}
                 <button class="btn btn-outline-primary" id="btnsiguiente2">Siguiente</button>
             </div>
             <br>
@@ -155,8 +155,8 @@
                 </form>
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="text" id="productoPrueba3" readonly
-                        value="{{ $productoHabilitado ? $productoHabilitado->nombre_producto : '' }}">
+                    <input type="text" id="productoPrueba2" readonly
+                        value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
                 </form>
                 <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span
                         class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>)
@@ -198,7 +198,7 @@
             <div class="btns">
                 <button class="btn btn-outline-primary me-2"
                     onclick="cambiarFormulario('sect2','sect3')">Anterior</button>
-                <button class="btn btn-success" id="btnguardar-respuesta-orden">GUARDAR</button>
+                <button class="btn btn-success" id="btnguardar-todo">GUARDAR TODO</button>
             </div>
             <br>
         </div>
@@ -209,21 +209,33 @@
     <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('js/scriptMain.js') }}"></script>
     <script>
-        document.getElementById('btnguardar-tri').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista1', 'fechaPanelista1', 'triangular');
+        document.getElementById('btnguardar-todo').addEventListener('click', function() {
+            guardarTodasLasPruebas();
         });
 
-        document.getElementById('btnguardar-duo').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista2', 'fechaPanelista2', 'duo');
-        });
+        function guardarTodasLasPruebas() {
+            var nombrePanelista = document.getElementById('nombrePanelista1').value ||
+                document.getElementById('nombrePanelista2').value ||
+                document.getElementById('nombrePanelista3').value;
+            var fechaPanelista = document.getElementById('fechaPanelista1').value ||
+                document.getElementById('fechaPanelista2').value ||
+                document.getElementById('fechaPanelista3').value;
+            var productoID = document.getElementById('productoIDPrueba1').value;
 
-        document.getElementById('btnguardar-respuesta-orden').addEventListener('click', function() {
-            savePanelistaData('nombrePanelista3', 'fechaPanelista3', 'orden');
-        });
+            if (!nombrePanelista || !fechaPanelista) {
+                alert('Por favor, completa el nombre y la fecha del panelista.');
+                return;
+            }
 
-        function savePanelistaData(nameInputId, dateInputId, tipoPrueba) {
-            var nombrePanelista = document.getElementById(nameInputId).value;
-            var fechaPanelista = document.getElementById(dateInputId).value;
+            if (!productoID) {
+                alert('Error: El campo de producto está vacío.');
+                return;
+            }
+
+            if (isNaN(productoID)) {
+                alert('Error: El valor del producto no es un ID válido.');
+                return;
+            }
 
             // Guardar datos del panelista
             $.ajax({
@@ -236,10 +248,8 @@
                 },
                 success: function(response) {
                     if (response.idpane) {
-                        console.log('Panelista guardado con ID:', response.idpane);
-                        setTimeout(function() {
-                            saveCalificacionData(response.idpane, tipoPrueba, fechaPanelista);
-                        }, 2000);
+                        var idpane = response.idpane;
+                        guardarCalificaciones(idpane, productoID, fechaPanelista);
                     } else {
                         console.error('ID de panelista no retornado');
                     }
@@ -250,81 +260,60 @@
             });
         }
 
-        function saveCalificacionData(idpane, tipoPrueba, fechaPanelista) {
-            var productoID = document.getElementById('productoIDPrueba1').value;
-
-            if (!productoID) {
-                alert('Error: El campo de producto está vacío.');
-                return;
-            }
-
-            if (isNaN(productoID)) {
-                alert('Error: El valor del producto no es un ID válido.');
-                return;
-            }
-
-            var codMuestras, prueba, atributo, comentario, cabina;
-
-            switch (tipoPrueba) {
-                case 'triangular':
-                    codMuestras = document.querySelector('input[name="muestra_diferente"]:checked')?.value;
-                    prueba = 1; // Código de la prueba triangular
-                    atributo = 'Dulzura'; // Suponiendo que el atributo es dulzura
-                    comentario = document.getElementById('comentario-triangular').value;
-                    cabina = 1; // Código de cabina para esta prueba
-                    break;
-
-                case 'duo':
-                    codMuestras = document.querySelector('input[name="muestra_igual_referencia"]:checked')?.value;
-                    prueba = 2; // Código de la prueba duo-trio
-                    atributo = 'Similaridad'; // Atributo en este tipo de prueba
-                    comentario = document.getElementById('comentario-duo').value;
-                    cabina = 2; // Código de cabina para esta prueba
-                    break;
-
-                case 'orden':
-                    codMuestras = document.querySelector('input[name="muestra_ordenamiento"]:checked')?.value;
-                    prueba = 3; // Código de la prueba de ordenamiento
-                    atributo = 'Dulzura'; // Suponiendo que el atributo es dulzura
-                    comentario = document.getElementById('comentario-orden').value;
-                    cabina = 3; // Código de cabina para esta prueba
-                    break;
-
-                default:
-                    alert('Tipo de prueba no reconocido.');
-                    return;
-            }
-
-            if (!codMuestras) {
-                alert('Por favor, selecciona una muestra antes de continuar.');
-                return;
-            }
-
-            $.ajax({
-                url: '{{ route('calificacion.store') }}',
-                type: 'POST',
-                data: {
-                    idpane: idpane,
-                    producto: productoID,
-                    prueba: prueba,
-                    atributo: atributo,
-                    cod_muestras: codMuestras,
-                    comentario: comentario,
-                    fecha: fechaPanelista, // Pasando la fecha del panelista
-                    cabina: cabina,
-                    _token: '{{ csrf_token() }}'
+        function guardarCalificaciones(idpane, productoID, fechaPanelista) {
+            var calificaciones = [{
+                    prueba: 1,
+                    codMuestras: document.querySelector('input[name="muestra_diferente"]:checked')?.value,
+                    atributo: 'Dulzura',
+                    comentario: document.getElementById('comentario-triangular').value,
+                    cabina: 1
                 },
-                success: function(response) {
-                    console.log('Datos de calificación guardados correctamente.');
+                {
+                    prueba: 2,
+                    codMuestras: document.querySelector('input[name="muestra_igual_referencia"]:checked')?.value,
+                    atributo: 'Similaridad',
+                    comentario: document.getElementById('comentario-duo').value,
+                    cabina: 2
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error guardando datos de calificación:', xhr.responseText);
+                {
+                    prueba: 3,
+                    codMuestras: document.querySelector('input[name="muestra_ordenamiento"]:checked')?.value,
+                    atributo: 'Dulzura',
+                    comentario: document.getElementById('comentario-orden').value,
+                    cabina: 3
+                }
+            ];
 
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        alert('Error de validación: ' + JSON.stringify(xhr.responseJSON.errors));
-                    }
+            calificaciones.forEach(function(cal) {
+                if (cal.codMuestras) {
+                    $.ajax({
+                        url: '{{ route('calificacion.store') }}',
+                        type: 'POST',
+                        data: {
+                            idpane: idpane,
+                            producto: productoID,
+                            prueba: cal.prueba,
+                            atributo: cal.atributo,
+                            cod_muestras: cal.codMuestras,
+                            comentario: cal.comentario,
+                            fecha: fechaPanelista,
+                            cabina: cal.cabina,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            console.log(
+                                'Datos de calificación guardados correctamente para la prueba ' +
+                                cal.prueba);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error guardando datos de calificación para la prueba ' + cal
+                                .prueba + ':', xhr.responseText);
+                        }
+                    });
                 }
             });
+
+            alert('Todas las calificaciones han sido guardadas.');
         }
     </script>
 </body>
