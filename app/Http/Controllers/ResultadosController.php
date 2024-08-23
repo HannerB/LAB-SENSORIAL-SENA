@@ -68,12 +68,17 @@ class ResultadosController extends Controller
             Log::info("Fecha: $fecha, Producto ID: $productoId");
 
             // Obtener todas las muestras del producto
-            $muestras = Muestra::where('id_muestras', $productoId)->get();
+            $muestras = Muestra::where('producto_id', $productoId)->get();
 
             Log::info("Muestras encontradas: " . $muestras->count());
 
+            // Primero, eliminamos los resultados existentes para este producto y fecha
+            Resultado::where('producto', $productoId)
+                ->where('fecha', $fecha)
+                ->delete();
+
+            // Crear resultados para todas las muestras
             foreach ($muestras as $muestra) {
-                // Crear un resultado para cada muestra
                 Resultado::create([
                     'producto' => $productoId,
                     'prueba' => $muestra->prueba,
@@ -100,9 +105,25 @@ class ResultadosController extends Controller
                     ->update(['resultado' => 1]);
             }
 
+            // Obtener los resultados generados
+            $resultados = Resultado::where('producto', $productoId)
+                ->where('fecha', $fecha)
+                ->get();
+
+            // Organizar los resultados por tipo de prueba
+            $triangulares = $resultados->where('prueba', 1)->values();
+            $duoTrio = $resultados->where('prueba', 2)->values();
+            $ordenamiento = $resultados->where('prueba', 3)->first();
+
+            $data = [
+                'triangulares' => $triangulares,
+                'duoTrio' => $duoTrio,
+                'ordenamiento' => $ordenamiento
+            ];
+
             DB::commit();
             Log::info('Finalizando generación de resultados');
-            return response()->json(['message' => 'Resultados generados exitosamente']);
+            return response()->json(['message' => 'Resultados generados exitosamente', 'data' => $data]);
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error al generar resultados: ' . $e->getMessage());

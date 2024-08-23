@@ -1,5 +1,5 @@
-$(document).ready(function() {
-    $('#filtro-resultados').submit(function(e) {
+$(document).ready(function () {
+    $('#filtro-resultados').submit(function (e) {
         e.preventDefault();
 
         var fecha = $('#fecha-filtro').val();
@@ -18,7 +18,7 @@ $(document).ready(function() {
                 producto_id: productoId,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
-            success: function(response) {
+            success: function (response) {
                 // Limpiar las tablas existentes
                 $('#body-triangular').empty();
                 $('#body-duo').empty();
@@ -26,25 +26,23 @@ $(document).ready(function() {
 
                 if (response.data) {
                     // Llenar la tabla de la Prueba Triangular
-                    response.data.triangulares.forEach(function(item, index) {
+                    response.data.triangulares.forEach(function (item, index) {
                         $('#body-triangular').append(`
                             <tr>
                                 <th scope="row">${index + 1}</th>
-                                <td>${item.columna1}</td>
-                                <td>${item.columna2}</td>
-                                <td>${item.columna3}</td>
+                                <td>${item.cod_muestra}</td>
+                                <td>${item.resultado}</td>
                             </tr>
                         `);
                     });
 
                     // Llenar la tabla de la Prueba Duo-Trio
-                    response.data.duoTrio.forEach(function(item, index) {
+                    response.data.duoTrio.forEach(function (item, index) {
                         $('#body-duo').append(`
                             <tr>
                                 <th scope="row">${index + 1}</th>
-                                <td>${item.columna1}</td>
-                                <td>${item.columna2}</td>
-                                <td>${item.columna3}</td>
+                                <td>${item.cod_muestra}</td>
+                                <td>${item.resultado}</td>
                             </tr>
                         `);
                     });
@@ -57,7 +55,7 @@ $(document).ready(function() {
                     Swal.fire('Sin resultados', 'No se encontraron resultados para los criterios seleccionados.', 'info');
                 }
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.fire('Error', 'Ocurrió un error al generar los resultados. Intenta nuevamente.', 'error');
             }
         });
