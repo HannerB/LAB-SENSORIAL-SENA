@@ -5,16 +5,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>RESULTADOS PANEL</title>
-    <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/style_resultados.css">
+    <link rel="stylesheet" href="{{ asset('../bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('../css/style_resultados.css') }}">
 </head>
 
 <body>
     <nav class="navbar bg-success">
         <div class="container-fluid">
             <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;"><img
-                src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}"" alt="" width="50px"> Laboratorio sensorial
+                    src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}"1" alt="" width="50px">
+                Laboratorio sensorial
                 de alimentos - Sena Cedagro</a>
             <a href="{{ route('admin.panel') }}" class="btn btn-outline-light">panel de administracion</a>
         </div>
@@ -24,6 +26,7 @@
         <h1 class="text-center">PANEL DE RESULTADOS</h1>
         <div class="filtros mb-5">
             <form id="filtro-resultados">
+                @csrf 
                 <div class="mb-3">
                     <label for="" class="form-label">Numero de cabina</label>
                     <select name="" id="cabinas-filtro" class="form-select">
@@ -149,9 +152,10 @@
         </div>
     </div>
 </body>
-<script src="../bootstrap/js/bootstrap.min.js"></script>
-<script src="../js/jquery-3.6.1.min.js"></script>
-<script src="../js/sweetalert2.all.min.js"></script>
-<script src="../js/scriptResultados.js"></script>
+
+<script src="{{ asset('../bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('../js/jquery-3.6.1.min.js') }}"></script>
+<script src="{{ asset('../js/sweetalert2.all.min.js') }}"></script>
+<script src="{{ asset('../js/scriptResultados.js') }}"></script>
 
 </html>

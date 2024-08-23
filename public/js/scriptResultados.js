@@ -1,172 +1,65 @@
+$(document).ready(function() {
+    $('#filtro-resultados').submit(function(e) {
+        e.preventDefault();
 
-// $("#fecha-filtro").on('change',function(){
-//     document.querySelector("#resultados-pruebas").classList.remove('active');
-//     document.querySelector("#resultado-pruebas-personas").classList.remove('active');1
-//     const fecha = $("#fecha-filtro").val();
-//     $.ajax({
-//         url: '../clases/peticiones.php',
-//         type: 'POST',
-//         data: {peticion: 'consultraProductosFecha',fecha},
-//         success: function (data) {
-//             try {
-//                 const productos = JSON.parse(data);
-//                 let template =  `<option value="select">Seleccione producto</option>`;
-//                 productos.forEach(element => {
-//                     template += `<option value="${element.id}">${element.nombre}</option>`;
-//                 });
-//                 $("#productos-filtro").html(template);
-//             } catch (error) {
-//                 console.log(data);
-//             }
-//         }
-//     })
-// })
+        var fecha = $('#fecha-filtro').val();
+        var productoId = $('#productos-filtro').val();
 
-// $("#filtro-resultados").submit(function(e){
-//     const cabina =  $("#cabinas-filtro").val();
-//     const fecha =  $("#fecha-filtro").val();
-//     const producto =  $("#productos-filtro").val();
-//     if (cabina != "select" && producto != "select") {
-//         /* activarContenidos("resultado-pruebas",true);
-//         activarContenidos("resultado-pruebas-personas",true); */
-//         $.ajax({
-//             url: '../clases/peticiones.php',
-//             type: 'POST',
-//             data: {peticion: 'realizarResultadosEstadisticos',cabina,fecha,producto},
-//             success: function (data) {
-//                 try {
-//                     const resultados = JSON.parse(data);
-//                     let template = ``;
-//                     //RESULTADOS DE TRIANGULAR
-//                     const triangular = resultados.triangular
+        if (productoId === 'select') {
+            Swal.fire('Advertencia', 'Por favor, selecciona un producto.', 'warning');
+            return;
+        }
 
-//                     template = `<tr><th scope="col">#</th>`;
-//                     triangular[0].forEach(element => {
-//                         template += `<th scope="col">${element}</th>`
-//                     });
-//                     template += `</tr>`;
+        $.ajax({
+            url: '/resultado/generar',
+            method: 'POST',
+            data: {
+                fecha: fecha,
+                producto_id: productoId,
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                // Limpiar las tablas existentes
+                $('#body-triangular').empty();
+                $('#body-duo').empty();
+                $('#preferencia-ordenamiento').empty();
 
-//                     $("#head-triangular").html(template);
-                    
-//                     template= `<tr><th scope="row">personas</th>`
-//                     triangular[1].forEach(element => {
-//                         template += `<td>${element}</td>`
-//                     });
-//                     template+=`</tr>`
+                if (response.data) {
+                    // Llenar la tabla de la Prueba Triangular
+                    response.data.triangulares.forEach(function(item, index) {
+                        $('#body-triangular').append(`
+                            <tr>
+                                <th scope="row">${index + 1}</th>
+                                <td>${item.columna1}</td>
+                                <td>${item.columna2}</td>
+                                <td>${item.columna3}</td>
+                            </tr>
+                        `);
+                    });
 
-//                     $("#body-triangular").html(template);
+                    // Llenar la tabla de la Prueba Duo-Trio
+                    response.data.duoTrio.forEach(function(item, index) {
+                        $('#body-duo').append(`
+                            <tr>
+                                <th scope="row">${index + 1}</th>
+                                <td>${item.columna1}</td>
+                                <td>${item.columna2}</td>
+                                <td>${item.columna3}</td>
+                            </tr>
+                        `);
+                    });
 
-//                     //RESULTADOS DE DUO
-//                     const duo = resultados.duo
-                    
-//                     template = `<tr><th scope="col">#</th>`;
-
-//                     duo[0].forEach(element => {
-//                         template += `<th scope="col">${element}</th>`
-//                     });
-//                     template += `</tr>`;
-                    
-//                     $("#head-duo").html(template);
-                    
-//                     template= `<tr><th scope="row">personas</th>`
-//                     duo[1].forEach(element => {
-//                         template += `<td>${element}</td>`
-//                     });
-//                     template+=`</tr>`
-
-//                     $("#body-duo").html(template);
-
-//                     //RESULTADOS DE ORDENAMIENTO
-//                     const orden = resultados.orden
-//                     $("#preferencia-ordenamiento").html(orden[0]);
-//                     $("#atributo-prueba").html(orden[1]);
-                    
-//                     console.log(resultados);
-
-
-//                 } catch (error) {
-//                     console.log(data);
-//                 }
-//             }
-//         })
-//         document.querySelector("#resultados-pruebas").classList.add('active');
-//         document.querySelector("#resultado-pruebas-personas").classList.add('active');
-        
-//     }else{
-//         document.querySelector("#resultados-pruebas").classList.remove('active');
-//         document.querySelector("#resultado-pruebas-personas").classList.remove('active');
-//         Swal.fire(
-//             'informacion',
-//             'Debe seleccionar todas las opciones del formulario, si uno de las casillas no tiene niguna opcion a elegir entonces no se ha realizado nada a la fecha!',
-//             'info'
-//         )
-//     }
-
-
-//     e.preventDefault();
-// })
-
-// $("#tipo-prueba-resultado").on('change',function(){
-//     const cabina =  $("#cabinas-filtro").val();
-//     const fecha =  $("#fecha-filtro").val();
-//     const producto =  $("#productos-filtro").val();
-
-//     const prueba = $("#tipo-prueba-resultado").val();
-//     if (prueba != "select") {
-//         $.ajax({
-//             url: '../clases/peticiones.php',
-//             type: 'POST',
-//             data: {peticion: 'consultarResultadosPersonas',cabina,fecha,producto,prueba},
-//             success: function (data) {
-//                 try {
-//                     const listado = JSON.parse(data);
-//                     let template = ``;
-//                     let num = 1;
-//                     listado.forEach(element => {
-//                         template+= `
-//                         <tr>
-//                         <th scope="row">${num}</th>
-//                         <td>${element.nombre}</td>
-//                         <td>${element.muestras}</td>
-//                         </tr>`
-//                         num++
-//                     });
-//                     $("#listado-personas-prueba").html(template)
-                
-//                 } catch (error) {
-//                     console.log(data);
-//                 }
-//             }
-//         })
-//     }else{
-//         $("#listado-personas-prueba").html(``)
-//     }
-// })
-
-// //FUNCIONES
-// function consultarCabinasHabilitadas() {
-//     $.ajax({
-//         url: '../clases/peticiones.php',
-//         type: 'POST',
-//         data: {peticion: 'consultarCabinas'},
-//         success: function (data) {
-//             try {
-//                 const cabinas = JSON.parse(data)
-
-//                 let template = ``;
-//                 cabinas.forEach(element => {
-//                     template += `
-//                         <option value="${element}">${element}</option>
-//                     `
-//                 });
-
-//                 $("#cabinas-filtro").html(template)
-
-//             } catch (error) {
-//                 console.log(data);
-//             }
-//         }
-//     })
-// }
-
-// consultarCabinasHabilitadas();
+                    // Llenar el resultado de la Prueba de Ordenamiento
+                    if (response.data.ordenamiento) {
+                        $('#preferencia-ordenamiento').text(response.data.ordenamiento.resultado);
+                    }
+                } else {
+                    Swal.fire('Sin resultados', 'No se encontraron resultados para los criterios seleccionados.', 'info');
+                }
+            },
+            error: function(xhr) {
+                Swal.fire('Error', 'Ocurrió un error al generar los resultados. Intenta nuevamente.', 'error');
+            }
+        });
+    });
+});

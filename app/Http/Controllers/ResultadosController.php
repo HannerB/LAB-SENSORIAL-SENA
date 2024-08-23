@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Models\Resultado;
+use App\Models\Muestra;
+use App\Models\Calificacion;
 
-class ResultadoController extends Controller
+class ResultadosController extends Controller
 {
     public function index()
     {
@@ -16,22 +20,6 @@ class ResultadoController extends Controller
     public function create()
     {
         return view('resultado.create');
-    }
-
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'producto' => 'required|exists:productos,id_producto',
-            'prueba' => 'required|integer',
-            'atributo' => 'required|string|max:50',
-            'cod_muestra' => 'nullable|string|max:50',
-            'resultado' => 'nullable|string|max:50',
-            'fecha' => 'nullable|date',
-            'cabina' => 'required|integer',
-        ]);
-
-        Resultado::create($data);
-        return redirect()->route('resultado.index');
     }
 
     public function edit(Resultado $resultado)
@@ -59,5 +47,66 @@ class ResultadoController extends Controller
     {
         $resultado->delete();
         return redirect()->route('resultado.index');
+    }
+
+    public function generarResultados(Request $request)
+    {
+        Log::info('Iniciando generación de resultados');
+        Log::info($request->all());
+
+        try {
+            DB::beginTransaction();
+
+            $request->validate([
+                'fecha' => 'required|date',
+                'producto_id' => 'required|exists:productos,id_producto',
+            ]);
+
+            $fecha = $request->fecha;
+            $productoId = $request->producto_id;
+
+            Log::info("Fecha: $fecha, Producto ID: $productoId");
+
+            // Obtener todas las muestras del producto
+            $muestras = Muestra::where('id_muestras', $productoId)->get();
+
+            Log::info("Muestras encontradas: " . $muestras->count());
+
+            foreach ($muestras as $muestra) {
+                // Crear un resultado para cada muestra
+                Resultado::create([
+                    'producto' => $productoId,
+                    'prueba' => $muestra->prueba,
+                    'atributo' => 'Dulzura',
+                    'cod_muestra' => $muestra->cod_muestra,
+                    'resultado' => 0, // Inicialmente, todas las muestras tienen resultado 0
+                    'fecha' => $fecha,
+                    'cabina' => 0, // Asumiendo que no tenemos información de cabina en este punto
+                ]);
+            }
+
+            // Obtener las calificaciones para este producto y fecha
+            $calificaciones = Calificacion::where('producto', $productoId)
+                ->whereDate('created_at', $fecha)
+                ->get();
+
+            Log::info("Calificaciones encontradas: " . $calificaciones->count());
+
+            // Actualizar los resultados para las muestras calificadas
+            foreach ($calificaciones as $calificacion) {
+                Resultado::where('producto', $productoId)
+                    ->where('cod_muestra', $calificacion->cod_muestra)
+                    ->where('fecha', $fecha)
+                    ->update(['resultado' => 1]);
+            }
+
+            DB::commit();
+            Log::info('Finalizando generación de resultados');
+            return response()->json(['message' => 'Resultados generados exitosamente']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error al generar resultados: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
+        }
     }
 }

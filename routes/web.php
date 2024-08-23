@@ -6,7 +6,7 @@ use App\Http\Controllers\ConfiguracionController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\MuestraController;
 use App\Http\Controllers\CalificacionesController;
-use App\Http\Controllers\ResultadoController;
+use App\Http\Controllers\ResultadosController;
 use App\Http\Controllers\PanelistaController;
 
 /*
@@ -78,12 +78,15 @@ Route::put('calificacion/{calificacion}', [CalificacionesController::class, 'upd
 Route::delete('calificacion/{calificacion}', [CalificacionesController::class, 'destroy'])->name('calificacion.destroy');
 
 // Rutas para Resultado
-Route::get('resultado', [ResultadoController::class, 'index'])->name('resultado.index');
-Route::get('resultado/create', [ResultadoController::class, 'create'])->name('resultado.create');
-Route::post('resultado', [ResultadoController::class, 'store'])->name('resultado.store');
-Route::get('resultado/{resultado}/edit', [ResultadoController::class, 'edit'])->name('resultado.edit');
-Route::put('resultado/{resultado}', [ResultadoController::class, 'update'])->name('resultado.update');
-Route::delete('resultado/{resultado}', [ResultadoController::class, 'destroy'])->name('resultado.destroy');
+Route::get('/panel/resultados', function () {
+    $productoHabilitado = App\Models\Producto::where('habilitado', true)->first();
+    return view('panel_resultados', compact('productoHabilitado'));
+})->name('panel.resultados');
+Route::get('resultado/create', [ResultadosController::class, 'create'])->name('resultado.create');
+route::post('resultado/generar', [ResultadosController::class, 'generarResultados'])->name('resultado.generar');
+Route::get('resultado/{resultado}/edit', [ResultadosController::class, 'edit'])->name('resultado.edit');
+Route::put('resultado/{resultado}', [ResultadosController::class, 'update'])->name('resultado.update');
+Route::delete('resultado/{resultado}', [ResultadosController::class, 'destroy'])->name('resultado.destroy');
 
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);
