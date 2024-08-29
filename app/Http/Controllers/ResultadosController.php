@@ -69,25 +69,36 @@ class ResultadosController extends Controller
 
             // Obtener todas las muestras del producto
             $muestras = Muestra::where('producto_id', $productoId)->get();
-
             Log::info("Muestras encontradas: " . $muestras->count());
 
-            // Primero, eliminamos los resultados existentes para este producto y fecha
+            // Obtener todos los panelistas que participaron en la evaluación
+            $panelistas = Calificacion::where('producto', $productoId)
+                ->whereDate('created_at', $fecha)
+                ->select('idpane')
+                ->distinct()
+                ->get();
+
+            Log::info("Panelistas encontrados: " . $panelistas->count());
+
+            // Eliminamos los resultados existentes para este producto y fecha
             Resultado::where('producto', $productoId)
                 ->where('fecha', $fecha)
                 ->delete();
 
-            // Crear resultados para todas las muestras
-            foreach ($muestras as $muestra) {
-                Resultado::create([
-                    'producto' => $productoId,
-                    'prueba' => $muestra->prueba,
-                    'atributo' => 'Dulzura',
-                    'cod_muestra' => $muestra->cod_muestra,
-                    'resultado' => 0, // Inicialmente, todas las muestras tienen resultado 0
-                    'fecha' => $fecha,
-                    'cabina' => 0, // Asumiendo que no tenemos información de cabina en este punto
-                ]);
+            // Crear resultados para todos los panelistas y todas las muestras
+            foreach ($panelistas as $panelista) {
+                foreach ($muestras as $muestra) {
+                    // Crear un resultado para cada combinación de panelista, muestra y atributo
+                    Resultado::create([
+                        'producto' => $productoId,
+                        'prueba' => $muestra->prueba,
+                        'atributo' => 'Dulzura', // Esto puede ajustarse según el atributo relevante
+                        'cod_muestra' => $muestra->cod_muestra,
+                        'resultado' => 0, // Valor por defecto
+                        'fecha' => $fecha,
+                        'cabina' => $panelista->idpane, // Almacenar el ID del panelista en la columna 'cabina'
+                    ]);
+                }
             }
 
             // Obtener las calificaciones para este producto y fecha
@@ -102,7 +113,8 @@ class ResultadosController extends Controller
                 Resultado::where('producto', $productoId)
                     ->where('cod_muestra', $calificacion->cod_muestra)
                     ->where('fecha', $fecha)
-                    ->update(['resultado' => 1]);
+                    ->where('cabina', $calificacion->panelista_id)
+                    ->update(['resultado' => 1]); // Asumiendo que la calificación es positiva
             }
 
             // Obtener los resultados generados
@@ -113,7 +125,7 @@ class ResultadosController extends Controller
             // Organizar los resultados por tipo de prueba
             $triangulares = $resultados->where('prueba', 1)->values();
             $duoTrio = $resultados->where('prueba', 2)->values();
-            $ordenamiento = $resultados->where('prueba', 3)->first();
+            $ordenamiento = $resultados->where('prueba', 3)->values();
 
             $data = [
                 'triangulares' => $triangulares,

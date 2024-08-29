@@ -86,12 +86,12 @@
         <div class="contenido">
             <h1 class="titulo-prueba mb-4"><b>prueba de duo - trio</b></h1>
             <div class="formulario-prueba mb-3">
-                <form id="datos-panelista" class="mb-4">
+                {{-- <form id="datos-panelista" class="mb-4">
                     <label for="">NOMBRE COMPLETO:</label>
                     <input type="text" id="nombrePanelista2">
                     <label for="">FECHA:</label>
                     <input type="date" id="fechaPanelista2">
-                </form>
+                </form> --}}
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
                     <input type="text" id="productoPrueba2" readonly
@@ -147,12 +147,12 @@
         <div class="contenido">
             <h1 class="titulo-prueba mb-4"><b>prueba de ordenamiento</b></h1>
             <div class="formulario-prueba mb-3">
-                <form id="datos-panelista" class="mb-4">
+                {{-- <form id="datos-panelista" class="mb-4">
                     <label for="">NOMBRE COMPLETO:</label>
                     <input type="text" id="nombrePanelista3">
                     <label for="">FECHA:</label>
                     <input type="date" id="fechaPanelista3">
-                </form>
+                </form> --}}
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
                     <input type="text" id="productoPrueba2" readonly
