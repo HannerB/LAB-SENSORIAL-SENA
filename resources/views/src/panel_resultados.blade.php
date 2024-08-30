@@ -55,9 +55,9 @@
                 </div>
             </form>
         </div>
-        <div class="resultados resultados-pruebas mb-5" id="resultados-pruebas">
-            <hr>
 
+        <div class="resultados resultados-pruebas mb-5" id="resultados-pruebas" style="display: none;">
+            <hr>
             <!-- PRUEBA TRIANGULAR -->
             <h3 class="mt-4">PRUEBA TRIANGULAR</h3>
             <table class="table table-secondary table-bordered table-hover mb-4">
@@ -78,8 +78,7 @@
                     </tr>
                 </tbody>
             </table>
-            <!-- FIN TRINAGULAR -->
-
+    
             <!-- PRUEBA DUO - TRIO -->
             <h3>PRUEBA DUO - TRIO</h3>
             <table class="table table-secondary table-bordered table-hover mb-4">
@@ -94,15 +93,14 @@
                 <tbody class="table-light" id="body-duo">
                     <tr>
                         <th scope="row">personas</th>
-                        <td>10</td>
-                        <td>2</td>
+                        <td>0</td>
+                        <td>0</td>
                         <td>0</td>
                     </tr>
                 </tbody>
             </table>
-            <!-- FIN DUO - TRIO -->
-
-            <!-- PRUEBA DUO - TRIO -->
+    
+            <!-- PRUEBA ORDENAMIENTO -->
             <h3>PRUEBA ORDENAMIENTO - ( <span id="atributo-prueba">ATRIBUTO</span> )</h3>
             <table class="table table-secondary table-bordered table-hover mb-4">
                 <thead>
@@ -118,9 +116,8 @@
                     </tr>
                 </tbody>
             </table>
-            <!-- FIN DUO - TRIO -->
-
         </div>
+
         <div class="resultados resultado-pruebas-personas" id="resultado-pruebas-personas">
             <hr>
             <div class="mb-4 mt-4">

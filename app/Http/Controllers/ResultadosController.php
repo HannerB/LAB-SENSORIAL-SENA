@@ -11,20 +11,62 @@ use App\Models\Calificacion;
 
 class ResultadosController extends Controller
 {
-    public function index()
+    public function mostrarResultados(Request $request)
     {
-        $resultados = Resultado::all();
-        return view('resultado.index', compact('resultados'));
-    }
+        $cabina = $request->input('cabina');
+        $fecha = $request->input('fecha');
+        $producto = $request->input('producto');
 
-    public function create()
-    {
-        return view('resultado.create');
-    }
+        $resultados = [
+            'triangular' => [
+                'muestras' => ['0800', '5000', '35200'],
+                'resultados' => [5, 3, 2]
+            ],
+            'duoTrio' => [
+                'muestras' => ['0800', '5000', '35200'],
+                'resultados' => [8, 4, 1]
+            ],
+            'ordenamiento' => [
+                'atributo' => 'Dulzura',
+                'preferencia' => 'Muestra A'
+            ]
+        ];
 
-    public function edit(Resultado $resultado)
-    {
-        return view('resultado.edit', compact('resultado'));
+        return response()->json($resultados);
+
+        // try {
+        //     $request->validate([
+        //         'fecha' => 'required|date',
+        //         'producto_id' => 'required|exists:productos,id_producto',
+        //     ]);
+
+        //     $fecha = $request->input('fecha');
+        //     $productoId = $request->input('producto_id');
+
+        //     // Obtener los resultados de las pruebas
+        //     $triangulares = Resultado::where('producto', $productoId)
+        //         ->where('fecha', $fecha)
+        //         ->where('prueba', 1)
+        //         ->get();
+
+        //     $duoTrio = Resultado::where('producto', $productoId)
+        //         ->where('fecha', $fecha)
+        //         ->where('prueba', 2)
+        //         ->get();
+
+        //     $ordenamiento = Resultado::where('producto', $productoId)
+        //         ->where('fecha', $fecha)
+        //         ->where('prueba', 3)
+        //         ->get();
+
+        //     return response()->json([
+        //         'triangulares' => $triangulares,
+        //         'duoTrio' => $duoTrio,
+        //         'ordenamiento' => $ordenamiento
+        //     ]);
+        // } catch (\Exception $e) {
+        //     return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
+        // }
     }
 
     public function update(Request $request, Resultado $resultado)
@@ -92,11 +134,11 @@ class ResultadosController extends Controller
                     Resultado::create([
                         'producto' => $productoId,
                         'prueba' => $muestra->prueba,
-                        'atributo' => 'Dulzura', // Esto puede ajustarse según el atributo relevante
+                        'atributo' => 'Dulzura',
                         'cod_muestra' => $muestra->cod_muestra,
-                        'resultado' => 0, // Valor por defecto
+                        'resultado' => 0,
                         'fecha' => $fecha,
-                        'cabina' => $panelista->idpane, // Almacenar el ID del panelista en la columna 'cabina'
+                        'cabina' => $panelista->idpane,
                     ]);
                 }
             }
@@ -114,7 +156,7 @@ class ResultadosController extends Controller
                     ->where('cod_muestra', $calificacion->cod_muestra)
                     ->where('fecha', $fecha)
                     ->where('cabina', $calificacion->panelista_id)
-                    ->update(['resultado' => 1]); // Asumiendo que la calificación es positiva
+                    ->update(['resultado' => 1]);
             }
 
             // Obtener los resultados generados

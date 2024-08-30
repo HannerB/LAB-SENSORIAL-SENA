@@ -61,3 +61,79 @@ $(document).ready(function () {
         });
     });
 });
+
+$(document).ready(function() {
+    $('#filtro-resultados').submit(function(e) {
+        e.preventDefault();
+        
+        var cabina = $('#cabinas-filtro').val();
+        var fecha = $('#fecha-filtro').val();
+        var producto = $('#productos-filtro').val();
+
+        $.ajax({
+            url: '/mostrar-resultados',
+            method: 'GET',
+            data: {
+                cabina: cabina,
+                fecha: fecha,
+                producto: producto
+            },
+            success: function(response) {
+                actualizarResultados(response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error en la solicitud AJAX:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un error al obtener los resultados. Por favor, intente de nuevo.'
+                });
+            }
+        });
+    });
+
+    function actualizarResultados(data) {
+        // Actualizar prueba triangular
+        $('#head-triangular').html(`
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">${data.triangular.muestras[0]}</th>
+                <th scope="col">${data.triangular.muestras[1]}</th>
+                <th scope="col">${data.triangular.muestras[2]}</th>
+            </tr>
+        `);
+        $('#body-triangular').html(`
+            <tr>
+                <th scope="row">personas</th>
+                <td>${data.triangular.resultados[0]}</td>
+                <td>${data.triangular.resultados[1]}</td>
+                <td>${data.triangular.resultados[2]}</td>
+            </tr>
+        `);
+
+        // Actualizar prueba duo-trio
+        $('#head-duo').html(`
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">${data.duoTrio.muestras[0]}</th>
+                <th scope="col">${data.duoTrio.muestras[1]}</th>
+                <th scope="col">${data.duoTrio.muestras[2]}</th>
+            </tr>
+        `);
+        $('#body-duo').html(`
+            <tr>
+                <th scope="row">personas</th>
+                <td>${data.duoTrio.resultados[0]}</td>
+                <td>${data.duoTrio.resultados[1]}</td>
+                <td>${data.duoTrio.resultados[2]}</td>
+            </tr>
+        `);
+
+        // Actualizar prueba de ordenamiento
+        $('#atributo-prueba').text(data.ordenamiento.atributo);
+        $('#preferencia-ordenamiento').text(data.ordenamiento.preferencia);
+
+        // Mostrar el contenedor de resultados
+        $('#resultados-pruebas').show();
+    }
+});

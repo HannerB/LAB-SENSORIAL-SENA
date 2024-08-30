@@ -84,9 +84,7 @@ Route::get('/panel/resultados', function () {
 })->name('panel.resultados');
 Route::get('resultado/create', [ResultadosController::class, 'create'])->name('resultado.create');
 route::post('resultado/generar', [ResultadosController::class, 'generarResultados'])->name('resultado.generar');
-Route::get('resultado/{resultado}/edit', [ResultadosController::class, 'edit'])->name('resultado.edit');
-Route::put('resultado/{resultado}', [ResultadosController::class, 'update'])->name('resultado.update');
-Route::delete('resultado/{resultado}', [ResultadosController::class, 'destroy'])->name('resultado.destroy');
+route::get('/mostrar-resultados', [ResultadosController::class, 'mostrarResultados']);
 
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);
