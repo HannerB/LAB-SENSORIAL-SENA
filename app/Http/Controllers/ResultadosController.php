@@ -13,60 +13,48 @@ class ResultadosController extends Controller
 {
     public function mostrarResultados(Request $request)
     {
-        $cabina = $request->input('cabina');
-        $fecha = $request->input('fecha');
-        $producto = $request->input('producto');
+        Log::info('Iniciando generación de resultados');
+        Log::info($request->all());
 
-        $resultados = [
-            'triangular' => [
-                'muestras' => ['0800', '5000', '35200'],
-                'resultados' => [5, 3, 2]
-            ],
-            'duoTrio' => [
-                'muestras' => ['0800', '5000', '35200'],
-                'resultados' => [8, 4, 1]
-            ],
-            'ordenamiento' => [
-                'atributo' => 'Dulzura',
-                'preferencia' => 'Muestra A'
-            ]
-        ];
+        try {
+            DB::beginTransaction();
 
-        return response()->json($resultados);
+            $request->validate([
+                'fecha' => 'required|date',
+                'producto_id' => 'required|exists:productos,id_producto',
+            ]);
 
-        // try {
-        //     $request->validate([
-        //         'fecha' => 'required|date',
-        //         'producto_id' => 'required|exists:productos,id_producto',
-        //     ]);
+            $fecha = $request->fecha;
+            $productoId = $request->producto_id;
 
-        //     $fecha = $request->input('fecha');
-        //     $productoId = $request->input('producto_id');
+            Log::info("Fecha: $fecha, Producto ID: $productoId");
 
-        //     // Obtener los resultados de las pruebas
-        //     $triangulares = Resultado::where('producto', $productoId)
-        //         ->where('fecha', $fecha)
-        //         ->where('prueba', 1)
-        //         ->get();
+            // ... (resto del código sin cambios hasta la obtención de resultados)
 
-        //     $duoTrio = Resultado::where('producto', $productoId)
-        //         ->where('fecha', $fecha)
-        //         ->where('prueba', 2)
-        //         ->get();
+            // Obtener los resultados generados
+            $resultados = Resultado::where('producto', $productoId)
+                ->where('fecha', $fecha)
+                ->get();
 
-        //     $ordenamiento = Resultado::where('producto', $productoId)
-        //         ->where('fecha', $fecha)
-        //         ->where('prueba', 3)
-        //         ->get();
+            // Organizar los resultados por tipo de prueba
+            $triangulares = $resultados->where('prueba', 1)->values();
+            $duoTrio = $resultados->where('prueba', 2)->values();
+            $ordenamiento = $resultados->where('prueba', 3)->sortBy('resultado')->values();
 
-        //     return response()->json([
-        //         'triangulares' => $triangulares,
-        //         'duoTrio' => $duoTrio,
-        //         'ordenamiento' => $ordenamiento
-        //     ]);
-        // } catch (\Exception $e) {
-        //     return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
-        // }
+            $data = [
+                'triangulares' => $triangulares,
+                'duoTrio' => $duoTrio,
+                'ordenamiento' => $ordenamiento
+            ];
+
+            DB::commit();
+            Log::info('Finalizando generación de resultados');
+            return response()->json(['message' => 'Resultados generados exitosamente', 'data' => $data]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error al generar resultados: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
+        }
     }
 
     public function update(Request $request, Resultado $resultado)

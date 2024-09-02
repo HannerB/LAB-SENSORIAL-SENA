@@ -64,54 +64,40 @@
                 <thead id="head-triangular">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">0800</th>
-                        <th scope="col">5000</th>
-                        <th scope="col">35200</th>
+                        <th scope="col">Código Muestra</th>
+                        <th scope="col">Resultado</th>
                     </tr>
                 </thead>
                 <tbody class="table-light" id="body-triangular">
-                    <tr>
-                        <th scope="row">personas</th>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
                 </tbody>
             </table>
-    
+
             <!-- PRUEBA DUO - TRIO -->
             <h3>PRUEBA DUO - TRIO</h3>
             <table class="table table-secondary table-bordered table-hover mb-4">
                 <thead id="head-duo">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">0800</th>
-                        <th scope="col">5000</th>
-                        <th scope="col">35200</th>
+                        <th scope="col">Código Muestra</th>
+                        <th scope="col">Resultado</th>
                     </tr>
                 </thead>
                 <tbody class="table-light" id="body-duo">
-                    <tr>
-                        <th scope="row">personas</th>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
                 </tbody>
             </table>
-    
+
             <!-- PRUEBA ORDENAMIENTO -->
             <h3>PRUEBA ORDENAMIENTO - ( <span id="atributo-prueba">ATRIBUTO</span> )</h3>
             <table class="table table-secondary table-bordered table-hover mb-4">
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">resultado</th>
+                        <th scope="col">Resultado</th>
                     </tr>
                 </thead>
                 <tbody class="table-light">
                     <tr>
-                        <th scope="row">prefieren</th>
+                        <th scope="row">Prefieren</th>
                         <td id="preferencia-ordenamiento"></td>
                     </tr>
                 </tbody>
