@@ -104,7 +104,7 @@ class ResultadosController extends Controller
             // Obtener todos los panelistas que participaron en la evaluación
             $panelistas = Calificacion::where('producto', $productoId)
                 ->whereDate('created_at', $fecha)
-                ->select('idpane')
+                ->select('idpane') // Usa el nombre del campo correcto
                 ->distinct()
                 ->get();
 
@@ -124,9 +124,9 @@ class ResultadosController extends Controller
                         'prueba' => $muestra->prueba,
                         'atributo' => 'Dulzura',
                         'cod_muestra' => $muestra->cod_muestra,
-                        'resultado' => 0,
+                        'resultado' => '0',
                         'fecha' => $fecha,
-                        'cabina' => $panelista->idpane,
+                        'cabina' => $panelista->idpane, // Usa el nombre del campo correcto
                     ]);
                 }
             }
@@ -140,11 +140,17 @@ class ResultadosController extends Controller
 
             // Actualizar los resultados para las muestras calificadas
             foreach ($calificaciones as $calificacion) {
-                Resultado::where('producto', $productoId)
-                    ->where('cod_muestra', $calificacion->cod_muestra)
+                Log::info("Calificación: ", $calificacion->toArray()); // Logging detallado de calificación
+
+                Log::info("Actualizando resultados para el panelista: {$calificacion->idpane}, muestra: {$calificacion->cod_muestras}");
+
+                $updatedRows = Resultado::where('producto', $productoId)
+                    ->where('cod_muestra', $calificacion->cod_muestras)
                     ->where('fecha', $fecha)
-                    ->where('cabina', $calificacion->panelista_id)
+                    ->where('cabina', $calificacion->idpane)
                     ->update(['resultado' => 1]);
+
+                Log::info("Número de filas actualizadas: $updatedRows");
             }
 
             // Obtener los resultados generados
