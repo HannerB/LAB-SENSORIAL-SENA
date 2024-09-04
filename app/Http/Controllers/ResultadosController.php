@@ -29,8 +29,6 @@ class ResultadosController extends Controller
 
             Log::info("Fecha: $fecha, Producto ID: $productoId");
 
-            // ... (resto del código sin cambios hasta la obtención de resultados)
-
             // Obtener los resultados generados
             $resultados = Resultado::where('producto', $productoId)
                 ->where('fecha', $fecha)
@@ -101,67 +99,47 @@ class ResultadosController extends Controller
             $muestras = Muestra::where('producto_id', $productoId)->get();
             Log::info("Muestras encontradas: " . $muestras->count());
 
-            // Obtener todos los panelistas que participaron en la evaluación
-            $panelistas = Calificacion::where('producto', $productoId)
-                ->whereDate('created_at', $fecha)
-                ->select('idpane') // Usa el nombre del campo correcto
-                ->distinct()
-                ->get();
-
-            Log::info("Panelistas encontrados: " . $panelistas->count());
-
-            // Eliminamos los resultados existentes para este producto y fecha
-            Resultado::where('producto', $productoId)
-                ->where('fecha', $fecha)
-                ->delete();
-
-            // Crear resultados para todos los panelistas y todas las muestras
-            foreach ($panelistas as $panelista) {
-                foreach ($muestras as $muestra) {
-                    // Crear un resultado para cada combinación de panelista, muestra y atributo
-                    Resultado::create([
-                        'producto' => $productoId,
-                        'prueba' => $muestra->prueba,
-                        'atributo' => 'Dulzura',
-                        'cod_muestra' => $muestra->cod_muestra,
-                        'resultado' => '0',
-                        'fecha' => $fecha,
-                        'cabina' => $panelista->idpane, // Usa el nombre del campo correcto
-                    ]);
-                }
-            }
-
-            // Obtener las calificaciones para este producto y fecha
+            // Obtener todas las calificaciones para este producto y fecha
             $calificaciones = Calificacion::where('producto', $productoId)
                 ->whereDate('created_at', $fecha)
                 ->get();
 
             Log::info("Calificaciones encontradas: " . $calificaciones->count());
 
-            // Actualizar los resultados para las muestras calificadas
+            // Inicializar un array para contar los votos por muestra
+            $resultados = [];
+
+            // Contar votos para cada muestra
             foreach ($calificaciones as $calificacion) {
-                Log::info("Calificación: ", $calificacion->toArray()); // Logging detallado de calificación
+                $codMuestra = $calificacion->cod_muestras;
 
-                Log::info("Actualizando resultados para el panelista: {$calificacion->idpane}, muestra: {$calificacion->cod_muestras}");
-
-                $updatedRows = Resultado::where('producto', $productoId)
-                    ->where('cod_muestra', $calificacion->cod_muestras)
-                    ->where('fecha', $fecha)
-                    ->where('cabina', $calificacion->idpane)
-                    ->update(['resultado' => 1]);
-
-                Log::info("Número de filas actualizadas: $updatedRows");
+                // Si el código de muestra ya está en los resultados, incrementar el contador
+                if (isset($resultados[$codMuestra])) {
+                    $resultados[$codMuestra]++;
+                } else {
+                    // Si no está, inicializar el contador a 1
+                    $resultados[$codMuestra] = 1;
+                }
             }
 
-            // Obtener los resultados generados
-            $resultados = Resultado::where('producto', $productoId)
-                ->where('fecha', $fecha)
-                ->get();
+            // Incluir todas las muestras, incluso las que no tienen votos
+            $resultadosFormateados = [];
+            foreach ($muestras as $muestra) {
+                $codMuestra = $muestra->cod_muestra;
+                $votos = isset($resultados[$codMuestra]) ? $resultados[$codMuestra] : 0;
+
+                $resultadosFormateados[] = [
+                    'cod_muestra' => $codMuestra,
+                    'prueba' => $muestra->prueba,
+                    'atributo' => 'Dulzura', // Este es un ejemplo, cambia según tu caso
+                    'resultado' => $votos
+                ];
+            }
 
             // Organizar los resultados por tipo de prueba
-            $triangulares = $resultados->where('prueba', 1)->values();
-            $duoTrio = $resultados->where('prueba', 2)->values();
-            $ordenamiento = $resultados->where('prueba', 3)->values();
+            $triangulares = collect($resultadosFormateados)->where('prueba', 1)->values();
+            $duoTrio = collect($resultadosFormateados)->where('prueba', 2)->values();
+            $ordenamiento = collect($resultadosFormateados)->where('prueba', 3)->values();
 
             $data = [
                 'triangulares' => $triangulares,
