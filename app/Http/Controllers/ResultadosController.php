@@ -141,10 +141,14 @@ class ResultadosController extends Controller
             $duoTrio = collect($resultadosFormateados)->where('prueba', 2)->values();
             $ordenamiento = collect($resultadosFormateados)->where('prueba', 3)->values();
 
+            // Encontrar la muestra con más votos en la prueba de ordenamiento
+            $muestraMasVotada = $ordenamiento->sortByDesc('resultado')->first();
+
             $data = [
                 'triangulares' => $triangulares,
                 'duoTrio' => $duoTrio,
-                'ordenamiento' => $ordenamiento
+                'ordenamiento' => $ordenamiento,
+                'muestraMasVotada' => $muestraMasVotada // Enviar la muestra más votada
             ];
 
             DB::commit();

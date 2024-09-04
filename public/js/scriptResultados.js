@@ -52,8 +52,9 @@ $(document).ready(function () {
 
                 if (response.data.ordenamiento && response.data.ordenamiento.length > 0) {
                     $('#atributo-prueba').text(response.data.ordenamiento[0].atributo);
-                    let resultados = response.data.ordenamiento.map(item => `${item.cod_muestra} (${item.resultado} votos)`).join(' > ');
-                    $('#preferencia-ordenamiento').text(resultados);
+                    if (response.data.muestraMasVotada) {
+                        $('#preferencia-ordenamiento').append(` ${response.data.muestraMasVotada.cod_muestra}`);
+                    }
                 }
             },
             error: function (xhr) {

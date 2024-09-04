@@ -86,12 +86,6 @@
         <div class="contenido">
             <h1 class="titulo-prueba mb-4"><b>prueba de duo - trio</b></h1>
             <div class="formulario-prueba mb-3">
-                {{-- <form id="datos-panelista" class="mb-4">
-                    <label for="">NOMBRE COMPLETO:</label>
-                    <input type="text" id="nombrePanelista2">
-                    <label for="">FECHA:</label>
-                    <input type="date" id="fechaPanelista2">
-                </form> --}}
                 <form id="dato-producto">
                     <label for="">NOMBRE DE PRODUCTO:</label>
                     <input type="text" id="productoPrueba2" readonly
@@ -145,40 +139,43 @@
 
     <section class="text-center" id="sect3">
         <div class="contenido">
-            <h1 class="titulo-prueba mb-4"><b>prueba de ordenamiento</b></h1>
+            <h1 class="titulo-prueba mb-4"><b>Prueba de Ordenamiento</b></h1>
             <div class="formulario-prueba mb-3">
-                {{-- <form id="datos-panelista" class="mb-4">
-                    <label for="">NOMBRE COMPLETO:</label>
-                    <input type="text" id="nombrePanelista3">
-                    <label for="">FECHA:</label>
-                    <input type="date" id="fechaPanelista3">
-                </form> --}}
                 <form id="dato-producto">
-                    <label for="">NOMBRE DE PRODUCTO:</label>
+                    <label for="">Nombre de Producto:</label>
                     <input type="text" id="productoPrueba2" readonly
                         value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
                 </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span
-                        class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>)
+
+                <p class="text-start mt-5 mb-5">
+                    Frente a usted hay tres muestras de
+                    <span
+                        class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>
                     que usted debe ordenar en forma creciente de acuerdo al grado de <span
-                        class="atributo-span">dulzura<span>.</p>
-                <p class="text-start mt-5 mb-5">Cada Muestra debe llevar un orden diferente, dos muestras no deben
-                    tener el mismo orden.</p>
+                        class="atributo-span">dulzura</span>.
+                </p>
+                <p class="text-start mt-5 mb-5">Cada muestra debe llevar un orden diferente. No se permite que dos
+                    muestras tengan el mismo orden.</p>
+
                 <table class="table table-bordered table-hover table-secondary mb-3">
                     <thead class="table-dark">
                         <tr>
-                            <th scope="col">ORDEN DE LAS MUESTRAS</th>
-                            <th scope="col">GRADO DE <span class="atributo-span" id="tipo-atributo">DULZURA</span>
-                            </th>
+                            <th scope="col">Muestra</th>
+                            <th scope="col">Orden</th>
                         </tr>
                     </thead>
-                    <tbody id="cuerpo-selectores-odenamiento">
+                    <tbody id="cuerpo-selectores-ordenamiento">
                         @forelse($muestrasOrdenamiento as $muestra)
                             <tr>
                                 <td>{{ $muestra->cod_muestra }}</td>
                                 <td>
-                                    <input type="radio" name="muestra_ordenamiento"
-                                        value="{{ $muestra->cod_muestra }}">
+                                    <select name="orden_muestra_{{ $muestra->cod_muestra }}"
+                                        class="form-select orden-muestra" required>
+                                        <option value="" selected disabled>Seleccione el orden</option>
+                                        <option value="1">1 - Menos Dulce</option>
+                                        <option value="2">2 - Intermedio</option>
+                                        <option value="3">3 - Más Dulce</option>
+                                    </select>
                                 </td>
                             </tr>
                         @empty
@@ -188,17 +185,20 @@
                         @endforelse
                     </tbody>
                 </table>
+
                 <form id="form-comentarios" class="mb-5">
-                    <label for="">COMENTARIOS:</label><br>
-                    <textarea id="comentario-orden"></textarea>
+                    <label for="">Comentarios:</label><br>
+                    <textarea id="comentario-orden" class="form-control"></textarea>
                 </form>
+
                 <hr>
-                <h5>MUCHAS GRACIAS!</h5>
+                <h5>¡Muchas gracias!</h5>
             </div>
+
             <div class="btns">
                 <button class="btn btn-outline-primary me-2"
                     onclick="cambiarFormulario('sect2','sect3')">Anterior</button>
-                <button class="btn btn-success" id="btnguardar-todo">GUARDAR TODO</button>
+                <button class="btn btn-success" id="btnguardar-todo">Guardar Todo</button>
             </div>
             <br>
         </div>
@@ -277,7 +277,7 @@
                 },
                 {
                     prueba: 3,
-                    codMuestras: document.querySelector('input[name="muestra_ordenamiento"]:checked')?.value,
+                    codMuestras: formatearResultadosOrdenamiento(),
                     atributo: 'Dulzura',
                     comentario: document.getElementById('comentario-orden').value,
                     cabina: 3
@@ -314,6 +314,33 @@
             });
 
             alert('Todas las calificaciones han sido guardadas.');
+        }
+
+        function formatearResultadosOrdenamiento() {
+            var resultados = [];
+            var selects = document.querySelectorAll('.orden-muestra');
+
+            // Crear un array para almacenar los resultados temporalmente
+            var resultadosTemp = [];
+
+            selects.forEach(function(select) {
+                var codMuestra = select.closest('tr').querySelector('td:first-child').textContent.trim();
+                var orden = parseInt(select.value);
+                if (orden) {
+                    resultadosTemp.push({
+                        codigo: codMuestra,
+                        orden: orden,
+                    });
+                }
+            });
+
+            // Ordenar los resultados por el orden seleccionado
+            resultadosTemp.sort((a, b) => a.orden - b.orden);
+
+            // Crear la cadena final en el orden correcto
+            resultados = resultadosTemp.map(item => `${item.codigo}`);
+
+            return resultados.join(',');
         }
     </script>
 </body>
