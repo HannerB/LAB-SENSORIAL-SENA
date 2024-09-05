@@ -109,31 +109,57 @@ class ResultadosController extends Controller
             // Inicializar un array para contar los votos por muestra
             $resultados = [];
 
-            // Contar votos para cada muestra
-            foreach ($calificaciones as $calificacion) {
+            // Contar votos para cada muestra (para pruebas 1 y 2)
+            foreach ($calificaciones->whereIn('prueba', [1, 2]) as $calificacion) {
                 $codMuestra = $calificacion->cod_muestras;
-
-                // Si el código de muestra ya está en los resultados, incrementar el contador
-                if (isset($resultados[$codMuestra])) {
-                    $resultados[$codMuestra]++;
-                } else {
-                    // Si no está, inicializar el contador a 1
-                    $resultados[$codMuestra] = 1;
-                }
+                $resultados[$codMuestra] = ($resultados[$codMuestra] ?? 0) + 1;
             }
 
-            // Incluir todas las muestras, incluso las que no tienen votos
             $resultadosFormateados = [];
-            foreach ($muestras as $muestra) {
-                $codMuestra = $muestra->cod_muestra;
-                $votos = isset($resultados[$codMuestra]) ? $resultados[$codMuestra] : 0;
 
-                $resultadosFormateados[] = [
-                    'cod_muestra' => $codMuestra,
-                    'prueba' => $muestra->prueba,
-                    'atributo' => 'Dulzura', // Este es un ejemplo, cambia según tu caso
-                    'resultado' => $votos
-                ];
+            // Procesar pruebas 1 y 2
+            foreach ($muestras->whereIn('prueba', [1, 2]) as $muestra) {
+                $codMuestra = $muestra->cod_muestra;
+                $votos = $resultados[$codMuestra] ?? 0;
+
+                $resultadoNuevo = Resultado::updateOrCreate(
+                    [
+                        'producto' => $productoId,
+                        'prueba' => $muestra->prueba,
+                        'cod_muestra' => $codMuestra,
+                        'fecha' => $fecha
+                    ],
+                    [
+                        'atributo' => 'Dulzura',
+                        'resultado' => $votos,
+                        'cabina' => 1
+                    ]
+                );
+
+                $resultadosFormateados[] = $resultadoNuevo->toArray();
+            }
+
+            // Procesar prueba de ordenamiento (prueba 3)
+            $calificacionesOrdenamiento = $calificaciones->where('prueba', 3);
+            if ($calificacionesOrdenamiento->isNotEmpty()) {
+                $primeraCalificacion = $calificacionesOrdenamiento->first();
+                $secuenciaOrdenamiento = $primeraCalificacion->cod_muestras;
+
+                $resultadoOrdenamiento = Resultado::updateOrCreate(
+                    [
+                        'producto' => $productoId,
+                        'prueba' => 3,
+                        'fecha' => $fecha
+                    ],
+                    [
+                        'cod_muestra' => $secuenciaOrdenamiento,
+                        'atributo' => 'Dulzura',
+                        'resultado' => $calificacionesOrdenamiento->count(),
+                        'cabina' => 1
+                    ]
+                );
+
+                $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
             }
 
             // Organizar los resultados por tipo de prueba
@@ -141,23 +167,27 @@ class ResultadosController extends Controller
             $duoTrio = collect($resultadosFormateados)->where('prueba', 2)->values();
             $ordenamiento = collect($resultadosFormateados)->where('prueba', 3)->values();
 
-            // Encontrar la muestra con más votos en la prueba de ordenamiento
-            $muestraMasVotada = $ordenamiento->sortByDesc('resultado')->first();
+            // Para la vista, tomamos solo la primera muestra del ordenamiento
+            $muestraMasVotada = null;
+            if ($ordenamiento->isNotEmpty()) {
+                $primerasMuestras = explode(',', $ordenamiento->first()['cod_muestra']);
+                $muestraMasVotada = ['cod_muestra' => $primerasMuestras[0]];
+            }
 
             $data = [
                 'triangulares' => $triangulares,
                 'duoTrio' => $duoTrio,
                 'ordenamiento' => $ordenamiento,
-                'muestraMasVotada' => $muestraMasVotada // Enviar la muestra más votada
+                'muestraMasVotada' => $muestraMasVotada
             ];
 
             DB::commit();
-            Log::info('Finalizando generación de resultados');
-            return response()->json(['message' => 'Resultados generados exitosamente', 'data' => $data]);
+            Log::info('Finalizando generación y guardado de resultados');
+            return response()->json(['message' => 'Resultados generados y guardados exitosamente', 'data' => $data]);
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Error al generar resultados: ' . $e->getMessage());
-            return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
+            Log::error('Error al generar y guardar resultados: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al generar y guardar los resultados: ' . $e->getMessage()], 500);
         }
     }
 }
