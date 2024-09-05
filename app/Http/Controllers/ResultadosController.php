@@ -11,50 +11,6 @@ use App\Models\Calificacion;
 
 class ResultadosController extends Controller
 {
-    public function mostrarResultados(Request $request)
-    {
-        Log::info('Iniciando generación de resultados');
-        Log::info($request->all());
-
-        try {
-            DB::beginTransaction();
-
-            $request->validate([
-                'fecha' => 'required|date',
-                'producto_id' => 'required|exists:productos,id_producto',
-            ]);
-
-            $fecha = $request->fecha;
-            $productoId = $request->producto_id;
-
-            Log::info("Fecha: $fecha, Producto ID: $productoId");
-
-            // Obtener los resultados generados
-            $resultados = Resultado::where('producto', $productoId)
-                ->where('fecha', $fecha)
-                ->get();
-
-            // Organizar los resultados por tipo de prueba
-            $triangulares = $resultados->where('prueba', 1)->values();
-            $duoTrio = $resultados->where('prueba', 2)->values();
-            $ordenamiento = $resultados->where('prueba', 3)->sortBy('resultado')->values();
-
-            $data = [
-                'triangulares' => $triangulares,
-                'duoTrio' => $duoTrio,
-                'ordenamiento' => $ordenamiento
-            ];
-
-            DB::commit();
-            Log::info('Finalizando generación de resultados');
-            return response()->json(['message' => 'Resultados generados exitosamente', 'data' => $data]);
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error al generar resultados: ' . $e->getMessage());
-            return response()->json(['error' => 'Ocurrió un error al generar los resultados: ' . $e->getMessage()], 500);
-        }
-    }
-
     public function update(Request $request, Resultado $resultado)
     {
         $data = $request->validate([
@@ -142,8 +98,21 @@ class ResultadosController extends Controller
             // Procesar prueba de ordenamiento (prueba 3)
             $calificacionesOrdenamiento = $calificaciones->where('prueba', 3);
             if ($calificacionesOrdenamiento->isNotEmpty()) {
-                $primeraCalificacion = $calificacionesOrdenamiento->first();
-                $secuenciaOrdenamiento = $primeraCalificacion->cod_muestras;
+                $votosOrdenamiento = [];
+
+                // Contar cuántas veces cada muestra fue seleccionada en la primera posición
+                foreach ($calificacionesOrdenamiento as $calificacion) {
+                    $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
+                    $primeraMuestra = $secuenciaMuestras[0];  // La primera muestra seleccionada
+
+                    $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                }
+
+                // Ordenar las muestras por la cantidad de veces que fueron votadas en primera posición
+                arsort($votosOrdenamiento);
+
+                // Obtener la muestra más votada
+                $muestraMasVotada = key($votosOrdenamiento);
 
                 $resultadoOrdenamiento = Resultado::updateOrCreate(
                     [
@@ -152,9 +121,9 @@ class ResultadosController extends Controller
                         'fecha' => $fecha
                     ],
                     [
-                        'cod_muestra' => $secuenciaOrdenamiento,
+                        'cod_muestra' => $muestraMasVotada,
                         'atributo' => 'Dulzura',
-                        'resultado' => $calificacionesOrdenamiento->count(),
+                        'resultado' => $votosOrdenamiento[$muestraMasVotada],
                         'cabina' => 1
                     ]
                 );
@@ -167,18 +136,11 @@ class ResultadosController extends Controller
             $duoTrio = collect($resultadosFormateados)->where('prueba', 2)->values();
             $ordenamiento = collect($resultadosFormateados)->where('prueba', 3)->values();
 
-            // Para la vista, tomamos solo la primera muestra del ordenamiento
-            $muestraMasVotada = null;
-            if ($ordenamiento->isNotEmpty()) {
-                $primerasMuestras = explode(',', $ordenamiento->first()['cod_muestra']);
-                $muestraMasVotada = ['cod_muestra' => $primerasMuestras[0]];
-            }
-
             $data = [
                 'triangulares' => $triangulares,
                 'duoTrio' => $duoTrio,
                 'ordenamiento' => $ordenamiento,
-                'muestraMasVotada' => $muestraMasVotada
+                'muestraMasVotada' => ['cod_muestra' => $muestraMasVotada]
             ];
 
             DB::commit();
