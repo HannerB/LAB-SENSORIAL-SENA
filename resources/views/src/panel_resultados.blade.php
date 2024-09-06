@@ -26,7 +26,7 @@
         <h1 class="text-center">PANEL DE RESULTADOS</h1>
         <div class="filtros mb-5">
             <form id="filtro-resultados">
-                @csrf 
+                @csrf
                 <div class="mb-3">
                     <label for="" class="form-label">Numero de cabina</label>
                     <select name="" id="cabinas-filtro" class="form-select">
@@ -104,11 +104,12 @@
             </table>
         </div>
 
-        <div class="resultados resultado-pruebas-personas" id="resultado-pruebas-personas">
+        <div class="resultados resultado-pruebas-personas" id="resultado-pruebas-personas" style="display: none;">
             <hr>
             <div class="mb-4 mt-4">
                 <form>
-                    <label for="" class="mb-2">Seleccione la prueba para ver los resultados de los panelistas</label>
+                    <label for="" class="mb-2">Seleccione la prueba para ver los resultados de los
+                        panelistas</label>
                     <select name="" class="form-select" id="tipo-prueba-resultado">
                         <option value="select">SELECCIONE LA PRUEBA</option>
                         <option value="1">PRUEBA TRIANGULAR</option>
@@ -121,12 +122,12 @@
                 <table class="table table-dark table-bordered table-hover mb-4">
                     <thead>
                         <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">NOMBRE</th>
-                        <th scope="col">RESPUESTA</th>
+                            <th scope="col">#</th>
+                            <th scope="col">NOMBRE</th>
+                            <th scope="col">RESPUESTA</th>
                         </tr>
                     </thead>
-                    <tbody class="table-light" id="listado-personas-prueba">    
+                    <tbody class="table-light" id="listado-personas-prueba">
                     </tbody>
                 </table>
             </div>

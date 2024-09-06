@@ -152,4 +152,56 @@ class ResultadosController extends Controller
             return response()->json(['error' => 'Ocurrió un error al generar y guardar los resultados: ' . $e->getMessage()], 500);
         }
     }
+
+    public function mostrarResultadosPanelistas(Request $request)
+    {
+        $testType = $request->input('test_type');
+        $fecha = $request->input('fecha');
+        $productoId = $request->input('producto_id');
+
+        $query = DB::table('calificaciones')
+            ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
+            ->where('calificaciones.fecha', $fecha)
+            ->where('calificaciones.producto', $productoId)
+            ->select('panelistas.nombres as nombre_panelista', 'calificaciones.cod_muestras', 'calificaciones.prueba');
+
+        switch ($testType) {
+            case '1': // Prueba Triangular
+                $query->where('calificaciones.prueba', 1);
+                break;
+            case '2': // Prueba Duo-Trio
+                $query->where('calificaciones.prueba', 2);
+                break;
+            case '3': // Prueba Ordenamiento
+                $query->where('calificaciones.prueba', 3);
+                break;
+        }
+
+        $results = $query->get()->map(function ($item) {
+            $respuesta = $this->formatearRespuesta($item->prueba, $item->cod_muestras);
+            return [
+                'nombre_panelista' => $item->nombre_panelista,
+                'respuesta' => $respuesta
+            ];
+        });
+
+        Log::info($results);
+
+        return response()->json(['data' => $results]);
+    }
+
+    private function formatearRespuesta($tipoPrueba, $codMuestras)
+    {
+        $muestras = explode(',', $codMuestras);
+
+        switch ($tipoPrueba) {
+            case 1: // Triangular
+            case 2: // Duo-Trio
+                return "Muestra seleccionada: " . $muestras[0];
+            case 3: // Ordenamiento
+                return "Orden: " . implode(' > ', $muestras);
+            default:
+                return $codMuestras;
+        }
+    }
 }

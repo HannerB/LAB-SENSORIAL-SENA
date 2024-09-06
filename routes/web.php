@@ -85,6 +85,7 @@ Route::get('/panel/resultados', function () {
 Route::get('resultado/create', [ResultadosController::class, 'create'])->name('resultado.create');
 route::post('resultado/generar', [ResultadosController::class, 'generarResultados'])->name('resultado.generar');
 route::get('/mostrar-resultados', [ResultadosController::class, 'mostrarResultados']);
+route::get('/mostrar-resultados-panelistas', [ResultadosController::class, 'mostrarResultadosPanelistas']);
 
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);
