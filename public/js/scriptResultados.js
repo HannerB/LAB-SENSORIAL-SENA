@@ -4,9 +4,15 @@ $(document).ready(function () {
 
         var fecha = $('#fecha-filtro').val();
         var productoId = $('#productos-filtro').val();
+        var cabina = $('#cabinas-filtro').val();
 
         if (productoId === 'select') {
             Swal.fire('Advertencia', 'Por favor, selecciona un producto.', 'warning');
+            return;
+        }
+
+        if (cabina === 'select') {
+            Swal.fire('Advertencia', 'Por favor, selecciona una cabina.', 'warning');
             return;
         }
 
@@ -16,16 +22,19 @@ $(document).ready(function () {
             data: {
                 fecha: fecha,
                 producto_id: productoId,
+                cabina: cabina,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
                 $('#resultados-pruebas').show();
+                $('#resultado-pruebas-personas').show();
 
                 // Limpiar las tablas existentes
                 $('#body-triangular').empty();
                 $('#body-duo').empty();
                 $('#preferencia-ordenamiento').empty();
 
+                // Mostrar resultados de prueba triangular
                 if (response.data.triangulares && response.data.triangulares.length > 0) {
                     response.data.triangulares.forEach(function (item, index) {
                         $('#body-triangular').append(`
@@ -38,6 +47,7 @@ $(document).ready(function () {
                     });
                 }
 
+                // Mostrar resultados de prueba duo-trio
                 if (response.data.duoTrio && response.data.duoTrio.length > 0) {
                     response.data.duoTrio.forEach(function (item, index) {
                         $('#body-duo').append(`
@@ -50,43 +60,15 @@ $(document).ready(function () {
                     });
                 }
 
+                // Mostrar resultados de prueba de ordenamiento
                 if (response.data.ordenamiento && response.data.ordenamiento.length > 0) {
                     $('#atributo-prueba').text(response.data.ordenamiento[0].atributo);
                     if (response.data.muestraMasVotada) {
                         $('#preferencia-ordenamiento').append(` ${response.data.muestraMasVotada.cod_muestra}`);
                     }
                 }
-            },
-            error: function (xhr) {
-                Swal.fire('Error', 'Ocurrió un error al generar los resultados. Intenta nuevamente.', 'error');
-            }
-        });
-    });
-});
 
-$(document).ready(function () {
-    $('#filtro-resultados').submit(function (e) {
-        e.preventDefault();
-
-        var fecha = $('#fecha-filtro').val();
-        var productoId = $('#productos-filtro').val();
-
-        if (productoId === 'select') {
-            Swal.fire('Advertencia', 'Por favor, selecciona un producto.', 'warning');
-            return;
-        }
-
-        $.ajax({
-            url: '/resultado/generar',
-            method: 'POST',
-            data: {
-                fecha: fecha,
-                producto_id: productoId,
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                $('#resultados-pruebas').show();
-                $('#resultado-pruebas-personas').show();
+                // Resetear el selector de tipo de prueba
                 $('#tipo-prueba-resultado').val('select');
                 $('#listado-personas-prueba').empty();
             },
@@ -96,12 +78,14 @@ $(document).ready(function () {
             }
         });
     });
+});
 
-    // Event listener for the test type select
-    $('#tipo-prueba-resultado').change(function() {
+$(document).ready(function () {
+    $('#tipo-prueba-resultado').change(function () {
         var testType = $(this).val();
         var fecha = $('#fecha-filtro').val();
         var productoId = $('#productos-filtro').val();
+        var cabina = $('#cabinas-filtro').val();
 
         if (testType !== 'select') {
             $.ajax({
@@ -110,12 +94,13 @@ $(document).ready(function () {
                 data: {
                     test_type: testType,
                     fecha: fecha,
-                    producto_id: productoId
+                    producto_id: productoId,
+                    cabina: cabina
                 },
-                success: function(response) {
+                success: function (response) {
                     $('#listado-personas-prueba').empty();
                     if (response.data && response.data.length > 0) {
-                        response.data.forEach(function(item, index) {
+                        response.data.forEach(function (item, index) {
                             $('#listado-personas-prueba').append(`
                                 <tr>
                                     <th scope="row">${index + 1}</th>
@@ -124,7 +109,6 @@ $(document).ready(function () {
                                 </tr>
                             `);
                         });
-                        // Show the table after populating it
                         $('.tabla-personas').show();
                     } else {
                         $('#listado-personas-prueba').append(`
@@ -135,9 +119,9 @@ $(document).ready(function () {
                         $('.tabla-personas').show();
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     console.error('Error:', xhr);
-                    Swal.fire('Error', 'Ocurrió un error al obtener los resultados de los panelistas. Detalles: ' + xhr.responseText, 'error');
+                    Swal.fire('Error', 'Ocurrió un error al obtener los resultados de los panelistas.', 'error');
                 }
             });
         } else {
@@ -146,6 +130,7 @@ $(document).ready(function () {
         }
     });
 
+    // Inicialización de elementos ocultos
     $('#resultados-pruebas').hide();
     $('#resultado-pruebas-personas').hide();
     $('.tabla-personas').hide();

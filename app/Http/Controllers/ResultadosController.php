@@ -46,36 +46,32 @@ class ResultadosController extends Controller
             $request->validate([
                 'fecha' => 'required|date',
                 'producto_id' => 'required|exists:productos,id_producto',
+                'cabina' => 'required|integer|min:1|max:3',
             ]);
 
             $fecha = $request->fecha;
             $productoId = $request->producto_id;
+            $cabina = $request->cabina;
 
-            Log::info("Fecha: $fecha, Producto ID: $productoId");
+            // Inicializar variable
+            $muestraMasVotada = null;
 
-            // Obtener todas las muestras del producto
+            // Obtener muestras y calificaciones
             $muestras = Muestra::where('producto_id', $productoId)->get();
-            Log::info("Muestras encontradas: " . $muestras->count());
-
-            // Obtener todas las calificaciones para este producto y fecha
             $calificaciones = Calificacion::where('producto', $productoId)
-                ->whereDate('created_at', $fecha)
+                ->whereDate('fecha', $fecha) // cambiado de created_at a fecha
+                ->where('cabina', $cabina)
                 ->get();
 
-            Log::info("Calificaciones encontradas: " . $calificaciones->count());
-
-            // Inicializar un array para contar los votos por muestra
             $resultados = [];
+            $resultadosFormateados = [];
 
-            // Contar votos para cada muestra (para pruebas 1 y 2)
+            // Procesar pruebas 1 y 2
             foreach ($calificaciones->whereIn('prueba', [1, 2]) as $calificacion) {
                 $codMuestra = $calificacion->cod_muestras;
                 $resultados[$codMuestra] = ($resultados[$codMuestra] ?? 0) + 1;
             }
 
-            $resultadosFormateados = [];
-
-            // Procesar pruebas 1 y 2
             foreach ($muestras->whereIn('prueba', [1, 2]) as $muestra) {
                 $codMuestra = $muestra->cod_muestra;
                 $votos = $resultados[$codMuestra] ?? 0;
@@ -85,12 +81,12 @@ class ResultadosController extends Controller
                         'producto' => $productoId,
                         'prueba' => $muestra->prueba,
                         'cod_muestra' => $codMuestra,
-                        'fecha' => $fecha
+                        'fecha' => $fecha,
+                        'cabina' => $cabina
                     ],
                     [
                         'atributo' => 'Dulzura',
-                        'resultado' => $votos,
-                        'cabina' => 1
+                        'resultado' => $votos
                     ]
                 );
 
@@ -102,52 +98,46 @@ class ResultadosController extends Controller
             if ($calificacionesOrdenamiento->isNotEmpty()) {
                 $votosOrdenamiento = [];
 
-                // Contar cuántas veces cada muestra fue seleccionada en la primera posición
                 foreach ($calificacionesOrdenamiento as $calificacion) {
                     $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
-                    $primeraMuestra = $secuenciaMuestras[0];  // La primera muestra seleccionada
-
-                    $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                    if (!empty($secuenciaMuestras)) {
+                        $primeraMuestra = $secuenciaMuestras[0];
+                        $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                    }
                 }
 
-                // Ordenar las muestras por la cantidad de veces que fueron votadas en primera posición
-                arsort($votosOrdenamiento);
+                if (!empty($votosOrdenamiento)) {
+                    arsort($votosOrdenamiento);
+                    $muestraMasVotada = key($votosOrdenamiento);
 
-                // Obtener la muestra más votada
-                $muestraMasVotada = key($votosOrdenamiento);
+                    $resultadoOrdenamiento = Resultado::updateOrCreate(
+                        [
+                            'producto' => $productoId,
+                            'prueba' => 3,
+                            'fecha' => $fecha,
+                            'cabina' => $cabina
+                        ],
+                        [
+                            'cod_muestra' => $muestraMasVotada,
+                            'atributo' => 'Dulzura',
+                            'resultado' => $votosOrdenamiento[$muestraMasVotada]
+                        ]
+                    );
 
-                $resultadoOrdenamiento = Resultado::updateOrCreate(
-                    [
-                        'producto' => $productoId,
-                        'prueba' => 3,
-                        'fecha' => $fecha
-                    ],
-                    [
-                        'cod_muestra' => $muestraMasVotada,
-                        'atributo' => 'Dulzura',
-                        'resultado' => $votosOrdenamiento[$muestraMasVotada],
-                        'cabina' => 1
-                    ]
-                );
-
-                $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
+                    $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
+                }
             }
 
-            // Organizar los resultados por tipo de prueba
-            $triangulares = collect($resultadosFormateados)->where('prueba', 1)->values();
-            $duoTrio = collect($resultadosFormateados)->where('prueba', 2)->values();
-            $ordenamiento = collect($resultadosFormateados)->where('prueba', 3)->values();
-
             $data = [
-                'triangulares' => $triangulares,
-                'duoTrio' => $duoTrio,
-                'ordenamiento' => $ordenamiento,
-                'muestraMasVotada' => ['cod_muestra' => $muestraMasVotada]
+                'triangulares' => collect($resultadosFormateados)->where('prueba', 1)->values(),
+                'duoTrio' => collect($resultadosFormateados)->where('prueba', 2)->values(),
+                'ordenamiento' => collect($resultadosFormateados)->where('prueba', 3)->values(),
+                'muestraMasVotada' => $muestraMasVotada ? ['cod_muestra' => $muestraMasVotada] : null
             ];
 
             DB::commit();
             Log::info('Finalizando generación y guardado de resultados');
-            return response()->json(['message' => 'Resultados generados y guardados exitosamente', 'data' => $data]);
+            return response()->json(['success' => true, 'data' => $data]);
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error al generar y guardar resultados: ' . $e->getMessage());
@@ -160,23 +150,21 @@ class ResultadosController extends Controller
         $testType = $request->input('test_type');
         $fecha = $request->input('fecha');
         $productoId = $request->input('producto_id');
+        $cabina = $request->input('cabina');
 
         $query = DB::table('calificaciones')
             ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
-            ->where('calificaciones.fecha', $fecha)
+            ->whereDate('calificaciones.fecha', $fecha)  // Usar whereDate para comparar fechas
             ->where('calificaciones.producto', $productoId)
-            ->select('panelistas.nombres as nombre_panelista', 'calificaciones.cod_muestras', 'calificaciones.prueba');
+            ->where('calificaciones.cabina', $cabina)
+            ->select(
+                'panelistas.nombres as nombre_panelista',
+                'calificaciones.cod_muestras',
+                'calificaciones.prueba'
+            );
 
-        switch ($testType) {
-            case '1': // Prueba Triangular
-                $query->where('calificaciones.prueba', 1);
-                break;
-            case '2': // Prueba Duo-Trio
-                $query->where('calificaciones.prueba', 2);
-                break;
-            case '3': // Prueba Ordenamiento
-                $query->where('calificaciones.prueba', 3);
-                break;
+        if ($testType && in_array($testType, ['1', '2', '3'])) {
+            $query->where('calificaciones.prueba', $testType);
         }
 
         $results = $query->get()->map(function ($item) {
@@ -187,8 +175,7 @@ class ResultadosController extends Controller
             ];
         });
 
-        Log::info($results);
-
+        Log::info('Resultados de panelistas:', ['data' => $results]);
         return response()->json(['data' => $results]);
     }
 
@@ -212,7 +199,8 @@ class ResultadosController extends Controller
         $request->validate([
             'fecha' => 'required|date',
             'producto_id' => 'required|exists:productos,id_producto',
-            'tipo_prueba' => 'nullable|in:1,2,3'
+            'tipo_prueba' => 'nullable|in:1,2,3',
+            'cabina' => 'required|integer|min:1|max:3'
         ]);
 
         try {
@@ -220,9 +208,10 @@ class ResultadosController extends Controller
                 new ResultadosExport(
                     $request->fecha,
                     $request->producto_id,
-                    $request->tipo_prueba
+                    $request->tipo_prueba,
+                    $request->cabina
                 ),
-                "resultados_{$request->fecha}.xlsx"
+                "resultados_cabina_{$request->cabina}_{$request->fecha}.xlsx"
             );
         } catch (\Exception $e) {
             Log::error('Error al exportar resultados: ' . $e->getMessage());

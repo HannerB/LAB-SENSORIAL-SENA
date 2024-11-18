@@ -32,6 +32,9 @@
                     <label for="" class="form-label">Numero de cabina</label>
                     <select name="" id="cabinas-filtro" class="form-select">
                         <option value="select">Seleccione cabina</option>
+                        <option value="1">Cabina 1</option>
+                        <option value="2">Cabina 2</option>
+                        <option value="3">Cabina 3</option>
                     </select>
                 </div>
 
@@ -149,20 +152,20 @@
             const fecha = document.getElementById('fecha-filtro').value;
             const productoId = document.getElementById('productos-filtro').value;
             const tipoPrueba = document.getElementById('tipo-prueba-resultado').value;
+            const cabina = document.getElementById('cabinas-filtro').value;
 
-            if (!fecha || productoId === 'select') {
-                Swal.fire('Advertencia', 'Por favor, selecciona una fecha y un producto.', 'warning');
+            if (!fecha || productoId === 'select' || cabina === 'select') {
+                Swal.fire('Advertencia', 'Por favor, selecciona una fecha, producto y cabina.', 'warning');
                 return;
             }
 
-            // Construir la URL con los parámetros
             const params = new URLSearchParams({
                 fecha: fecha,
                 producto_id: productoId,
-                tipo_prueba: tipoPrueba !== 'select' ? tipoPrueba : ''
+                tipo_prueba: tipoPrueba !== 'select' ? tipoPrueba : '',
+                cabina: cabina
             });
 
-            // Redirigir a la ruta de exportación
             window.location.href = `/resultados/exportar?${params.toString()}`;
         });
     </script>

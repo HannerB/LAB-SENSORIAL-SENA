@@ -17,23 +17,31 @@ class ResultadosExport implements FromCollection, WithHeadings, WithMapping, Wit
     protected $fecha;
     protected $productoId;
     protected $tipoPrueba;
+    protected $cabina;
 
-    public function __construct($fecha, $productoId, $tipoPrueba = null)
+    public function __construct($fecha, $productoId, $tipoPrueba = null, $cabina)
     {
         $this->fecha = $fecha;
         $this->productoId = $productoId;
         $this->tipoPrueba = $tipoPrueba;
+        $this->cabina = $cabina;
     }
 
     public function collection()
     {
         $query = Calificacion::with(['panelista', 'producto'])
             ->where('fecha', $this->fecha)
-            ->where('producto', $this->productoId);
+            ->where('producto', $this->productoId)
+            ->where('cabina', $this->cabina);
 
+        // Si se especifica un tipo de prueba, filtrar por ese tipo
         if ($this->tipoPrueba) {
             $query->where('prueba', $this->tipoPrueba);
         }
+
+        // Ordenar los resultados
+        $query->orderBy('prueba')
+            ->orderBy('fecha');
 
         return $query->get();
     }
@@ -74,6 +82,7 @@ class ResultadosExport implements FromCollection, WithHeadings, WithMapping, Wit
                 $resultado = "Orden: " . implode(' > ', $muestras);
                 break;
         }
+
 
         $nombreProducto = DB::table('productos')
             ->where('id_producto', $calificacion->producto)
@@ -148,6 +157,6 @@ class ResultadosExport implements FromCollection, WithHeadings, WithMapping, Wit
             $tipoPruebaTexto = ' - ' . ($tipos[$this->tipoPrueba] ?? '');
         }
 
-        return "Resultados{$tipoPruebaTexto} {$this->fecha}";
+        return "Resultados Cabina {$this->cabina}{$tipoPruebaTexto} {$this->fecha}";
     }
 }
