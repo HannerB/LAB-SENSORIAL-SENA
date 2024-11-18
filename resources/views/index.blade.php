@@ -37,12 +37,8 @@
             <div class="formulario-prueba mb-3">
                 <form id="datos-cabina" class="mb-4">
                     <label for="cabina">NÚMERO DE CABINA:</label>
-                    <select id="cabina" required>
-                        <option value="" selected disabled>Seleccione la cabina</option>
-                        <option value="1">CABINA 1</option>
-                        <option value="2">CABINA 2</option>
-                        <option value="3">CABINA 3</option>
-                    </select>
+                    <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
+                        style="background-color: #e9ecef;">
                 </form>
                 <form id="datos-panelista" class="mb-4">
                     <label for="">NOMBRE COMPLETO:</label>

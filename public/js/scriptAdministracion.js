@@ -221,3 +221,54 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+$(document).ready(function () {
+    // Agregar manejador para el botón de guardar cambios
+    $('#btnguardar').click(function (e) {
+        e.preventDefault();
+
+        const numCabina = parseInt($('#cabina').val());
+
+        // Validar el número de cabina
+        if (isNaN(numCabina) || numCabina < 1 || numCabina > 3) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El número de cabina debe estar entre 1 y 3',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Actualizar la configuración
+        $.ajax({
+            url: rutaActualizarConfiguracion,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                _method: 'PUT',
+                num_cabina: numCabina
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Guardado exitoso!',
+                        text: 'El número de cabina ha sido actualizado.',
+                        confirmButtonColor: '#198754'
+                    });
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar el número de cabina.',
+                    confirmButtonColor: '#198754'
+                });
+            }
+        });
+    });
+});

@@ -9,19 +9,19 @@ use Illuminate\Support\Facades\Session;
 
 class ConfiguracionController extends Controller
 {
-    // En ConfiguracionController (u otro controlador relevante)
     public function formIndex()
     {
         $configuracion = Configuracion::first(); // Obtiene la configuración actual
         $productoHabilitado = $configuracion ? $configuracion->producto : null;
+        $numeroCabina = $configuracion ? $configuracion->num_cabina : 1;
 
         // Filtra las muestras para diferentes pruebas
         $muestras = $productoHabilitado ? Muestra::where('producto_id', $productoHabilitado->id_producto)->get() : collect();
-        $muestrasTriangular = $muestras->where('prueba', 1); // tipo 1 corresponde a la prueba triangular
-        $muestrasDuoTrio = $muestras->where('prueba', 2); // tipo 2 corresponde a la prueba Duo-Trio
-        $muestrasOrdenamiento = $muestras->where('prueba', 3); // tipo 3 corresponde a la prueba de Ordenamiento
+        $muestrasTriangular = $muestras->where('prueba', 1);
+        $muestrasDuoTrio = $muestras->where('prueba', 2);
+        $muestrasOrdenamiento = $muestras->where('prueba', 3);
 
-        return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento'));
+        return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento', 'numeroCabina'));
     }
 
     public function create()
@@ -46,14 +46,21 @@ class ConfiguracionController extends Controller
         return view('configuracion.edit', compact('configuracion'));
     }
 
-    public function update(Request $request, $id,)
+    public function update(Request $request, $id)
     {
         $configuracion = Configuracion::findOrFail($id);
-        $configuracion->producto_habilitado = $request->producto_habilitado;
+
+        if ($request->has('num_cabina')) {
+            $configuracion->num_cabina = $request->num_cabina;
+        }
+
+        if ($request->has('producto_habilitado')) {
+            $configuracion->producto_habilitado = $request->producto_habilitado;
+        }
+
         $configuracion->save();
 
         return response()->json(['success' => true, 'message' => 'Configuración actualizada correctamente']);
-        // return redirect()->route('admin.panel')->with('success', 'Producto actualizado correctamente.');
     }
 
     public function destroy(Configuracion $configuracion)

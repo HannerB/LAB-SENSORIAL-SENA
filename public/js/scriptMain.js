@@ -89,9 +89,7 @@ function cambiarFormulario(formIr, formActual) {
 // PRUEBA DE ORDENAMIENTO - EVITAR DUPLICADOS EN SELECCIÓN
 $(document).ready(function () {
     // Evento para el selector de cabina
-    $('#cabina').on('change', function () {
-        cabinaSeleccionada = parseInt($(this).val());
-    });
+    cabinaSeleccionada = parseInt($('#cabina').val());
 
     // Detectar cuando se cambia un valor en cualquier selector de orden
     $('.orden-muestra').on('change', function () {
