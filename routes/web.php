@@ -87,5 +87,8 @@ route::post('resultado/generar', [ResultadosController::class, 'generarResultado
 route::get('/mostrar-resultados', [ResultadosController::class, 'mostrarResultados']);
 route::get('/mostrar-resultados-panelistas', [ResultadosController::class, 'mostrarResultadosPanelistas']);
 
+// Rutas para Exportar
+Route::get('/resultados/exportar', [ResultadosController::class, 'exportar'])->name('resultados.exportar');
+
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ResultadosExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -202,6 +204,29 @@ class ResultadosController extends Controller
                 return "Orden: " . implode(' > ', $muestras);
             default:
                 return $codMuestras;
+        }
+    }
+
+    public function exportar(Request $request)
+    {
+        $request->validate([
+            'fecha' => 'required|date',
+            'producto_id' => 'required|exists:productos,id_producto',
+            'tipo_prueba' => 'nullable|in:1,2,3'
+        ]);
+
+        try {
+            return Excel::download(
+                new ResultadosExport(
+                    $request->fecha,
+                    $request->producto_id,
+                    $request->tipo_prueba
+                ),
+                "resultados_{$request->fecha}.xlsx"
+            );
+        } catch (\Exception $e) {
+            Log::error('Error al exportar resultados: ' . $e->getMessage());
+            return back()->with('error', 'Error al generar el archivo Excel');
         }
     }
 }

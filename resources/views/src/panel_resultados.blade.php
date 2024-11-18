@@ -9,15 +9,16 @@
     <title>RESULTADOS PANEL</title>
     <link rel="stylesheet" href="{{ asset('../bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('../css/style_resultados.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
     <nav class="navbar bg-success">
         <div class="container-fluid">
-            <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;"><img
-                    src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}"1" alt="" width="50px">
-                Laboratorio sensorial
-                de alimentos - Sena Cedagro</a>
+            <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;">
+                <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}" alt="" width="50px">
+                Laboratorio sensorial de alimentos - Sena Cedagro
+            </a>
             <a href="{{ route('admin.panel') }}" class="btn btn-outline-light">panel de administracion</a>
         </div>
     </nav>
@@ -51,7 +52,10 @@
                 </div>
 
                 <div class="text-end">
-                    <button class="btn btn-outline-secondary" type="submit">GENERAR RESULTADOS</button>
+                    <button class="btn btn-outline-secondary me-2" type="submit">GENERAR RESULTADOS</button>
+                    <button type="button" class="btn btn-success" id="btnExportar">
+                        <i class="fas fa-file-excel"></i> Exportar a Excel
+                    </button>
                 </div>
             </form>
         </div>
@@ -133,11 +137,35 @@
             </div>
         </div>
     </div>
-</body>
 
-<script src="{{ asset('../bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('../js/jquery-3.6.1.min.js') }}"></script>
-<script src="{{ asset('../js/sweetalert2.all.min.js') }}"></script>
-<script src="{{ asset('../js/scriptResultados.js') }}"></script>
+    <script src="{{ asset('../bootstrap/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('../js/jquery-3.6.1.min.js') }}"></script>
+    <script src="{{ asset('../js/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('../js/scriptResultados.js') }}"></script>
+
+    <!-- Script para el botón de exportación -->
+    <script>
+        document.getElementById('btnExportar').addEventListener('click', function() {
+            const fecha = document.getElementById('fecha-filtro').value;
+            const productoId = document.getElementById('productos-filtro').value;
+            const tipoPrueba = document.getElementById('tipo-prueba-resultado').value;
+
+            if (!fecha || productoId === 'select') {
+                Swal.fire('Advertencia', 'Por favor, selecciona una fecha y un producto.', 'warning');
+                return;
+            }
+
+            // Construir la URL con los parámetros
+            const params = new URLSearchParams({
+                fecha: fecha,
+                producto_id: productoId,
+                tipo_prueba: tipoPrueba !== 'select' ? tipoPrueba : ''
+            });
+
+            // Redirigir a la ruta de exportación
+            window.location.href = `/resultados/exportar?${params.toString()}`;
+        });
+    </script>
+</body>
 
 </html>
