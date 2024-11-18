@@ -89,6 +89,7 @@ route::get('/mostrar-resultados-panelistas', [ResultadosController::class, 'most
 
 // Rutas para Exportar
 Route::get('/resultados/exportar', [ResultadosController::class, 'exportar'])->name('resultados.exportar');
-
+Route::get('/resultados/exportar-todas', [ResultadosController::class, 'exportarTodas'])
+    ->name('resultados.exportar-todas');
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);

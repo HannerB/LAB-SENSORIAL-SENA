@@ -59,6 +59,9 @@
                     <button type="button" class="btn btn-success" id="btnExportar">
                         <i class="fas fa-file-excel"></i> Exportar a Excel
                     </button>
+                    <button type="button" class="btn btn-success me-2" id="btnExportarTodo">
+                        <i class="fas fa-file-excel"></i> Exportar Todas las Cabinas
+                    </button>
                 </div>
             </form>
         </div>
@@ -167,6 +170,23 @@
             });
 
             window.location.href = `/resultados/exportar?${params.toString()}`;
+        });
+
+        document.getElementById('btnExportarTodo').addEventListener('click', function() {
+            const fecha = document.getElementById('fecha-filtro').value;
+            const productoId = document.getElementById('productos-filtro').value;
+
+            if (!fecha || productoId === 'select') {
+                Swal.fire('Advertencia', 'Por favor, selecciona una fecha y producto.', 'warning');
+                return;
+            }
+
+            const params = new URLSearchParams({
+                fecha: fecha,
+                producto_id: productoId
+            });
+
+            window.location.href = `/resultados/exportar-todas?${params.toString()}`;
         });
     </script>
 </body>

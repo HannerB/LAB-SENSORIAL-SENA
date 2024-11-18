@@ -218,4 +218,27 @@ class ResultadosController extends Controller
             return back()->with('error', 'Error al generar el archivo Excel');
         }
     }
+
+    public function exportarTodas(Request $request)
+    {
+        $request->validate([
+            'fecha' => 'required|date',
+            'producto_id' => 'required|exists:productos,id_producto'
+        ]);
+
+        try {
+            return Excel::download(
+                new ResultadosExport(
+                    $request->fecha,
+                    $request->producto_id,
+                    null, // Siempre pasamos null para obtener todas las pruebas
+                    null  // null para todas las cabinas
+                ),
+                "resultados_todas_cabinas_{$request->fecha}.xlsx"
+            );
+        } catch (\Exception $e) {
+            Log::error('Error al exportar resultados de todas las cabinas: ' . $e->getMessage());
+            return back()->with('error', 'Error al generar el archivo Excel');
+        }
+    }
 }
