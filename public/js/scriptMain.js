@@ -1,22 +1,22 @@
-$("#btnsiguiente1").on('click',function(){
-    cambiarFormulario('sect2','sect1')
-    
+$("#btnsiguiente1").on('click', function () {
+    cambiarFormulario('sect2', 'sect1')
+
 })
 
-$("#btnsiguiente2").on('click',function(){
-    cambiarFormulario('sect3','sect2')
+$("#btnsiguiente2").on('click', function () {
+    cambiarFormulario('sect3', 'sect2')
 })
 
 //FUNCIONES
-function cambiarFormulario(formIr,formActual) {
+function cambiarFormulario(formIr, formActual) {
     document.getElementById(formActual).classList.remove('active');
     document.getElementById(formIr).classList.add('active');
 }
 
 // PRUEBA DE ORDENAMIENTO - EVITAR DUPLICADOS EN SELECCIÓN
-$(document).ready(function() {
+$(document).ready(function () {
     // Detectar cuando se cambia un valor en cualquier selector
-    $('.orden-muestra').on('change', function() {
+    $('.orden-muestra').on('change', function () {
         actualizarOpciones();
     });
 
@@ -24,7 +24,7 @@ $(document).ready(function() {
         // Recoger todos los valores seleccionados actualmente
         let seleccionados = [];
 
-        $('.orden-muestra').each(function() {
+        $('.orden-muestra').each(function () {
             let valor = $(this).val();
             if (valor) {
                 seleccionados.push(valor); // Guardar los valores seleccionados
@@ -32,12 +32,12 @@ $(document).ready(function() {
         });
 
         // Actualizar las opciones de cada selector en base a los seleccionados
-        $('.orden-muestra').each(function() {
+        $('.orden-muestra').each(function () {
             let $this = $(this);
             let valorSeleccionado = $this.val();
 
             // Limpiar las opciones disponibles, excepto la seleccionada
-            $this.find('option').each(function() {
+            $this.find('option').each(function () {
                 let valorOpcion = $(this).attr('value');
 
                 // Habilitar todas las opciones primero
@@ -53,32 +53,104 @@ $(document).ready(function() {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('btnguardar-todo').addEventListener('click', function() {
+// Variable global para la cabina
+let cabinaSeleccionada = null;
+
+// Eventos de navegación
+$("#btnsiguiente1").on('click', function () {
+    if (!validarCabina()) return;
+    cambiarFormulario('sect2', 'sect1');
+});
+
+$("#btnsiguiente2").on('click', function () {
+    cambiarFormulario('sect3', 'sect2');
+});
+
+// Función para validar selección de cabina
+function validarCabina() {
+    if (!cabinaSeleccionada) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cabina no seleccionada',
+            text: 'Por favor, seleccione una cabina antes de continuar.',
+            confirmButtonColor: '#198754'
+        });
+        return false;
+    }
+    return true;
+}
+
+// Función para cambiar entre formularios
+function cambiarFormulario(formIr, formActual) {
+    document.getElementById(formActual).classList.remove('active');
+    document.getElementById(formIr).classList.add('active');
+}
+
+// PRUEBA DE ORDENAMIENTO - EVITAR DUPLICADOS EN SELECCIÓN
+$(document).ready(function () {
+    // Evento para el selector de cabina
+    $('#cabina').on('change', function () {
+        cabinaSeleccionada = parseInt($(this).val());
+    });
+
+    // Detectar cuando se cambia un valor en cualquier selector de orden
+    $('.orden-muestra').on('change', function () {
+        actualizarOpciones();
+    });
+
+    function actualizarOpciones() {
+        let seleccionados = [];
+
+        $('.orden-muestra').each(function () {
+            let valor = $(this).val();
+            if (valor) {
+                seleccionados.push(valor);
+            }
+        });
+
+        $('.orden-muestra').each(function () {
+            let $this = $(this);
+            let valorSeleccionado = $this.val();
+
+            $this.find('option').each(function () {
+                let valorOpcion = $(this).attr('value');
+                $(this).prop('disabled', false);
+
+                if (seleccionados.includes(valorOpcion) && valorOpcion !== valorSeleccionado) {
+                    $(this).prop('disabled', true);
+                }
+            });
+        });
+    }
+
+    // Manejo del guardado de datos
+    document.getElementById('btnguardar-todo').addEventListener('click', function () {
+        if (!validarCabina()) return;
         guardarTodasLasPruebas();
     });
 
     function guardarTodasLasPruebas() {
-        var nombrePanelista = document.getElementById('nombrePanelista1').value ||
-            document.getElementById('nombrePanelista2').value ||
-            document.getElementById('nombrePanelista3').value;
-        var fechaPanelista = document.getElementById('fechaPanelista1').value ||
-            document.getElementById('fechaPanelista2').value ||
-            document.getElementById('fechaPanelista3').value;
+        var nombrePanelista = document.getElementById('nombrePanelista1').value;
+        var fechaPanelista = document.getElementById('fechaPanelista1').value;
         var productoID = document.getElementById('productoIDPrueba1').value;
 
         if (!nombrePanelista || !fechaPanelista) {
-            alert('Por favor, completa el nombre y la fecha del panelista.');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Datos incompletos',
+                text: 'Por favor, completa el nombre y la fecha del panelista.',
+                confirmButtonColor: '#198754'
+            });
             return;
         }
 
-        if (!productoID) {
-            alert('Error: El campo de producto está vacío.');
-            return;
-        }
-
-        if (isNaN(productoID)) {
-            alert('Error: El valor del producto no es un ID válido.');
+        if (!productoID || isNaN(productoID)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de producto',
+                text: 'El producto seleccionado no es válido.',
+                confirmButtonColor: '#198754'
+            });
             return;
         }
 
@@ -91,45 +163,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 fecha: fechaPanelista,
                 _token: window.csrfToken
             },
-            success: function(response) {
+            success: function (response) {
                 if (response.idpane) {
-                    var idpane = response.idpane;
-                    guardarCalificaciones(idpane, productoID, fechaPanelista);
+                    guardarCalificaciones(response.idpane, productoID, fechaPanelista);
                 } else {
                     console.error('ID de panelista no retornado');
+                    Swal.fire('Error', 'No se pudo guardar la información del panelista', 'error');
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.error('Error guardando datos del panelista:', xhr.responseText);
+                Swal.fire('Error', 'No se pudo guardar la información del panelista', 'error');
             }
         });
     }
 
     function guardarCalificaciones(idpane, productoID, fechaPanelista) {
         var calificaciones = [{
-                prueba: 1,
-                codMuestras: document.querySelector('input[name="muestra_diferente"]:checked')?.value,
-                atributo: 'Dulzura',
-                comentario: document.getElementById('comentario-triangular').value,
-                cabina: 1
-            },
-            {
-                prueba: 2,
-                codMuestras: document.querySelector('input[name="muestra_igual_referencia"]:checked')?.value,
-                atributo: 'Similaridad',
-                comentario: document.getElementById('comentario-duo').value,
-                cabina: 2
-            },
-            {
-                prueba: 3,
-                codMuestras: formatearResultadosOrdenamiento(),
-                atributo: 'Dulzura',
-                comentario: document.getElementById('comentario-orden').value,
-                cabina: 3
-            }
+            prueba: 1,
+            codMuestras: document.querySelector('input[name="muestra_diferente"]:checked')?.value,
+            atributo: 'Dulzura',
+            comentario: document.getElementById('comentario-triangular').value,
+            cabina: cabinaSeleccionada
+        },
+        {
+            prueba: 2,
+            codMuestras: document.querySelector('input[name="muestra_igual_referencia"]:checked')?.value,
+            atributo: 'Similaridad',
+            comentario: document.getElementById('comentario-duo').value,
+            cabina: cabinaSeleccionada
+        },
+        {
+            prueba: 3,
+            codMuestras: formatearResultadosOrdenamiento(),
+            atributo: 'Dulzura',
+            comentario: document.getElementById('comentario-orden').value,
+            cabina: cabinaSeleccionada
+        }
         ];
 
-        calificaciones.forEach(function(cal) {
+        let calificacionesGuardadas = 0;
+        const totalCalificaciones = calificaciones.filter(cal => cal.codMuestras).length;
+
+        calificaciones.forEach(function (cal) {
             if (cal.codMuestras) {
                 $.ajax({
                     url: window.routes.calificacionStore,
@@ -145,30 +221,38 @@ document.addEventListener('DOMContentLoaded', function() {
                         cabina: cal.cabina,
                         _token: window.csrfToken
                     },
-                    success: function(response) {
-                        console.log(
-                            'Datos de calificación guardados correctamente para la prueba ' +
-                            cal.prueba);
+                    success: function (response) {
+                        calificacionesGuardadas++;
+                        console.log('Datos guardados para prueba ' + cal.prueba);
+
+                        if (calificacionesGuardadas === totalCalificaciones) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Guardado exitoso!',
+                                text: 'Todas las calificaciones han sido guardadas correctamente.',
+                                confirmButtonColor: '#198754'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.reload();
+                                }
+                            });
+                        }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Error guardando datos de calificación para la prueba ' + cal
-                            .prueba + ':', xhr.responseText);
+                    error: function (xhr, status, error) {
+                        console.error('Error en prueba ' + cal.prueba + ':', xhr.responseText);
+                        Swal.fire('Error', 'Hubo un problema al guardar los resultados', 'error');
                     }
                 });
             }
         });
-
-        alert('Todas las calificaciones han sido guardadas.');
     }
 
     function formatearResultadosOrdenamiento() {
         var resultados = [];
+        var resultadosTemp = [];
         var selects = document.querySelectorAll('.orden-muestra');
 
-        // Crear un array para almacenar los resultados temporalmente
-        var resultadosTemp = [];
-
-        selects.forEach(function(select) {
+        selects.forEach(function (select) {
             var codMuestra = select.closest('tr').querySelector('td:first-child').textContent.trim();
             var orden = parseInt(select.value);
             if (orden) {
@@ -179,12 +263,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Ordenar los resultados por el orden seleccionado
         resultadosTemp.sort((a, b) => a.orden - b.orden);
-
-        // Crear la cadena final en el orden correcto
-        resultados = resultadosTemp.map(item => `${item.codigo}`);
-
+        resultados = resultadosTemp.map(item => item.codigo);
         return resultados.join(',');
     }
 });

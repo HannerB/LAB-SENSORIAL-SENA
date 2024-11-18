@@ -35,6 +35,15 @@
         <div class="contenido">
             <h1 class="titulo-prueba mb-4"><b>prueba de triangulo</b></h1>
             <div class="formulario-prueba mb-3">
+                <form id="datos-cabina" class="mb-4">
+                    <label for="cabina">NÚMERO DE CABINA:</label>
+                    <select id="cabina" required>
+                        <option value="" selected disabled>Seleccione la cabina</option>
+                        <option value="1">CABINA 1</option>
+                        <option value="2">CABINA 2</option>
+                        <option value="3">CABINA 3</option>
+                    </select>
+                </form>
                 <form id="datos-panelista" class="mb-4">
                     <label for="">NOMBRE COMPLETO:</label>
                     <input type="text" id="nombrePanelista1">
