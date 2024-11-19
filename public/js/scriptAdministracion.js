@@ -4,60 +4,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const formMuestras = document.getElementById('form-muestras');
     const modalConfiguracion = document.getElementById('modalConfiguracion');
     const btnCerrarModal = modalConfiguracion.querySelector('[data-bs-dismiss="modal"]');
-    const btnCerrarPanel = document.querySelector('.btn-danger'); // El botón "CERRAR PANEL"
+    const btnCerrarPanel = document.querySelector('.btn-danger');
 
     function validarCantidadMuestrasOrdenamiento() {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
-        const cantidadesValidas = [3, 6, 10];
-
-        if (cantidadMuestras === 0) return true; // Si no hay muestras, permitir cerrar
-
+        const cantidadesValidas = [0, 3, 6, 10];
         return cantidadesValidas.includes(cantidadMuestras);
     }
 
-    // Evento para el botón cerrar del modal
-    btnCerrarModal.addEventListener('click', function (e) {
-        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
-        if (!validarCantidadMuestrasOrdenamiento()) {
-            e.preventDefault();
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cantidad de muestras incorrecta',
-                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
-                confirmButtonColor: '#198754'
-            });
-        }
-    });
-
-    // Validación al intentar cerrar el modal
     modalConfiguracion.addEventListener('hide.bs.modal', function (e) {
         if (!validarCantidadMuestrasOrdenamiento()) {
             e.preventDefault();
             Swal.fire({
                 icon: 'warning',
                 title: 'Cantidad de muestras incorrecta',
-                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
+                text: 'Para cerrar el modal, la prueba de ordenamiento debe tener 0, 3, 6 o 10 muestras.',
                 confirmButtonColor: '#198754'
             });
         }
-    });
-
-    // Validación para el botón "CERRAR PANEL"
-    btnCerrarPanel.addEventListener('click', function (e) {
-        e.preventDefault();
-
-        const modalAbierto = document.querySelector('.modal.show');
-        if (modalAbierto && !validarCantidadMuestrasOrdenamiento()) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Cantidad de muestras incorrecta',
-                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
-                confirmButtonColor: '#198754'
-            });
-            return;
-        }
-
-        window.location.href = "/";
     });
 
     // Mostrar/ocultar selector de atributo según el tipo de prueba
@@ -304,58 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error al cargar las muestras:', error));
     }
 
-    function actualizarAtributoMuestras(productoId, atributo) {
-        $.ajax({
-            url: '/muestras/actualizar-atributo',
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            data: {
-                producto_id: productoId,
-                atributo: atributo
-            },
-            success: function (response) {
-                if (response.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Atributo actualizado',
-                        text: 'El atributo ha sido actualizado para todas las muestras de ordenamiento',
-                        confirmButtonColor: '#198754'
-                    });
-
-                    // Recargar las muestras en la tabla
-                    cargarMuestras(productoId);
-                }
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo actualizar el atributo de las muestras',
-                    confirmButtonColor: '#198754'
-                });
-            }
-        });
-    }
-
     function eliminarMuestra(id) {
-        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
-        const esMuestraOrdenamiento = document.querySelector(`#cuerpo-table-tres button[data-id="${id}"]`) !== null;
-
-        if (esMuestraOrdenamiento) {
-            const nuevaCantidad = cantidadMuestras - 1;
-            if (nuevaCantidad !== 0 && ![3, 6, 10].includes(nuevaCantidad)) {
-                Swal.fire({
-                    title: 'No se puede eliminar',
-                    text: 'La cantidad de muestras debe ser 3, 6 o 10 para la prueba de ordenamiento.',
-                    icon: 'warning',
-                    confirmButtonColor: '#198754'
-                });
-                return;
-            }
-        }
-
         Swal.fire({
             title: '¿Estás seguro?',
             text: "No podrás revertir esta acción",
@@ -403,6 +316,59 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    function actualizarAtributoMuestras(productoId, atributo) {
+        $.ajax({
+            url: '/muestras/actualizar-atributo',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                producto_id: productoId,
+                atributo: atributo
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Atributo actualizado',
+                        text: 'El atributo ha sido actualizado para todas las muestras de ordenamiento',
+                        confirmButtonColor: '#198754'
+                    });
+
+                    // Recargar las muestras en la tabla
+                    cargarMuestras(productoId);
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar el atributo de las muestras',
+                    confirmButtonColor: '#198754'
+                });
+            }
+        });
+    }
+
+    // Validación al intentar cerrar el panel
+    btnCerrarPanel.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const modalAbierto = document.querySelector('.modal.show');
+        if (modalAbierto && !validarCantidadMuestrasOrdenamiento()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cantidad de muestras incorrecta',
+                text: 'Antes de cerrar el panel, la prueba de ordenamiento debe tener 0, 3, 6 o 10 muestras.',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        window.location.href = "/";
+    });
 
     // Agregar manejador para el botón de guardar cambios
     $('#btnguardar').click(function (e) {
