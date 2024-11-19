@@ -82,7 +82,7 @@
                 </div>
                 <div class="btns text-end">
                     <button class="btn btn-success" id="btnguardar">GUARDAR CAMBIOS</button>
-                    <button class="btn btn-danger">CERRAR PANEL</button>
+
                 </div>
             </div>
         </div>

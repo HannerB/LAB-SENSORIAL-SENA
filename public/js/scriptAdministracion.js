@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const formMuestras = document.getElementById('form-muestras');
     const modalConfiguracion = document.getElementById('modalConfiguracion');
     const btnCerrarModal = modalConfiguracion.querySelector('[data-bs-dismiss="modal"]');
-    const btnCerrarPanel = document.querySelector('.btn-danger');
 
     function validarCantidadMuestrasOrdenamiento() {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
