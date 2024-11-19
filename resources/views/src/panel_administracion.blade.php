@@ -89,7 +89,6 @@
     </section>
 
     <!-- Modal de Configuración de Producto -->
-    <!-- Modal de Configuración de Producto -->
     <div class="modal fade" id="modalConfiguracion" tabindex="-1" aria-labelledby="modalConfiguracionLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -116,7 +115,6 @@
                                     CAMBIOS</button>
                             </div>
                         </section>
-                        <!-- Aquí va el resto del contenido del modal -->
                         <section class="sect-muestras mb-5">
                             <h2>Mis Muestras</h2>
                             <form class="mb-5" id="form-muestras" method="POST"
