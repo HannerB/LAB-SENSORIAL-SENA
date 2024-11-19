@@ -2,6 +2,86 @@ document.addEventListener('DOMContentLoaded', function () {
     const formProductoModal = document.getElementById('form-producto-modal');
     const btnSubmit = document.getElementById('btn-submit');
     const formMuestras = document.getElementById('form-muestras');
+    const modalConfiguracion = document.getElementById('modalConfiguracion');
+    const btnCerrarModal = modalConfiguracion.querySelector('[data-bs-dismiss="modal"]');
+    const btnCerrarPanel = document.querySelector('.btn-danger'); // El botón "CERRAR PANEL"
+
+    function validarCantidadMuestrasOrdenamiento() {
+        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
+        const cantidadesValidas = [3, 6, 10];
+
+        if (cantidadMuestras === 0) return true; // Si no hay muestras, permitir cerrar
+
+        return cantidadesValidas.includes(cantidadMuestras);
+    }
+
+    // Evento para el botón cerrar del modal
+    btnCerrarModal.addEventListener('click', function (e) {
+        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
+        if (!validarCantidadMuestrasOrdenamiento()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cantidad de muestras incorrecta',
+                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
+                confirmButtonColor: '#198754'
+            });
+        }
+    });
+
+    // Validación al intentar cerrar el modal
+    modalConfiguracion.addEventListener('hide.bs.modal', function (e) {
+        if (!validarCantidadMuestrasOrdenamiento()) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cantidad de muestras incorrecta',
+                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
+                confirmButtonColor: '#198754'
+            });
+        }
+    });
+
+    // Validación para el botón "CERRAR PANEL"
+    btnCerrarPanel.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const modalAbierto = document.querySelector('.modal.show');
+        if (modalAbierto && !validarCantidadMuestrasOrdenamiento()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Cantidad de muestras incorrecta',
+                text: 'Para la prueba de ordenamiento, debes tener exactamente 3, 6 o 10 muestras.',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        window.location.href = "/";
+    });
+
+    // Mostrar/ocultar selector de atributo según el tipo de prueba
+    $('#tipo-prueba').on('change', function () {
+        const tipoPrueba = $(this).val();
+        const atributoContainer = $('#atributo-container');
+
+        if (tipoPrueba === '3') { // Prueba de ordenamiento
+            atributoContainer.show();
+        } else {
+            atributoContainer.hide();
+            $('#atributo').val(''); // Resetear valor
+        }
+    });
+
+    // Manejar la actualización de atributos
+    $('#atributo').on('change', function () {
+        const atributo = $(this).val();
+        const productoId = $('#producto-id-muestra').val();
+
+        if (atributo && productoId) {
+            actualizarAtributoMuestras(productoId, atributo);
+        }
+    });
 
     function abrirConfiguracion(idProducto, nombreProducto) {
         document.getElementById('productoId').value = idProducto;
@@ -110,6 +190,34 @@ document.addEventListener('DOMContentLoaded', function () {
     formMuestras.addEventListener('submit', function (e) {
         e.preventDefault();
 
+        const tipoPrueba = document.getElementById('tipo-prueba').value;
+        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
+
+        // Validar cantidad de muestras para prueba de ordenamiento
+        if (tipoPrueba === '3') {
+            if (cantidadMuestras >= 10) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Límite alcanzado',
+                    text: 'Ya has alcanzado el máximo de 10 muestras para la prueba de ordenamiento.',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+
+            // Validar si la siguiente muestra excedería los límites permitidos
+            const siguienteCantidad = cantidadMuestras + 1;
+            if (![3, 6, 10].includes(siguienteCantidad) && siguienteCantidad > 3) {
+                const siguienteValido = [3, 6, 10].find(num => num > cantidadMuestras);
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cantidad de muestras',
+                    text: `Para la prueba de ordenamiento, debes agregar muestras hasta llegar a ${siguienteValido} muestras.`,
+                    confirmButtonColor: '#198754'
+                });
+            }
+        }
+
         const formData = new FormData(formMuestras);
 
         fetch(formMuestras.action, {
@@ -140,28 +248,52 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`/muestras/${idProducto}`)
             .then(response => response.json())
             .then(data => {
-                const tablas = {
-                    triangular: 'cuerpo-table-uno',
-                    duo_trio: 'cuerpo-table-dos',
-                    ordenamiento: 'cuerpo-table-tres'
-                };
+                // Limpiar tablas
+                document.getElementById('cuerpo-table-uno').innerHTML = '';
+                document.getElementById('cuerpo-table-dos').innerHTML = '';
+                document.getElementById('cuerpo-table-tres').innerHTML = '';
 
-                Object.keys(tablas).forEach(tipo => {
-                    const tablaCuerpo = document.getElementById(tablas[tipo]);
-                    tablaCuerpo.innerHTML = '';
-                    data[tipo].forEach((muestra, index) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
+                // Cargar datos prueba triangular
+                data.triangular.forEach((muestra, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${muestra.cod_muestra}</td>
                         <td>
-                        <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id_muestras}">Eliminar</button>
+                            <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id_muestras}">Eliminar</button>
                         </td>
-                        `;
-                        tablaCuerpo.appendChild(row);
-                    });
+                    `;
+                    document.getElementById('cuerpo-table-uno').appendChild(row);
                 });
 
+                // Cargar datos prueba duo-trio
+                data.duo_trio.forEach((muestra, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${muestra.cod_muestra}</td>
+                        <td>
+                            <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id_muestras}">Eliminar</button>
+                        </td>
+                    `;
+                    document.getElementById('cuerpo-table-dos').appendChild(row);
+                });
+
+                // Cargar datos prueba ordenamiento
+                data.ordenamiento.forEach((muestra, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${muestra.cod_muestra}</td>
+                        <td>${muestra.atributo || 'No especificado'}</td>
+                        <td>
+                            <button class="btn btn-danger btn-eliminar-muestra" data-id="${muestra.id_muestras}">Eliminar</button>
+                        </td>
+                    `;
+                    document.getElementById('cuerpo-table-tres').appendChild(row);
+                });
+
+                // Asignar eventos a los nuevos botones
                 document.querySelectorAll('.btn-eliminar-muestra').forEach(btn => {
                     btn.addEventListener('click', function () {
                         const id = this.dataset.id;
@@ -172,7 +304,58 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Error al cargar las muestras:', error));
     }
 
+    function actualizarAtributoMuestras(productoId, atributo) {
+        $.ajax({
+            url: '/muestras/actualizar-atributo',
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                producto_id: productoId,
+                atributo: atributo
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Atributo actualizado',
+                        text: 'El atributo ha sido actualizado para todas las muestras de ordenamiento',
+                        confirmButtonColor: '#198754'
+                    });
+
+                    // Recargar las muestras en la tabla
+                    cargarMuestras(productoId);
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar el atributo de las muestras',
+                    confirmButtonColor: '#198754'
+                });
+            }
+        });
+    }
+
     function eliminarMuestra(id) {
+        const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
+        const esMuestraOrdenamiento = document.querySelector(`#cuerpo-table-tres button[data-id="${id}"]`) !== null;
+
+        if (esMuestraOrdenamiento) {
+            const nuevaCantidad = cantidadMuestras - 1;
+            if (nuevaCantidad !== 0 && ![3, 6, 10].includes(nuevaCantidad)) {
+                Swal.fire({
+                    title: 'No se puede eliminar',
+                    text: 'La cantidad de muestras debe ser 3, 6 o 10 para la prueba de ordenamiento.',
+                    icon: 'warning',
+                    confirmButtonColor: '#198754'
+                });
+                return;
+            }
+        }
+
         Swal.fire({
             title: '¿Estás seguro?',
             text: "No podrás revertir esta acción",
@@ -220,6 +403,55 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Agregar manejador para el botón de guardar cambios
+    $('#btnguardar').click(function (e) {
+        e.preventDefault();
+
+        const numCabina = parseInt($('#cabina').val());
+
+        // Validar el número de cabina
+        if (isNaN(numCabina) || numCabina < 1 || numCabina > 3) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'El número de cabina debe estar entre 1 y 3',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        // Actualizar la configuración
+        $.ajax({
+            url: rutaActualizarConfiguracion,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                _method: 'PUT',
+                num_cabina: numCabina
+            },
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Guardado exitoso!',
+                        text: 'El número de cabina ha sido actualizado.',
+                        confirmButtonColor: '#198754'
+                    });
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo actualizar el número de cabina.',
+                    confirmButtonColor: '#198754'
+                });
+            }
+        });
+    });
 });
 
 $(document).ready(function () {

@@ -27,10 +27,23 @@ class MuestraController extends Controller
             'producto_id' => 'required|exists:productos,id_producto'
         ]);
 
+        // Si es una muestra de ordenamiento y no se especificó un atributo,
+        // buscar el atributo de otras muestras de ordenamiento del mismo producto
+        if ($request->input('prueba') == 3 && empty($request->input('atributo'))) {
+            $atributoExistente = Muestra::where('producto_id', $request->input('producto_id'))
+                ->where('prueba', 3)
+                ->whereNotNull('atributo')
+                ->value('atributo');
+
+            $atributo = $atributoExistente ?: $request->input('atributo');
+        } else {
+            $atributo = $request->input('atributo');
+        }
+
         $muestra = Muestra::create([
             'cod_muestra' => $request->input('cod_muestra'),
             'prueba' => $request->input('prueba'),
-            'atributo' => $request->input('atributo'),
+            'atributo' => $atributo,
             'producto_id' => $request->input('producto_id'),
         ]);
 
@@ -93,5 +106,33 @@ class MuestraController extends Controller
             'duo_trio' => $muestrasDuoTrio,
             'ordenamiento' => $muestrasOrdenamiento
         ]);
+    }
+
+    public function actualizarAtributo(Request $request)
+    {
+        try {
+            $request->validate([
+                'producto_id' => 'required|exists:productos,id_producto',
+                'atributo' => 'required|string|in:Sabor,Olor,Color,Textura,Apariencia'
+            ]);
+
+            $productoId = $request->input('producto_id');
+            $atributo = $request->input('atributo');
+
+            // Actualizar todas las muestras de ordenamiento para este producto
+            Muestra::where('producto_id', $productoId)
+                ->where('prueba', 3) // Solo muestras de ordenamiento
+                ->update(['atributo' => $atributo]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Atributo actualizado correctamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar el atributo: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

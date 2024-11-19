@@ -68,6 +68,7 @@ Route::get('muestra/{muestra}/edit', [MuestraController::class, 'edit'])->name('
 Route::put('muestra/{muestra}', [MuestraController::class, 'update'])->name('muestra.update');
 Route::delete('muestra/{id}', [MuestraController::class, 'destroy'])->name('muestra.destroy');
 Route::get('/muestras/{id}', [MuestraController::class, 'getMuestrasByProducto']);
+Route::post('/muestras/actualizar-atributo', [MuestraController::class, 'actualizarAtributo'])->name('muestras.actualizar-atributo');
 
 // Rutas para Calificacion
 Route::get('calificacion', [CalificacionesController::class, 'index'])->name('calificacion.index');
@@ -89,7 +90,7 @@ route::get('/mostrar-resultados-panelistas', [ResultadosController::class, 'most
 
 // Rutas para Exportar
 Route::get('/resultados/exportar', [ResultadosController::class, 'exportar'])->name('resultados.exportar');
-Route::get('/resultados/exportar-todas', [ResultadosController::class, 'exportarTodas'])
-    ->name('resultados.exportar-todas');
+Route::get('/resultados/exportar-todas', [ResultadosController::class, 'exportarTodas'])->name('resultados.exportar-todas');
+
 // Rutas para Panelista
 Route::resource('panelistas', PanelistaController::class);

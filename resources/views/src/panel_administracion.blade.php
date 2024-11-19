@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/style_config.css') }}">
     <script>
         const rutaActualizarConfiguracion = "{{ route('configuracion.update', 1) }}";
-    </script>    
+    </script>
 </head>
 
 <body>
@@ -89,6 +89,7 @@
     </section>
 
     <!-- Modal de Configuración de Producto -->
+    <!-- Modal de Configuración de Producto -->
     <div class="modal fade" id="modalConfiguracion" tabindex="-1" aria-labelledby="modalConfiguracionLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -139,6 +140,17 @@
                                         <option value="3">PRUEBA ORDENAMIENTO</option>
                                     </select>
                                 </div>
+                                <div class="mb-3" id="atributo-container" style="display: none;">
+                                    <label for="atributo" class="form-label">Atributo</label>
+                                    <select id="atributo" class="form-select" name="atributo">
+                                        <option value="">Seleccione un atributo</option>
+                                        <option value="Sabor">Sabor</option>
+                                        <option value="Olor">Olor</option>
+                                        <option value="Color">Color</option>
+                                        <option value="Textura">Textura</option>
+                                        <option value="Apariencia">Apariencia</option>
+                                    </select>
+                                </div>
                                 <div class="mb-3 text-center">
                                     <button class="btn btn-outline-success" type="submit"
                                         id="btn-guardar-muestra">GUARDAR</button>
@@ -184,6 +196,7 @@
                                     <tr>
                                         <th scope="col">#</th>
                                         <th scope="col">CODIGO</th>
+                                        <th scope="col">ATRIBUTO</th>
                                         <th scope="col">ELIMINAR MUESTRA</th>
                                     </tr>
                                 </thead>
