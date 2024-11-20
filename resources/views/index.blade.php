@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORMATOS DE PRUEBAS</title>
-    <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/style_form.css') }}">
+    <title>Evaluación Sensorial - SENA</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         window.routes = {
             panelistasStore: "{{ route('panelistas.store') }}",
@@ -15,389 +13,688 @@
         };
         window.csrfToken = "{{ csrf_token() }}";
     </script>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .transform {
+            transition-property: all;
+            transition-duration: 500ms;
+        }
+    </style>
 </head>
 
-<body>
-
-    <nav class="navbar bg-success">
-        <div class="container-fluid">
-            <a class="navbar-brand text-light" style="font-weight: bold; text-transform: uppercase; margin: 0;">
-                <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}" alt="" width="50px">
-                Laboratorio sensorial de alimentos - Sena Cedagro - Centro de Valor de Agregado
-            </a>
-            <form class="d-flex" role="search">
-                <a href="{{ route('login') }}" class="btn btn-outline-light">ADMINISTRACION</a>
-            </form>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-sena-green shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-4">
+                    <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.webp') }}" alt="SENA Logo"
+                        class="h-12 w-auto transition-transform duration-300 hover:scale-105">
+                    <div class="hidden md:block">
+                        <h1 class="text-white font-semibold text-xl">
+                            Laboratorio Sensorial de Alimentos
+                            <span class="block text-sm text-green-100 mt-0.5">
+                                SENA Cedagro - Centro de Valor de Agregado
+                            </span>
+                        </h1>
+                    </div>
+                </div>
+                <a href="{{ route('login') }}"
+                    class="group flex items-center px-4 py-2 text-sm font-medium rounded-md text-white 
+                          bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-2 
+                          focus:ring-offset-2 focus:ring-green-500 transition-all duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2 transition-transform duration-300 group-hover:scale-110" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    Administración
+                </a>
+            </div>
         </div>
     </nav>
 
-    <section class="text-center active" id="sect1">
-        <div class="contenido">
-            <h1 class="titulo-prueba mb-4"><b>prueba de triangulo</b></h1>
-            <div class="formulario-prueba mb-3">
-                <form id="datos-cabina" class="mb-4">
-                    <label for="cabina">NÚMERO DE CABINA:</label>
-                    <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
-                        style="background-color: #e9ecef;">
-                </form>
-                <form id="datos-panelista" class="mb-4">
-                    <label for="">NOMBRE COMPLETO:</label>
-                    <input type="text" id="nombrePanelista1">
-                    <label for="">FECHA:</label>
-                    <input type="date" id="fechaPanelista1">
-                </form>
-                <form id="dato-producto">
-                    <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="hidden" id="productoIDPrueba1"
-                        value="{{ $productoHabilitado ? $productoHabilitado->id_producto : '' }}">
-                    <input type="text" id="productoPrueba1" readonly
-                        value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
-                </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span
-                        class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>)
-                    dos son iguales y una diferente, saboree cada una con cuidado y seleccione la muestra diferente.</p>
-                <table class="table table-bordered table-hover table-secondary mb-3">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col">MUESTRAS</th>
-                            <th scope="col">MUESTRA DIFERENTE</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-prueba-triangular">
-                        @forelse($muestrasTriangular as $muestra)
-                            <tr>
-                                <td>{{ $muestra->cod_muestra }}</td>
-                                <td>
-                                    <input required type="radio" name="muestra_diferente"
-                                        value="{{ $muestra->cod_muestra }}">
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="2">No hay muestras disponibles para la prueba triangular.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                <form id="form-comentarios" class="mb-5">
-                    <label for="">COMENTARIOS:</label><br>
-                    <textarea id="comentario-triangular"></textarea>
-                </form>
-                <hr>
-                <h5>MUCHAS GRACIAS!</h5>
+    <!-- Progress Steps -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="relative">
+            <div class="flex items-center justify-between mb-16">
+                <!-- Step 1: Triangular -->
+                <div class="flex flex-col items-center relative z-10 w-1/3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-sena-green text-white flex items-center justify-center
+                               transition-all duration-500 ease-in-out relative">
+                        <span class="text-sm font-bold">1</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-700 mt-2">Prueba Triangular</p>
+                </div>
+
+                <!-- Step 2: Duo-Trio -->
+                <div class="flex flex-col items-center relative z-10 w-1/3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center
+                               transition-all duration-500 ease-in-out">
+                        <span class="text-sm font-bold">2</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 mt-2">Prueba Duo-Trio</p>
+                </div>
+
+                <!-- Step 3: Ordering -->
+                <div class="flex flex-col items-center relative z-10 w-1/3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center
+                               transition-all duration-500 ease-in-out">
+                        <span class="text-sm font-bold">3</span>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500 mt-2">Prueba de Ordenamiento</p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="absolute top-5 left-0 w-full h-0.5 bg-gray-200 -z-10">
+                    <div class="absolute top-0 left-0 h-full bg-sena-green transition-all duration-500 ease-in-out"
+                        style="width: 0%"></div>
+                </div>
             </div>
-            <div class="btns">
-                {{-- <button class="btn btn-success" id="btnguardar-tri">Guardar</button> --}}
-                <button class="btn btn-outline-primary" id="btnsiguiente1">Siguiente</button>
-            </div>
-            <br>
         </div>
-    </section>
 
-    <section class="text-center" id="sect2">
-        <div class="contenido">
-            <h1 class="titulo-prueba mb-4"><b>prueba de duo - trio</b></h1>
-            <div class="formulario-prueba mb-3">
-                <form id="dato-producto">
-                    <label for="">NOMBRE DE PRODUCTO:</label>
-                    <input type="text" id="productoPrueba2" readonly
-                        value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
-                </form>
-                <p class="text-start mt-5 mb-5">Frente a usted hay tres muestras de (<span
-                        class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>)
-                    una de referencia marcada con R y dos codificadas.</p>
-                <p class="text-start mt-5 mb-5">Una de las muestras codificadas es igual a R.</p>
-                <p class="text-start mt-5 mb-5">¿Cual de las muestras codificadas es diferente a la de referencia R?
-                    Seleccione la muestra diferente.</p>
-                <table class="table table-bordered table-hover table-secondary mb-3">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col">MUESTRAS</th>
-                            <th scope="col">MUESTRA IGUAL A LA REFERENCIA</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-prueba-duo">
-                        @forelse($muestrasDuoTrio as $muestra)
-                            <tr>
-                                <td>{{ $muestra->cod_muestra }}</td>
-                                <td>
-                                    <input required type="radio" name="muestra_igual_referencia"
-                                        value="{{ $muestra->cod_muestra }}">
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="2">No hay muestras disponibles para la prueba Duo-Trio.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                <form id="form-comentarios" class="mb-5">
-                    <label for="">COMENTARIOS:</label><br>
-                    <textarea id="comentario-duo"></textarea>
-                </form>
-                <hr>
-                <h5>MUCHAS GRACIAS!</h5>
-            </div>
-            <div class="btns">
-                <button class="btn btn-outline-primary me-2"
-                    onclick="cambiarFormulario('sect1','sect2')">Anterior</button>
-                {{-- <button class="btn btn-success" id="btnguardar-duo">Guardar</button> --}}
-                <button class="btn btn-outline-primary" id="btnsiguiente2">Siguiente</button>
-            </div>
-            <br>
-        </div>
-    </section>
+        <!-- Main Content Sections -->
+        <div id="test-sections" class="space-y-8">
+            <!-- Triangular Test -->
+            <section id="sect1" class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                        Prueba Triangular
+                    </h2>
 
-    <section class="text-center" id="sect3">
-        <div class="contenido">
-            <h1 class="titulo-prueba mb-4"><b>Prueba de Ordenamiento</b></h1>
-            <div class="formulario-prueba mb-3">
-                <form id="dato-producto">
-                    <label for="">Nombre de Producto:</label>
-                    <input type="text" id="productoPrueba2" readonly
-                        value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}">
-                </form>
+                    <!-- Panelist Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Número de Cabina
+                            </label>
+                            <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
+                                class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 
+                                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Nombre Completo
+                            </label>
+                            <input type="text" id="nombrePanelista1"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                                          shadow-sm focus:border-sena-green focus:ring-sena-green
+                                          placeholder-gray-400"
+                                placeholder="Ingrese su nombre completo">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Fecha
+                            </label>
+                            <input type="date" id="fechaPanelista1"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                    </div>
 
-                <p class="text-start mt-5 mb-5">
-                    Frente a usted hay {{ count($muestrasOrdenamiento) }} muestras de
-                    <span
-                        class="nombre-producto-span">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>
-                    que usted debe ordenar en forma creciente de acuerdo al grado de <span
-                        class="atributo-span">{{ $muestrasOrdenamiento->first() ? $muestrasOrdenamiento->first()->atributo : 'no especificado' }}</span>.
-                </p>
-                <p class="text-start mt-5 mb-5">Cada muestra debe llevar un orden diferente. No se permite que dos
-                    muestras tengan el mismo orden.</p>
+                    <!-- Product Information -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-grow">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Producto a Evaluar
+                                </label>
+                                <input type="hidden" id="productoIDPrueba1"
+                                    value="{{ $productoHabilitado ? $productoHabilitado->id_producto : '' }}">
+                                <input type="text" id="productoPrueba1" readonly
+                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
+                                              shadow-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
 
-                <table class="table table-bordered table-hover table-secondary mb-3">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col">Muestra</th>
-                            <th scope="col">Orden</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-selectores-ordenamiento">
-                        @forelse($muestrasOrdenamiento as $muestra)
-                            <tr>
-                                <td>{{ $muestra->cod_muestra }}</td>
-                                <td>
-                                    <!-- Sección de ordenamiento actualizada -->
-                                    <select name="orden_muestra_{{ $muestra->cod_muestra }}"
-                                        class="form-select orden-muestra" required>
-                                        <option value="" selected disabled>Seleccione el orden</option>
-                                        @for ($i = 1; $i <= count($muestrasOrdenamiento); $i++)
-                                            <option value="{{ $i }}">{{ $i }} -
-                                                @if (count($muestrasOrdenamiento) == 3)
-                                                    @switch($i)
-                                                        @case(1)
-                                                            Intensidad baja
-                                                        @break
+                    <!-- Instructions -->
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Frente a usted hay tres muestras de
+                                    <span class="font-medium">
+                                        {{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}
+                                    </span>.
+                                    Dos son iguales y una diferente. Por favor, saboree cada una con cuidado y
+                                    seleccione la muestra diferente.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                                                        @case(2)
-                                                            Intensidad media
-                                                        @break
-
-                                                        @case(3)
-                                                            Intensidad alta
-                                                        @break
-                                                    @endswitch
-                                                @elseif(count($muestrasOrdenamiento) == 6)
-                                                    @switch($i)
-                                                        @case(1)
-                                                            Muy baja intensidad
-                                                        @break
-
-                                                        @case(2)
-                                                            Baja intensidad
-                                                        @break
-
-                                                        @case(3)
-                                                            Media-baja intensidad
-                                                        @break
-
-                                                        @case(4)
-                                                            Media-alta intensidad
-                                                        @break
-
-                                                        @case(5)
-                                                            Alta intensidad
-                                                        @break
-
-                                                        @case(6)
-                                                            Muy alta intensidad
-                                                        @break
-                                                    @endswitch
-                                                @else
-                                                    @switch($i)
-                                                        @case(1)
-                                                            Intensidad mínima
-                                                        @break
-
-                                                        @case(2)
-                                                            Muy baja intensidad
-                                                        @break
-
-                                                        @case(3)
-                                                            Baja intensidad
-                                                        @break
-
-                                                        @case(4)
-                                                            Media-baja intensidad
-                                                        @break
-
-                                                        @case(5)
-                                                            Media intensidad
-                                                        @break
-
-                                                        @case(6)
-                                                            Media-alta intensidad
-                                                        @break
-
-                                                        @case(7)
-                                                            Alta intensidad
-                                                        @break
-
-                                                        @case(8)
-                                                            Muy alta intensidad
-                                                        @break
-
-                                                        @case(9)
-                                                            Intensidad extrema
-                                                        @break
-
-                                                        @case(10)
-                                                            Intensidad máxima
-                                                        @break
-                                                    @endswitch
-                                                @endif
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </td>
-                            </tr>
-                            @empty
+                    <!-- Samples Table -->
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-8">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td colspan="2">No hay muestras disponibles para la prueba de Ordenamiento.</td>
+                                    <th scope="col"
+                                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Muestra
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Selección
+                                    </th>
                                 </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @forelse($muestrasTriangular as $muestra)
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                                            {{ $muestra->cod_muestra }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            <label class="inline-flex items-center space-x-3 cursor-pointer group">
+                                                <input type="radio" name="muestra_diferente"
+                                                    value="{{ $muestra->cod_muestra }}"
+                                                    class="h-4 w-4 text-sena-green border-gray-300 
+                                                              focus:ring-sena-green cursor-pointer
+                                                              transition-all duration-200">
+                                                <span
+                                                    class="text-sm text-gray-700 group-hover:text-sena-green
+                                                           transition-colors duration-200">
+                                                    Diferente
+                                                </span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                            No hay muestras disponibles para la prueba triangular.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <form id="form-comentarios" class="mb-5">
-                        <label for="">Comentarios:</label><br>
-                        <textarea id="comentario-orden" class="form-control"></textarea>
-                    </form>
+                    <!-- Comments Section -->
+                    <div class="space-y-2 mb-8">
+                        <label for="comentario-triangular" class="block text-sm font-medium text-gray-700">
+                            Comentarios
+                        </label>
+                        <textarea id="comentario-triangular" rows="4"
+                            class="block w-full rounded-md border-gray-300 shadow-sm 
+                                         focus:border-sena-green focus:ring-sena-green 
+                                         transition-colors duration-200
+                                         placeholder-gray-400"
+                            placeholder="Ingrese sus observaciones aquí..."></textarea>
+                    </div>
 
-                    <hr>
-                    <h5>¡Muchas gracias!</h5>
+                    <!-- Navigation -->
+                    <div class="flex justify-end">
+                        <button id="btnsiguiente1"
+                            class="inline-flex items-center px-6 py-3 border border-transparent 
+                                       text-base font-medium rounded-md shadow-sm text-white 
+                                       bg-sena-green hover:bg-green-700 focus:outline-none 
+                                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                                       transition-all duration-200 transform hover:scale-105">
+                            Siguiente
+                            <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+            </section>
 
-                <div class="btns">
-                    <button class="btn btn-outline-primary me-2"
-                        onclick="cambiarFormulario('sect2','sect3')">Anterior</button>
-                    <button class="btn btn-success" id="btnguardar-todo">Guardar Todo</button>
+            <!-- Duo-Trio Test -->
+            <section id="sect2"
+                class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500 hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                        Prueba Duo-Trio
+                    </h2>
+
+                    <!-- Product Information -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-grow">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Producto a Evaluar
+                                </label>
+                                <input type="text" id="productoPrueba2" readonly
+                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
+                               shadow-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8 space-y-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Frente a usted hay tres muestras de
+                                    <span
+                                        class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>:
+                                    una de referencia marcada con R y dos codificadas.
+                                </p>
+                                <p class="text-sm text-blue-700 mt-2">
+                                    Una de las muestras codificadas es igual a R.
+                                </p>
+                                <p class="text-sm text-blue-700 mt-2">
+                                    Por favor, identifique cuál de las muestras codificadas es igual a la muestra de
+                                    referencia.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Samples Table -->
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-8">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Muestra
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Igual a Referencia
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @forelse($muestrasDuoTrio as $muestra)
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                                            {{ $muestra->cod_muestra }}
+                                        </td>
+                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                            <label class="inline-flex items-center space-x-3 cursor-pointer group">
+                                                <input type="radio" name="muestra_igual_referencia"
+                                                    value="{{ $muestra->cod_muestra }}"
+                                                    class="h-4 w-4 text-sena-green border-gray-300 
+                                               focus:ring-sena-green cursor-pointer
+                                               transition-all duration-200">
+                                                <span
+                                                    class="text-sm text-gray-700 group-hover:text-sena-green
+                                               transition-colors duration-200">
+                                                    Igual a R
+                                                </span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                            No hay muestras disponibles para la prueba Duo-Trio.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="space-y-2 mb-8">
+                        <label for="comentario-duo" class="block text-sm font-medium text-gray-700">
+                            Comentarios
+                        </label>
+                        <textarea id="comentario-duo" rows="4"
+                            class="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-sena-green focus:ring-sena-green 
+                       transition-colors duration-200
+                       placeholder-gray-400"
+                            placeholder="Ingrese sus observaciones aquí..."></textarea>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="flex justify-between">
+                        <button onclick="cambiarFormulario('sect1','sect2')"
+                            class="inline-flex items-center px-6 py-3 border border-gray-300
+                       text-base font-medium rounded-md shadow-sm text-gray-700
+                       bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
+                       focus:ring-offset-2 focus:ring-sena-green
+                       transition-all duration-200">
+                            <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                            </svg>
+                            Anterior
+                        </button>
+                        <button id="btnsiguiente2"
+                            class="inline-flex items-center px-6 py-3 border border-transparent
+                       text-base font-medium rounded-md shadow-sm text-white
+                       bg-sena-green hover:bg-green-700 focus:outline-none
+                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                       transition-all duration-200 transform hover:scale-105">
+                            Siguiente
+                            <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <br>
+            </section>
+
+            <!-- Ordenamiento Test -->
+            <section id="sect3"
+                class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500 hidden">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                        Prueba de Ordenamiento
+                    </h2>
+
+                    <!-- Product Information -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-grow">
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Producto a Evaluar
+                                </label>
+                                <input type="text" id="productoPrueba3" readonly
+                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
+                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
+                               shadow-sm text-gray-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-8 space-y-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3 space-y-2">
+                                <p class="text-sm text-blue-700">
+                                    Frente a usted hay {{ count($muestrasOrdenamiento) }} muestras de
+                                    <span
+                                        class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>
+                                    que debe ordenar en forma creciente de acuerdo al grado de
+                                    <span
+                                        class="font-medium lowercase">{{ $muestrasOrdenamiento->first() ? $muestrasOrdenamiento->first()->atributo : 'no especificado' }}</span>.
+                                </p>
+                                <p class="text-sm text-blue-700">
+                                    Cada muestra debe llevar un orden diferente. No se permite que dos muestras tengan
+                                    el mismo orden.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Samples Table -->
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-8">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
+                                        Muestra
+                                    </th>
+                                    <th scope="col"
+                                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                        Orden de Intensidad
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white" id="cuerpo-selectores-ordenamiento">
+                                @forelse($muestrasOrdenamiento as $muestra)
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
+                                            {{ $muestra->cod_muestra }}
+                                        </td>
+                                        <td class="px-3 py-4 text-sm text-gray-500">
+                                            <select name="orden_muestra_{{ $muestra->cod_muestra }}"
+                                                class="orden-muestra mt-1 block w-full rounded-md border-gray-300 
+                                           focus:border-sena-green focus:ring-sena-green text-sm
+                                           transition-colors duration-200"
+                                                required>
+                                                <option value="" selected disabled>Seleccione el orden</option>
+                                                @for ($i = 1; $i <= count($muestrasOrdenamiento); $i++)
+                                                    <option value="{{ $i }}">
+                                                        {{ $i }} -
+                                                        @if (count($muestrasOrdenamiento) == 3)
+                                                            @switch($i)
+                                                                @case(1)
+                                                                    Intensidad baja
+                                                                @break
+
+                                                                @case(2)
+                                                                    Intensidad media
+                                                                @break
+
+                                                                @case(3)
+                                                                    Intensidad alta
+                                                                @break
+                                                            @endswitch
+                                                        @elseif(count($muestrasOrdenamiento) == 6)
+                                                            @switch($i)
+                                                                @case(1)
+                                                                    Muy baja intensidad
+                                                                @break
+
+                                                                @case(2)
+                                                                    Baja intensidad
+                                                                @break
+
+                                                                @case(3)
+                                                                    Media-baja intensidad
+                                                                @break
+
+                                                                @case(4)
+                                                                    Media-alta intensidad
+                                                                @break
+
+                                                                @case(5)
+                                                                    Alta intensidad
+                                                                @break
+
+                                                                @case(6)
+                                                                    Muy alta intensidad
+                                                                @break
+                                                            @endswitch
+                                                        @else
+                                                            @switch($i)
+                                                                @case(1)
+                                                                    Intensidad mínima
+                                                                @break
+
+                                                                @case(2)
+                                                                    Muy baja intensidad
+                                                                @break
+
+                                                                @case(3)
+                                                                    Baja intensidad
+                                                                @break
+
+                                                                @case(4)
+                                                                    Media-baja intensidad
+                                                                @break
+
+                                                                @case(5)
+                                                                    Media intensidad
+                                                                @break
+
+                                                                @case(6)
+                                                                    Media-alta intensidad
+                                                                @break
+
+                                                                @case(7)
+                                                                    Alta intensidad
+                                                                @break
+
+                                                                @case(8)
+                                                                    Muy alta intensidad
+                                                                @break
+
+                                                                @case(9)
+                                                                    Intensidad extrema
+                                                                @break
+
+                                                                @case(10)
+                                                                    Intensidad máxima
+                                                                @break
+                                                            @endswitch
+                                                        @endif
+                                                    </option>
+                                                @endfor
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="2" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                                No hay muestras disponibles para la prueba de Ordenamiento.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <div class="space-y-2 mb-8">
+                            <label for="comentario-orden" class="block text-sm font-medium text-gray-700">
+                                Comentarios
+                            </label>
+                            <textarea id="comentario-orden" rows="4"
+                                class="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-sena-green focus:ring-sena-green 
+                       transition-colors duration-200
+                       placeholder-gray-400"
+                                placeholder="Ingrese sus observaciones aquí..."></textarea>
+                        </div>
+
+                        <!-- Navigation and Submit -->
+                        <div class="flex justify-between">
+                            <button onclick="cambiarFormulario('sect2','sect3')"
+                                class="inline-flex items-center px-6 py-3 border border-gray-300
+                       text-base font-medium rounded-md shadow-sm text-gray-700
+                       bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
+                       focus:ring-offset-2 focus:ring-sena-green
+                       transition-all duration-200">
+                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                                </svg>
+                                Anterior
+                            </button>
+                            <button id="btnguardar-todo"
+                                class="inline-flex items-center px-6 py-3 border border-transparent
+                       text-base font-medium rounded-md shadow-sm text-white
+                       bg-sena-green hover:bg-green-700 focus:outline-none
+                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                       transition-all duration-200 transform hover:scale-105">
+                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Guardar Todo
+                            </button>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
+    </body>
 
-        <script src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
-        <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
-        <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
-        <script src="{{ asset('js/scriptMain.js') }}"></script>
-        <script>
-            function getIntensidadTexto(posicion, total) {
-                if (total === 3) {
-                    const descripciones = {
-                        1: 'Intensidad baja',
-                        2: 'Intensidad media',
-                        3: 'Intensidad alta'
-                    };
-                    return descripciones[posicion];
-                } else if (total === 6) {
-                    const descripciones = {
-                        1: 'Muy baja intensidad',
-                        2: 'Baja intensidad',
-                        3: 'Media-baja intensidad',
-                        4: 'Media-alta intensidad',
-                        5: 'Alta intensidad',
-                        6: 'Muy alta intensidad'
-                    };
-                    return descripciones[posicion];
-                } else if (total === 10) {
-                    const descripciones = {
-                        1: 'Intensidad mínima',
-                        2: 'Muy baja intensidad',
-                        3: 'Baja intensidad',
-                        4: 'Media-baja intensidad',
-                        5: 'Media intensidad',
-                        6: 'Media-alta intensidad',
-                        7: 'Alta intensidad',
-                        8: 'Muy alta intensidad',
-                        9: 'Intensidad extrema',
-                        10: 'Intensidad máxima'
-                    };
-                    return descripciones[posicion];
-                }
-                return 'Intensidad no especificada';
+    </html>
+
+    <!-- Scripts -->
+    @vite(['resources/js/app.js'])
+    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
+    <script src="{{ asset('js/scriptMain.js') }}"></script>
+
+    <!-- Script for ordering test intensity descriptions -->
+    <script>
+        function getIntensidadTexto(posicion, total) {
+            if (total === 3) {
+                const descripciones = {
+                    1: 'Intensidad baja',
+                    2: 'Intensidad media',
+                    3: 'Intensidad alta'
+                };
+                return descripciones[posicion];
+            } else if (total === 6) {
+                const descripciones = {
+                    1: 'Muy baja intensidad',
+                    2: 'Baja intensidad',
+                    3: 'Media-baja intensidad',
+                    4: 'Media-alta intensidad',
+                    5: 'Alta intensidad',
+                    6: 'Muy alta intensidad'
+                };
+                return descripciones[posicion];
+            } else if (total === 10) {
+                const descripciones = {
+                    1: 'Intensidad mínima',
+                    2: 'Muy baja intensidad',
+                    3: 'Baja intensidad',
+                    4: 'Media-baja intensidad',
+                    5: 'Media intensidad',
+                    6: 'Media-alta intensidad',
+                    7: 'Alta intensidad',
+                    8: 'Muy alta intensidad',
+                    9: 'Intensidad extrema',
+                    10: 'Intensidad máxima'
+                };
+                return descripciones[posicion];
             }
+            return 'Intensidad no especificada';
+        }
 
-            // Función para actualizar las opciones de los selectores de ordenamiento
-            function actualizarOpcionesOrdenamiento() {
-                const selectores = document.querySelectorAll('.orden-muestra');
-                const totalMuestras = selectores.length;
-                const valoresSeleccionados = new Set();
+        function actualizarEstadosPruebas() {
+            const progressBar = document.querySelector('.bg-sena-green');
+            const steps = document.querySelectorAll('.step');
 
-                // Recoger todos los valores seleccionados
-                selectores.forEach(select => {
-                    const valor = select.value;
-                    if (valor) valoresSeleccionados.add(valor);
-                });
+            function actualizarProgreso(paso) {
+                const width = ((paso - 1) / 2) * 100;
+                progressBar.style.width = `${width}%`;
 
-                // Actualizar cada selector
-                selectores.forEach(select => {
-                    const valorActual = select.value;
-                    select.innerHTML = '';
-
-                    // Opción por defecto
-                    const defaultOption = document.createElement('option');
-                    defaultOption.value = '';
-                    defaultOption.disabled = true;
-                    defaultOption.selected = !valorActual;
-                    defaultOption.textContent = 'Seleccione el orden';
-                    select.appendChild(defaultOption);
-
-                    // Agregar opciones del 1 al total de muestras
-                    for (let i = 1; i <= totalMuestras; i++) {
-                        const option = document.createElement('option');
-                        option.value = i;
-                        option.textContent = `${i} - ${getIntensidadTexto(i, totalMuestras)}`;
-
-                        // Si este valor ya está seleccionado en otro selector, deshabilitarlo
-                        if (valoresSeleccionados.has(i.toString()) && i.toString() !== valorActual) {
-                            option.disabled = true;
-                        }
-
-                        option.selected = i.toString() === valorActual;
-                        select.appendChild(option);
+                steps.forEach((step, index) => {
+                    if (index < paso) {
+                        step.classList.remove('bg-gray-300');
+                        step.classList.add('bg-sena-green');
+                    } else {
+                        step.classList.remove('bg-sena-green');
+                        step.classList.add('bg-gray-300');
                     }
                 });
             }
 
-            // Inicializar cuando el documento esté listo
-            document.addEventListener('DOMContentLoaded', function() {
-                const selectorContainer = document.getElementById('cuerpo-selectores-ordenamiento');
-                if (selectorContainer) {
-                    actualizarOpcionesOrdenamiento();
+            // Actualizar cuando se cambia de sección
 
-                    selectorContainer.addEventListener('change', function(e) {
-                        if (e.target.classList.contains('orden-muestra')) {
-                            actualizarOpcionesOrdenamiento();
-                        }
-                    });
-                }
-            });
-        </script>
-    </body>
-
-    </html>
+        }
+    </script>
