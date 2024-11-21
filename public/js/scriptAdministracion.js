@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Función para validar cantidad de muestras de ordenamiento
     function validarCantidadMuestrasOrdenamiento() {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
-        const cantidadesValidas = [0, 6, 10];
+        const cantidadesValidas = [0, 3, 6, 10];
         return cantidadesValidas.includes(cantidadMuestras);
     }
 
@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Habilitar/Deshabilitar producto
+    // Habilitar/Deshabilitar producto
     document.querySelectorAll('.btn-habilitar').forEach(btn => {
         btn.addEventListener('click', async function () {
             const idProducto = this.dataset.id;
@@ -180,17 +181,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const nuevoEstado = !habilitado;
             setLoadingState(this, true);
 
-            // Actualizar visuales de otros botones
-            document.querySelectorAll('.btn-habilitar').forEach(button => {
-                if (button !== this) {
-                    button.textContent = 'Habilitar';
-                    button.dataset.habilitado = 'false';
-                    button.classList.remove('text-red-600', 'hover:text-red-800');
-                    button.classList.add('text-green-600', 'hover:text-green-800');
-                }
-            });
-
             try {
+                // Actualizar otros botones
+                document.querySelectorAll('.btn-habilitar').forEach(button => {
+                    if (button !== this) {
+                        button.dataset.habilitado = 'false';
+                        button.classList.remove('text-red-600', 'hover:bg-red-600');
+                        button.classList.add('text-green-600', 'hover:bg-green-600');
+                        const tooltip = button.querySelector('span');
+                        if (tooltip) {
+                            tooltip.textContent = 'Habilitar';
+                        }
+                    }
+                });
+
                 const response = await fetchWithCsrf(rutaActualizarConfiguracion, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -200,16 +204,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al actualizar el estado');
+                }
+
                 if (data.success) {
-                    this.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
                     this.dataset.habilitado = nuevoEstado;
+                    const tooltip = this.querySelector('span');
+                    if (tooltip) {
+                        tooltip.textContent = nuevoEstado ? 'Deshabilitar' : 'Habilitar';
+                    }
 
                     if (nuevoEstado) {
-                        this.classList.remove('text-green-600', 'hover:text-green-800');
-                        this.classList.add('text-red-600', 'hover:text-red-800');
+                        this.classList.remove('text-green-600', 'hover:bg-green-600');
+                        this.classList.add('text-red-600', 'hover:bg-red-600');
                     } else {
-                        this.classList.remove('text-red-600', 'hover:text-red-800');
-                        this.classList.add('text-green-600', 'hover:text-green-800');
+                        this.classList.remove('text-red-600', 'hover:bg-red-600');
+                        this.classList.add('text-green-600', 'hover:bg-green-600');
                     }
 
                     await Swal.fire({
@@ -223,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: 'No se pudo actualizar el estado del producto',
+                    text: error.message || 'No se pudo actualizar el estado del producto',
                     confirmButtonColor: '#EF4444'
                 });
             } finally {
@@ -378,12 +389,11 @@ document.addEventListener('DOMContentLoaded', function () {
     async function eliminarMuestra(id) {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
         const esMuestraOrdenamiento = document.querySelector(`#cuerpo-table-tres button[data-id="${id}"]`) !== null;
-    
+
         if (esMuestraOrdenamiento) {
             const nuevaCantidad = cantidadMuestras - 1;
-            // Permitir cualquier cantidad siempre que el destino final sea 0, 6 o 10
-            if (nuevaCantidad > 0 && nuevaCantidad !== 6 && nuevaCantidad !== 10) {
-                const siguienteValido = nuevaCantidad > 6 ? 6 : 0;
+            if (nuevaCantidad > 0 && ![3, 6, 10].includes(nuevaCantidad)) {
+                const siguienteValido = nuevaCantidad > 6 ? 6 : (nuevaCantidad > 3 ? 3 : 0);
                 await Swal.fire({
                     title: 'Advertencia',
                     text: `Debes continuar eliminando hasta llegar a ${siguienteValido} muestras`,
@@ -392,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
         }
-    
+
         // Continuar con la eliminación
         const result = await Swal.fire({
             title: '¿Estás seguro?',
@@ -404,13 +414,13 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmButtonText: 'Sí, eliminar',
             cancelButtonText: 'Cancelar'
         });
-    
+
         if (result.isConfirmed) {
             try {
                 const response = await fetchWithCsrf(`/muestra/${id}`, {
                     method: 'DELETE'
                 });
-    
+
                 const data = await response.json();
                 if (data.success) {
                     await cargarMuestras(document.getElementById('producto-id-muestra').value);
