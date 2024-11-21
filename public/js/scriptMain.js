@@ -4,7 +4,7 @@ $(document).ready(function () {
         $(`#${formActual}`).addClass('hidden');
         // Mostrar siguiente sección
         $(`#${formIr}`).removeClass('hidden');
-        
+
         // Actualizar barra de progreso
         actualizarProgreso(formIr);
     }
@@ -15,7 +15,7 @@ $(document).ready(function () {
         let width = 0;
         let paso = 1;
 
-        switch(seccionActual) {
+        switch (seccionActual) {
             case 'sect1':
                 width = "0%";
                 paso = 1;
@@ -54,7 +54,7 @@ $(document).ready(function () {
     });
 
     // Botones de retroceso
-    $("[onclick*='cambiarFormulario']").on('click', function(e) {
+    $("[onclick*='cambiarFormulario']").on('click', function (e) {
         e.preventDefault();
         const [formIr, formActual] = $(this).attr('onclick')
             .match(/cambiarFormulario\('(.+)',\s*'(.+)'\)/i)
@@ -136,64 +136,79 @@ $(document).ready(function () {
     }
 
     function guardarCalificaciones(idpane, productoID, fechaPanelista, cabinaSeleccionada) {
-        const calificaciones = [{
-            prueba: 1,
-            codMuestras: $('input[name="muestra_diferente"]:checked').val(),
-            atributo: 'Dulzura',
-            comentario: $('#comentario-triangular').val(),
-            cabina: cabinaSeleccionada
-        }, {
-            prueba: 2,
-            codMuestras: $('input[name="muestra_igual_referencia"]:checked').val(),
-            atributo: 'Similaridad',
-            comentario: $('#comentario-duo').val(),
-            cabina: cabinaSeleccionada
-        }, {
-            prueba: 3,
-            codMuestras: formatearResultadosOrdenamiento(),
-            atributo: 'Dulzura',
-            comentario: $('#comentario-orden').val(),
-            cabina: cabinaSeleccionada
-        }];
+        $.ajax({
+            url: '/muestras/' + productoID,
+            type: 'GET',
+            success: function (response) {
+                const atributos = {
+                    1: response.triangular.length > 0 ? response.triangular[0].atributo : 'Dulzura',
+                    2: response.duo_trio.length > 0 ? response.duo_trio[0].atributo : 'Similaridad',
+                    3: response.ordenamiento.length > 0 ? response.ordenamiento[0].atributo : 'Dulzura'
+                };
 
-        let calificacionesGuardadas = 0;
-        const totalCalificaciones = calificaciones.filter(cal => cal.codMuestras).length;
+                const calificaciones = [{
+                    prueba: 1,
+                    codMuestras: $('input[name="muestra_diferente"]:checked').val(),
+                    atributo: atributos[1],
+                    comentario: $('#comentario-triangular').val(),
+                    cabina: cabinaSeleccionada
+                }, {
+                    prueba: 2,
+                    codMuestras: $('input[name="muestra_igual_referencia"]:checked').val(),
+                    atributo: atributos[2],
+                    comentario: $('#comentario-duo').val(),
+                    cabina: cabinaSeleccionada
+                }, {
+                    prueba: 3,
+                    codMuestras: formatearResultadosOrdenamiento(),
+                    atributo: atributos[3],
+                    comentario: $('#comentario-orden').val(),
+                    cabina: cabinaSeleccionada
+                }];
 
-        calificaciones.forEach(function (cal) {
-            if (cal.codMuestras) {
-                $.ajax({
-                    url: window.routes.calificacionStore,
-                    type: 'POST',
-                    data: {
-                        idpane: idpane,
-                        producto: productoID,
-                        prueba: cal.prueba,
-                        atributo: cal.atributo,
-                        cod_muestras: cal.codMuestras,
-                        comentario: cal.comentario,
-                        fecha: fechaPanelista,
-                        cabina: cal.cabina,
-                        _token: window.csrfToken
-                    },
-                    success: function () {
-                        calificacionesGuardadas++;
-                        if (calificacionesGuardadas === totalCalificaciones) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Guardado exitoso!',
-                                text: 'Todas las calificaciones han sido guardadas correctamente.',
-                                confirmButtonColor: '#198754'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.location.reload();
+                let calificacionesGuardadas = 0;
+                const totalCalificaciones = calificaciones.filter(cal => cal.codMuestras).length;
+
+                calificaciones.forEach(function (cal) {
+                    if (cal.codMuestras) {
+                        $.ajax({
+                            url: window.routes.calificacionStore,
+                            type: 'POST',
+                            data: {
+                                idpane: idpane,
+                                producto: productoID,
+                                prueba: cal.prueba,
+                                atributo: cal.atributo,
+                                cod_muestras: cal.codMuestras,
+                                comentario: cal.comentario,
+                                fecha: fechaPanelista,
+                                cabina: cal.cabina,
+                                _token: window.csrfToken
+                            },
+                            success: function () {
+                                calificacionesGuardadas++;
+                                if (calificacionesGuardadas === totalCalificaciones) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '¡Guardado exitoso!',
+                                        text: 'Todas las calificaciones han sido guardadas correctamente.',
+                                        confirmButtonColor: '#198754'
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.reload();
+                                        }
+                                    });
                                 }
-                            });
-                        }
-                    },
-                    error: function (xhr) {
-                        Swal.fire('Error', 'Hubo un problema al guardar los resultados', 'error');
+                            },
+                            error: function (xhr) {
+                                Swal.fire('Error', 'Hubo un problema al guardar los resultados', 'error');
+                            }
+                        });
                     }
                 });
+            },
+            error: function (xhr) {
+                Swal.fire('Error', 'Hubo un problema al obtener los atributos de las muestras', 'error');
             }
         });
     }

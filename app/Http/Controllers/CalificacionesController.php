@@ -20,12 +20,15 @@ class CalificacionesController extends Controller
             'idpane' => 'nullable|exists:panelistas,idpane',
             'producto' => 'required|exists:productos,id_producto',
             'prueba' => 'required|integer',
-            'atributo' => 'required|string|max:50',
+            'atributo' => 'nullable|string|max:50',
             'cod_muestras' => 'required|string|max:250',
             'comentario' => 'nullable|string|max:250',
             'fecha' => 'nullable|date',
             'cabina' => 'required|integer',
         ]);
+
+        // Asignar un valor por defecto al atributo si no se proporciona
+        $data['atributo'] = $data['atributo'] ?? '';
 
         Calificacion::create($data);
 

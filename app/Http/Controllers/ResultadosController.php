@@ -85,7 +85,7 @@ class ResultadosController extends Controller
                         'cabina' => $cabina
                     ],
                     [
-                        'atributo' => 'Dulzura',
+                        'atributo' => '',
                         'resultado' => $votos
                     ]
                 );
@@ -110,6 +110,9 @@ class ResultadosController extends Controller
                     arsort($votosOrdenamiento);
                     $muestraMasVotada = key($votosOrdenamiento);
 
+                    // Obtener el atributo de la primera calificación de ordenamiento
+                    $atributo = $calificacionesOrdenamiento->first()->atributo;
+
                     $resultadoOrdenamiento = Resultado::updateOrCreate(
                         [
                             'producto' => $productoId,
@@ -119,7 +122,7 @@ class ResultadosController extends Controller
                         ],
                         [
                             'cod_muestra' => $muestraMasVotada,
-                            'atributo' => 'Dulzura',
+                            'atributo' => $atributo, // Usar el atributo de la calificación
                             'resultado' => $votosOrdenamiento[$muestraMasVotada]
                         ]
                     );
