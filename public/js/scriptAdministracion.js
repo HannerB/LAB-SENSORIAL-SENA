@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Función para validar cantidad de muestras de ordenamiento
     function validarCantidadMuestrasOrdenamiento() {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
-        const cantidadesValidas = [0, 3, 6, 10];
+        const cantidadesValidas = [0, 6, 10];
         return cantidadesValidas.includes(cantidadMuestras);
     }
 
@@ -375,24 +375,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Función para eliminar muestra
     async function eliminarMuestra(id) {
         const cantidadMuestras = document.querySelectorAll('#cuerpo-table-tres tr').length;
         const esMuestraOrdenamiento = document.querySelector(`#cuerpo-table-tres button[data-id="${id}"]`) !== null;
-
+    
         if (esMuestraOrdenamiento) {
             const nuevaCantidad = cantidadMuestras - 1;
-            if (nuevaCantidad !== 0 && ![3, 6, 10].includes(nuevaCantidad)) {
+            // Permitir cualquier cantidad siempre que el destino final sea 0, 6 o 10
+            if (nuevaCantidad > 0 && nuevaCantidad !== 6 && nuevaCantidad !== 10) {
+                const siguienteValido = nuevaCantidad > 6 ? 6 : 0;
                 await Swal.fire({
-                    title: 'No se puede eliminar',
-                    text: 'La cantidad de muestras debe ser 3, 6 o 10 para la prueba de ordenamiento.',
-                    icon: 'warning',
+                    title: 'Advertencia',
+                    text: `Debes continuar eliminando hasta llegar a ${siguienteValido} muestras`,
+                    icon: 'info',
                     confirmButtonColor: '#10B981'
                 });
-                return;
             }
         }
-
+    
+        // Continuar con la eliminación
         const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: "Esta acción no se puede deshacer",
@@ -401,30 +402,18 @@ document.addEventListener('DOMContentLoaded', function () {
             confirmButtonColor: '#10B981',
             cancelButtonColor: '#EF4444',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            customClass: {
-                confirmButton: 'inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto',
-                cancelButton: 'inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:mt-0 sm:ml-3 sm:w-auto'
-            }
+            cancelButtonText: 'Cancelar'
         });
-
+    
         if (result.isConfirmed) {
             try {
                 const response = await fetchWithCsrf(`/muestra/${id}`, {
                     method: 'DELETE'
                 });
-
+    
                 const data = await response.json();
                 if (data.success) {
-                    await Swal.fire({
-                        title: '¡Eliminado!',
-                        text: 'La muestra ha sido eliminada.',
-                        icon: 'success',
-                        confirmButtonColor: '#10B981'
-                    });
                     await cargarMuestras(document.getElementById('producto-id-muestra').value);
-                } else {
-                    throw new Error(data.message || 'Error al eliminar la muestra');
                 }
             } catch (error) {
                 await Swal.fire({

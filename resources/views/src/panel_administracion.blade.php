@@ -8,7 +8,7 @@
     <meta name="description" content="Panel de Administración - SENA">
     <meta name="theme-color" content="#198754">
     <link rel="icon" href="{{ asset('img/favicon.ico') }}">
-    
+
     <title>Panel de Administración - SENA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
@@ -31,7 +31,7 @@
             <span class="text-gray-700 text-lg font-medium">Procesando...</span>
         </div>
     </div>
-    
+
     <!-- Navbar -->
     <nav class="bg-sena-green shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
