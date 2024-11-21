@@ -14,7 +14,7 @@
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center">
-                    <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}" alt="SENA Logo"
+                    <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.webp') }}" alt="SENA Logo"
                         class="h-10 w-auto transform transition hover:scale-105">
                     <div class="hidden md:block">
                         <h1 class="ml-4 text-white font-semibold text-lg">
