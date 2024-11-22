@@ -96,38 +96,41 @@ class ResultadosController extends Controller
             // Procesar prueba de ordenamiento (prueba 3)
             $calificacionesOrdenamiento = $calificaciones->where('prueba', 3);
             if ($calificacionesOrdenamiento->isNotEmpty()) {
-                $votosOrdenamiento = [];
+                // Group by attribute
+                $calificacionesPorAtributo = $calificacionesOrdenamiento->groupBy('atributo');
 
-                foreach ($calificacionesOrdenamiento as $calificacion) {
-                    $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
-                    if (!empty($secuenciaMuestras)) {
-                        $primeraMuestra = $secuenciaMuestras[0];
-                        $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                foreach ($calificacionesPorAtributo as $atributo => $calificaciones) {
+                    $votosOrdenamiento = [];
+
+                    foreach ($calificaciones as $calificacion) {
+                        $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
+                        if (!empty($secuenciaMuestras)) {
+                            $primeraMuestra = $secuenciaMuestras[0];
+                            $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                        }
                     }
-                }
 
-                if (!empty($votosOrdenamiento)) {
-                    arsort($votosOrdenamiento);
-                    $muestraMasVotada = key($votosOrdenamiento);
+                    if (!empty($votosOrdenamiento)) {
+                        arsort($votosOrdenamiento);
 
-                    // Obtener el atributo de la primera calificación de ordenamiento
-                    $atributo = $calificacionesOrdenamiento->first()->atributo;
+                        foreach ($votosOrdenamiento as $codMuestra => $votos) {
+                            $resultadoOrdenamiento = Resultado::updateOrCreate(
+                                [
+                                    'producto' => $productoId,
+                                    'prueba' => 3,
+                                    'fecha' => $fecha,
+                                    'cabina' => $cabina,
+                                    'atributo' => $atributo,
+                                    'cod_muestra' => $codMuestra
+                                ],
+                                [
+                                    'resultado' => $votos
+                                ]
+                            );
 
-                    $resultadoOrdenamiento = Resultado::updateOrCreate(
-                        [
-                            'producto' => $productoId,
-                            'prueba' => 3,
-                            'fecha' => $fecha,
-                            'cabina' => $cabina
-                        ],
-                        [
-                            'cod_muestra' => $muestraMasVotada,
-                            'atributo' => $atributo, // Usar el atributo de la calificación
-                            'resultado' => $votosOrdenamiento[$muestraMasVotada]
-                        ]
-                    );
-
-                    $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
+                            $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
+                        }
+                    }
                 }
             }
 

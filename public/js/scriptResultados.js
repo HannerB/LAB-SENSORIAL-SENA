@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    // Inicialización de elementos ocultos
+    $('#resultados-pruebas').hide();
+    $('#resultado-pruebas-personas').hide();
+    $('.tabla-personas').hide();
+
     $('#filtro-resultados').submit(function (e) {
         e.preventDefault();
 
@@ -15,7 +20,6 @@ $(document).ready(function () {
             Swal.fire('Advertencia', 'Por favor, selecciona una cabina.', 'warning');
             return;
         }
-
         $.ajax({
             url: '/resultado/generar',
             method: 'POST',
@@ -32,7 +36,7 @@ $(document).ready(function () {
                 // Limpiar las tablas existentes
                 $('#body-triangular').empty();
                 $('#body-duo').empty();
-                $('#preferencia-ordenamiento').empty();
+                $('#ordenamiento-results-container').empty();
 
                 // Mostrar resultados de prueba triangular
                 if (response.data.triangulares && response.data.triangulares.length > 0) {
@@ -46,7 +50,6 @@ $(document).ready(function () {
                         `);
                     });
                 }
-
                 // Mostrar resultados de prueba duo-trio
                 if (response.data.duoTrio && response.data.duoTrio.length > 0) {
                     response.data.duoTrio.forEach(function (item, index) {
@@ -62,10 +65,49 @@ $(document).ready(function () {
 
                 // Mostrar resultados de prueba de ordenamiento
                 if (response.data.ordenamiento && response.data.ordenamiento.length > 0) {
-                    $('#atributo-prueba').text(response.data.ordenamiento[0].atributo);
-                    if (response.data.muestraMasVotada) {
-                        $('#preferencia-ordenamiento').append(` ${response.data.muestraMasVotada.cod_muestra}`);
-                    }
+                    const container = $('#ordenamiento-results-container');
+                    container.empty();
+
+                    // Group results by attribute using lodash
+                    const groupedByAttribute = _.groupBy(response.data.ordenamiento, 'atributo');
+
+                    // Create a section for each attribute
+                    Object.entries(groupedByAttribute).forEach(([atributo, resultados]) => {
+                        const section = `
+                            <div class="mb-6 border-b pb-4">
+                                <h4 class="text-md font-semibold mb-3">
+                                    Atributo: ${atributo}
+                                </h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Código Muestra
+                                                </th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Votos
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            ${resultados.map(resultado => `
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        ${resultado.cod_muestra}
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                        ${resultado.resultado} votos
+                                                    </td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+                        container.append(section);
+                    });
                 }
 
                 // Resetear el selector de tipo de prueba
@@ -78,9 +120,7 @@ $(document).ready(function () {
             }
         });
     });
-});
-
-$(document).ready(function () {
+    // Manejo de resultados por panelista
     $('#tipo-prueba-resultado').change(function () {
         var testType = $(this).val();
         var fecha = $('#fecha-filtro').val();
@@ -129,9 +169,43 @@ $(document).ready(function () {
             $('.tabla-personas').hide();
         }
     });
+    // Script para el botón de exportación
+    $('#btnExportar').click(function () {
+        const fecha = $('#fecha-filtro').val();
+        const productoId = $('#productos-filtro').val();
+        const tipoPrueba = $('#tipo-prueba-resultado').val();
+        const cabina = $('#cabinas-filtro').val();
 
-    // Inicialización de elementos ocultos
-    $('#resultados-pruebas').hide();
-    $('#resultado-pruebas-personas').hide();
-    $('.tabla-personas').hide();
+        if (!fecha || productoId === 'select' || cabina === 'select') {
+            Swal.fire('Advertencia', 'Por favor, selecciona una fecha, producto y cabina.', 'warning');
+            return;
+        }
+
+        const params = new URLSearchParams({
+            fecha: fecha,
+            producto_id: productoId,
+            tipo_prueba: tipoPrueba !== 'select' ? tipoPrueba : '',
+            cabina: cabina
+        });
+
+        window.location.href = `/resultados/exportar?${params.toString()}`;
+    });
+
+    // Script para el botón de exportar todo
+    $('#btnExportarTodo').click(function () {
+        const fecha = $('#fecha-filtro').val();
+        const productoId = $('#productos-filtro').val();
+
+        if (!fecha || productoId === 'select') {
+            Swal.fire('Advertencia', 'Por favor, selecciona una fecha y producto.', 'warning');
+            return;
+        }
+
+        const params = new URLSearchParams({
+            fecha: fecha,
+            producto_id: productoId
+        });
+
+        window.location.href = `/resultados/exportar-todas?${params.toString()}`;
+    });
 });

@@ -197,33 +197,11 @@
             <div>
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <i class="fas fa-sort-amount-up mr-2 text-sena-green"></i>
-                    PRUEBA ORDENAMIENTO - (<span id="atributo-prueba" class="text-sena-green">ATRIBUTO</span>)
+                    PRUEBA ORDENAMIENTO
                 </h3>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    #
-                                </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Resultado
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <th class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    Prefieren
-                                </th>
-                                <td id="preferencia-ordenamiento"
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- Container for dynamic attribute sections -->
+                <div id="ordenamiento-results-container">
+                    <!-- Los resultados se cargarán dinámicamente por atributo -->
                 </div>
             </div>
         </div>
@@ -272,51 +250,13 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="{{ asset('../bootstrap/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('../js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('../js/sweetalert2.all.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="{{ asset('../js/scriptResultados.js') }}"></script>
-
-    <!-- Script para el botón de exportación -->
-    <script>
-        document.getElementById('btnExportar').addEventListener('click', function() {
-            const fecha = document.getElementById('fecha-filtro').value;
-            const productoId = document.getElementById('productos-filtro').value;
-            const tipoPrueba = document.getElementById('tipo-prueba-resultado').value;
-            const cabina = document.getElementById('cabinas-filtro').value;
-
-            if (!fecha || productoId === 'select' || cabina === 'select') {
-                Swal.fire('Advertencia', 'Por favor, selecciona una fecha, producto y cabina.', 'warning');
-                return;
-            }
-
-            const params = new URLSearchParams({
-                fecha: fecha,
-                producto_id: productoId,
-                tipo_prueba: tipoPrueba !== 'select' ? tipoPrueba : '',
-                cabina: cabina
-            });
-
-            window.location.href = `/resultados/exportar?${params.toString()}`;
-        });
-
-        document.getElementById('btnExportarTodo').addEventListener('click', function() {
-            const fecha = document.getElementById('fecha-filtro').value;
-            const productoId = document.getElementById('productos-filtro').value;
-
-            if (!fecha || productoId === 'select') {
-                Swal.fire('Advertencia', 'Por favor, selecciona una fecha y producto.', 'warning');
-                return;
-            }
-
-            const params = new URLSearchParams({
-                fecha: fecha,
-                producto_id: productoId
-            });
-
-            window.location.href = `/resultados/exportar-todas?${params.toString()}`;
-        });
-    </script>
+    
 </body>
 
 </html>
