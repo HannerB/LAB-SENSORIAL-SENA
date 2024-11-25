@@ -64,6 +64,7 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
                                        focus:border-sena-green focus:ring-sena-green">
                             <option value="select">Seleccione cabina</option>
+                            <option value="all">Todas las cabinas</option>
                             <option value="1">Cabina 1</option>
                             <option value="2">Cabina 2</option>
                             <option value="3">Cabina 3</option>
@@ -215,7 +216,7 @@
                     </label>
                     <select id="tipo-prueba-resultado"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                                   focus:border-sena-green focus:ring-sena-green">
+                           focus:border-sena-green focus:ring-sena-green">
                         <option value="select">SELECCIONE LA PRUEBA</option>
                         <option value="1">PRUEBA TRIANGULAR</option>
                         <option value="2">PRUEBA DUO-TRIO</option>
@@ -238,6 +239,10 @@
                             </th>
                             <th scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                Cabina
+                            </th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                 Respuesta
                             </th>
                         </tr>
@@ -256,7 +261,7 @@
     <script src="{{ asset('../js/sweetalert2.all.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <script src="{{ asset('../js/scriptResultados.js') }}"></script>
-    
+
 </body>
 
 </html>

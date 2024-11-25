@@ -46,143 +46,32 @@ class ResultadosController extends Controller
             $request->validate([
                 'fecha' => 'required|date',
                 'producto_id' => 'required|exists:productos,id_producto',
-                'cabina' => 'required|integer|min:1|max:3',
+                'cabina' => ['required', function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && (!is_numeric($value) || $value < 1 || $value > 3)) {
+                        $fail('El campo cabina debe ser "all" o un número entre 1 y 3.');
+                    }
+                }],
             ]);
 
             $fecha = $request->fecha;
             $productoId = $request->producto_id;
             $cabina = $request->cabina;
 
-            // Inicializar variable
-            $muestraMasVotada = null;
-
-            // Obtener muestras y calificaciones
-            $muestras = Muestra::where('producto_id', $productoId)->get();
-            $calificaciones = Calificacion::where('producto', $productoId)
-                ->whereDate('fecha', $fecha) // cambiado de created_at a fecha
-                ->where('cabina', $cabina)
-                ->get();
-
-            $resultados = [];
-            $resultadosFormateados = [];
-
-            // Procesar pruebas 1 y 2
-            foreach ($calificaciones->whereIn('prueba', [1, 2]) as $calificacion) {
-                $codMuestra = $calificacion->cod_muestras;
-                $resultados[$codMuestra] = ($resultados[$codMuestra] ?? 0) + 1;
+            // Si la cabina es 'all', procesar todas las cabinas
+            if ($cabina === 'all') {
+                $resultados = $this->procesarTodasLasCabinas($fecha, $productoId);
+            } else {
+                $resultados = $this->procesarCabinaIndividual($fecha, $productoId, intval($cabina));
             }
-
-            foreach ($muestras->whereIn('prueba', [1, 2]) as $muestra) {
-                $codMuestra = $muestra->cod_muestra;
-                $votos = $resultados[$codMuestra] ?? 0;
-
-                $resultadoNuevo = Resultado::updateOrCreate(
-                    [
-                        'producto' => $productoId,
-                        'prueba' => $muestra->prueba,
-                        'cod_muestra' => $codMuestra,
-                        'fecha' => $fecha,
-                        'cabina' => $cabina
-                    ],
-                    [
-                        'atributo' => '',
-                        'resultado' => $votos
-                    ]
-                );
-
-                $resultadosFormateados[] = $resultadoNuevo->toArray();
-            }
-
-            // Procesar prueba de ordenamiento (prueba 3)
-            $calificacionesOrdenamiento = $calificaciones->where('prueba', 3);
-            if ($calificacionesOrdenamiento->isNotEmpty()) {
-                // Group by attribute
-                $calificacionesPorAtributo = $calificacionesOrdenamiento->groupBy('atributo');
-
-                foreach ($calificacionesPorAtributo as $atributo => $calificaciones) {
-                    $votosOrdenamiento = [];
-
-                    foreach ($calificaciones as $calificacion) {
-                        $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
-                        if (!empty($secuenciaMuestras)) {
-                            $primeraMuestra = $secuenciaMuestras[0];
-                            $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
-                        }
-                    }
-
-                    if (!empty($votosOrdenamiento)) {
-                        arsort($votosOrdenamiento);
-
-                        foreach ($votosOrdenamiento as $codMuestra => $votos) {
-                            $resultadoOrdenamiento = Resultado::updateOrCreate(
-                                [
-                                    'producto' => $productoId,
-                                    'prueba' => 3,
-                                    'fecha' => $fecha,
-                                    'cabina' => $cabina,
-                                    'atributo' => $atributo,
-                                    'cod_muestra' => $codMuestra
-                                ],
-                                [
-                                    'resultado' => $votos
-                                ]
-                            );
-
-                            $resultadosFormateados[] = $resultadoOrdenamiento->toArray();
-                        }
-                    }
-                }
-            }
-
-            $data = [
-                'triangulares' => collect($resultadosFormateados)->where('prueba', 1)->values(),
-                'duoTrio' => collect($resultadosFormateados)->where('prueba', 2)->values(),
-                'ordenamiento' => collect($resultadosFormateados)->where('prueba', 3)->values(),
-                'muestraMasVotada' => $muestraMasVotada ? ['cod_muestra' => $muestraMasVotada] : null
-            ];
 
             DB::commit();
             Log::info('Finalizando generación y guardado de resultados');
-            return response()->json(['success' => true, 'data' => $data]);
+            return response()->json(['success' => true, 'data' => $resultados]);
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error al generar y guardar resultados: ' . $e->getMessage());
             return response()->json(['error' => 'Ocurrió un error al generar y guardar los resultados: ' . $e->getMessage()], 500);
         }
-    }
-
-    public function mostrarResultadosPanelistas(Request $request)
-    {
-        $testType = $request->input('test_type');
-        $fecha = $request->input('fecha');
-        $productoId = $request->input('producto_id');
-        $cabina = $request->input('cabina');
-
-        $query = DB::table('calificaciones')
-            ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
-            ->whereDate('calificaciones.fecha', $fecha)  // Usar whereDate para comparar fechas
-            ->where('calificaciones.producto', $productoId)
-            ->where('calificaciones.cabina', $cabina)
-            ->select(
-                'panelistas.nombres as nombre_panelista',
-                'calificaciones.cod_muestras',
-                'calificaciones.prueba'
-            );
-
-        if ($testType && in_array($testType, ['1', '2', '3'])) {
-            $query->where('calificaciones.prueba', $testType);
-        }
-
-        $results = $query->get()->map(function ($item) {
-            $respuesta = $this->formatearRespuesta($item->prueba, $item->cod_muestras);
-            return [
-                'nombre_panelista' => $item->nombre_panelista,
-                'respuesta' => $respuesta
-            ];
-        });
-
-        Log::info('Resultados de panelistas:', ['data' => $results]);
-        return response()->json(['data' => $results]);
     }
 
     private function formatearRespuesta($tipoPrueba, $codMuestras)
@@ -246,5 +135,210 @@ class ResultadosController extends Controller
             Log::error('Error al exportar resultados de todas las cabinas: ' . $e->getMessage());
             return back()->with('error', 'Error al generar el archivo Excel');
         }
+    }
+
+    private function procesarResultados($muestras, $calificaciones, $productoId, $fecha, $cabina)
+    {
+        $resultados = [];
+        $resultadosFormateados = [];
+
+        // Procesar pruebas 1 y 2
+        foreach ($calificaciones->whereIn('prueba', [1, 2]) as $calificacion) {
+            $codMuestra = $calificacion->cod_muestras;
+            $resultados[$codMuestra] = ($resultados[$codMuestra] ?? 0) + 1;
+        }
+
+        foreach ($muestras->whereIn('prueba', [1, 2]) as $muestra) {
+            $codMuestra = $muestra->cod_muestra;
+            $votos = $resultados[$codMuestra] ?? 0;
+
+            $resultadoNuevo = [
+                'producto' => $productoId,
+                'prueba' => $muestra->prueba,
+                'cod_muestra' => $codMuestra,
+                'fecha' => $fecha,
+                'cabina' => $cabina,
+                'atributo' => '',
+                'resultado' => $votos
+            ];
+
+            $resultadosFormateados[] = $resultadoNuevo;
+        }
+
+        // Procesar prueba de ordenamiento (prueba 3)
+        $calificacionesOrdenamiento = $calificaciones->where('prueba', 3);
+        if ($calificacionesOrdenamiento->isNotEmpty()) {
+            $calificacionesPorAtributo = $calificacionesOrdenamiento->groupBy('atributo');
+
+            foreach ($calificacionesPorAtributo as $atributo => $calificaciones) {
+                $votosOrdenamiento = [];
+
+                foreach ($calificaciones as $calificacion) {
+                    $secuenciaMuestras = explode(',', $calificacion->cod_muestras);
+                    if (!empty($secuenciaMuestras)) {
+                        $primeraMuestra = $secuenciaMuestras[0];
+                        $votosOrdenamiento[$primeraMuestra] = ($votosOrdenamiento[$primeraMuestra] ?? 0) + 1;
+                    }
+                }
+
+                foreach ($votosOrdenamiento as $codMuestra => $votos) {
+                    $resultadoNuevo = [
+                        'producto' => $productoId,
+                        'prueba' => 3,
+                        'cod_muestra' => $codMuestra,
+                        'fecha' => $fecha,
+                        'cabina' => $cabina,
+                        'atributo' => $atributo,
+                        'resultado' => $votos
+                    ];
+
+                    $resultadosFormateados[] = $resultadoNuevo;
+                }
+            }
+        }
+
+        return [
+            'triangulares' => collect($resultadosFormateados)->where('prueba', 1)->values(),
+            'duoTrio' => collect($resultadosFormateados)->where('prueba', 2)->values(),
+            'ordenamiento' => collect($resultadosFormateados)->where('prueba', 3)->values()
+        ];
+    }
+
+    private function procesarCabinaIndividual($fecha, $productoId, $cabina)
+    {
+        // Obtener muestras y calificaciones
+        $muestras = Muestra::where('producto_id', $productoId)->get();
+        $calificaciones = Calificacion::where('producto', $productoId)
+            ->whereDate('fecha', $fecha)
+            ->where('cabina', $cabina)
+            ->get();
+
+        return $this->procesarResultados($muestras, $calificaciones, $productoId, $fecha, $cabina);
+    }
+
+
+    public function mostrarResultadosPanelistas(Request $request)
+    {
+        try {
+            $testType = $request->input('test_type');
+            $fecha = $request->input('fecha');
+            $productoId = $request->input('producto_id');
+            $cabina = $request->input('cabina');
+
+            Log::info('Iniciando consulta de resultados por panelista', [
+                'test_type' => $testType,
+                'fecha' => $fecha,
+                'producto_id' => $productoId,
+                'cabina' => $cabina
+            ]);
+
+            $query = DB::table('calificaciones')
+                ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
+                ->whereDate('calificaciones.fecha', $fecha)
+                ->where('calificaciones.producto', $productoId);
+
+            // Si no es 'all', filtrar por cabina específica
+            if ($cabina !== 'all') {
+                $query->where('calificaciones.cabina', $cabina);
+            }
+
+            if ($testType && in_array($testType, ['1', '2', '3'])) {
+                $query->where('calificaciones.prueba', $testType);
+            }
+
+            $results = $query->select(
+                'panelistas.nombres as nombre_panelista',
+                'calificaciones.cod_muestras',
+                'calificaciones.prueba',
+                'calificaciones.cabina'
+            )->get()->map(function ($item) {
+                return [
+                    'nombre_panelista' => $item->nombre_panelista,
+                    'respuesta' => $this->formatearRespuesta($item->prueba, $item->cod_muestras),
+                    'cabina' => $item->cabina
+                ];
+            });
+
+            Log::info('Consulta de resultados por panelista exitosa', ['count' => $results->count()]);
+            return response()->json(['success' => true, 'data' => $results]);
+        } catch (\Exception $e) {
+            Log::error('Error al mostrar resultados de panelistas: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al obtener los resultados: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function procesarTodasLasCabinas($fecha, $productoId)
+    {
+        // Obtener muestras para el producto
+        $muestras = Muestra::where('producto_id', $productoId)->get();
+
+        // Obtener todas las calificaciones sin filtrar por cabina
+        $calificacionesTotales = Calificacion::where('producto', $productoId)
+            ->whereDate('fecha', $fecha)
+            ->get();
+
+        // Agrupar calificaciones por cabina
+        $resultadosPorCabina = [];
+
+        // Procesar los resultados para cada cabina (1, 2 y 3)
+        for ($cabina = 1; $cabina <= 3; $cabina++) {
+            $calificacionesCabina = $calificacionesTotales->where('cabina', $cabina);
+            $resultadosCabina = $this->procesarResultados($muestras, $calificacionesCabina, $productoId, $fecha, $cabina);
+            foreach ($resultadosCabina as $tipo => $resultados) {
+                if (!isset($resultadosPorCabina[$tipo])) {
+                    $resultadosPorCabina[$tipo] = collect();
+                }
+                $resultadosPorCabina[$tipo] = $resultadosPorCabina[$tipo]->concat($resultados);
+            }
+        }
+
+        // Combinar resultados de todas las cabinas
+        $resultadosFinales = [];
+
+        // Procesar Triangulares y Duo-Trio
+        foreach (['triangulares', 'duoTrio'] as $tipo) {
+            if (isset($resultadosPorCabina[$tipo])) {
+                $resultadosFinales[$tipo] = $resultadosPorCabina[$tipo]
+                    ->groupBy('cod_muestra')
+                    ->map(function ($grupo) use ($productoId, $fecha) {
+                        $primerResultado = $grupo->first();
+                        return [
+                            'producto' => $productoId,
+                            'prueba' => $primerResultado['prueba'],
+                            'cod_muestra' => $primerResultado['cod_muestra'],
+                            'fecha' => $fecha,
+                            'cabina' => 'all',
+                            'atributo' => '',
+                            'resultado' => $grupo->sum('resultado')
+                        ];
+                    })->values();
+            } else {
+                $resultadosFinales[$tipo] = collect();
+            }
+        }
+
+        // Procesar Ordenamiento
+        if (isset($resultadosPorCabina['ordenamiento'])) {
+            $resultadosFinales['ordenamiento'] = $resultadosPorCabina['ordenamiento']
+                ->groupBy(function ($item) {
+                    return $item['atributo'] . '_' . $item['cod_muestra'];
+                })
+                ->map(function ($grupo) use ($productoId, $fecha) {
+                    $primerResultado = $grupo->first();
+                    return [
+                        'producto' => $productoId,
+                        'prueba' => 3,
+                        'cod_muestra' => $primerResultado['cod_muestra'],
+                        'fecha' => $fecha,
+                        'cabina' => 'all',
+                        'atributo' => $primerResultado['atributo'],
+                        'resultado' => $grupo->sum('resultado')
+                    ];
+                })->values();
+        } else {
+            $resultadosFinales['ordenamiento'] = collect();
+        }
+
+        return $resultadosFinales;
     }
 }
