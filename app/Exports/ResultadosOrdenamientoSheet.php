@@ -17,14 +17,12 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
     protected $fecha;
     protected $productoId;
     protected $cabina;
-    protected $maxPosiciones;
 
     public function __construct($fecha, $productoId, $cabina = null)
     {
         $this->fecha = $fecha;
         $this->productoId = $productoId;
         $this->cabina = $cabina;
-        $this->maxPosiciones = 10; // Siempre mostrar 10 posiciones
     }
 
     public function collection()
@@ -41,22 +39,14 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
             $calificaciones = $query->get();
 
             if ($calificaciones->isEmpty()) {
-                $emptyResult = [
+                return collect([[
                     'atributo' => 'Sin datos',
                     'muestra' => '-',
-                    'primera_posicion' => 0,
-                    'segunda_posicion' => 0,
-                    'tercera_posicion' => 0,
-                    'cuarta_posicion' => 0,
-                    'quinta_posicion' => 0,
-                    'sexta_posicion' => 0,
-                    'septima_posicion' => 0,
-                    'octava_posicion' => 0,
-                    'novena_posicion' => 0,
-                    'decima_posicion' => 0,
+                    'primera_eleccion' => '0 votos (0%)',
+                    'segunda_eleccion' => '0 votos (0%)',
+                    'tercera_eleccion' => '0 votos (0%)',
                     'total_evaluaciones' => 0
-                ];
-                return collect([$emptyResult]);
+                ]]);
             }
 
             // Agrupar por atributo
@@ -64,58 +54,61 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
             $resultados = collect();
 
             foreach ($resultadosPorAtributo as $atributo => $calificacionesAtributo) {
-                // Agrupar las muestras por orden y contar votos
+                $totalEvaluaciones = $calificacionesAtributo->count();
                 $votosPorMuestra = [];
-                
+
+                // Procesar cada calificación
                 foreach ($calificacionesAtributo as $calificacion) {
                     $muestras = explode(',', $calificacion->cod_muestras);
                     foreach ($muestras as $posicion => $muestra) {
-                        $key = trim($muestra);
-                        if (!isset($votosPorMuestra[$key])) {
-                            $votosPorMuestra[$key] = array_fill(0, 10, 0); // Siempre 10 posiciones
+                        $muestra = trim($muestra);
+                        if (!isset($votosPorMuestra[$muestra])) {
+                            $votosPorMuestra[$muestra] = array_fill(0, 3, 0); // Solo primeras 3 posiciones
                         }
-                        if ($posicion < 10) { // Solo contar hasta la décima posición
-                            $votosPorMuestra[$key][$posicion]++;
+                        if ($posicion < 3) {
+                            $votosPorMuestra[$muestra][$posicion]++;
                         }
                     }
                 }
 
-                // Formatear resultados para el Excel
+                // Formatear los resultados
                 foreach ($votosPorMuestra as $muestra => $votos) {
+                    $porcentajes = array_map(function ($votos) use ($totalEvaluaciones) {
+                        $porcentaje = ($votos / $totalEvaluaciones) * 100;
+                        return sprintf("%d votos (%.1f%%)", $votos, $porcentaje);
+                    }, $votos);
+
                     $resultados->push([
                         'atributo' => $atributo,
                         'muestra' => $muestra,
-                        'primera_posicion' => $votos[0] ?? 0,
-                        'segunda_posicion' => $votos[1] ?? 0,
-                        'tercera_posicion' => $votos[2] ?? 0,
-                        'cuarta_posicion' => $votos[3] ?? 0,
-                        'quinta_posicion' => $votos[4] ?? 0,
-                        'sexta_posicion' => $votos[5] ?? 0,
-                        'septima_posicion' => $votos[6] ?? 0,
-                        'octava_posicion' => $votos[7] ?? 0,
-                        'novena_posicion' => $votos[8] ?? 0,
-                        'decima_posicion' => $votos[9] ?? 0,
-                        'total_evaluaciones' => array_sum($votos)
+                        'primera_eleccion' => $porcentajes[0],
+                        'segunda_eleccion' => $porcentajes[1],
+                        'tercera_eleccion' => $porcentajes[2],
+                        'total_evaluaciones' => $totalEvaluaciones
+                    ]);
+                }
+
+                // Agregar una fila en blanco entre atributos si hay más de uno
+                if ($resultadosPorAtributo->count() > 1) {
+                    $resultados->push([
+                        'atributo' => '',
+                        'muestra' => '',
+                        'primera_eleccion' => '',
+                        'segunda_eleccion' => '',
+                        'tercera_eleccion' => '',
+                        'total_evaluaciones' => ''
                     ]);
                 }
             }
 
             return $resultados;
-
         } catch (\Exception $e) {
             return collect([[
                 'atributo' => 'Error',
                 'muestra' => $e->getMessage(),
-                'primera_posicion' => 0,
-                'segunda_posicion' => 0,
-                'tercera_posicion' => 0,
-                'cuarta_posicion' => 0,
-                'quinta_posicion' => 0,
-                'sexta_posicion' => 0,
-                'septima_posicion' => 0,
-                'octava_posicion' => 0,
-                'novena_posicion' => 0,
-                'decima_posicion' => 0,
+                'primera_eleccion' => '0 votos (0%)',
+                'segunda_eleccion' => '0 votos (0%)',
+                'tercera_eleccion' => '0 votos (0%)',
                 'total_evaluaciones' => 0
             ]]);
         }
@@ -126,23 +119,18 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
         return [
             'Atributo',
             'Código Muestra',
-            'Votos 1ra Posición',
-            'Votos 2da Posición',
-            'Votos 3ra Posición',
-            'Votos 4ta Posición',
-            'Votos 5ta Posición',
-            'Votos 6ta Posición',
-            'Votos 7ma Posición',
-            'Votos 8va Posición',
-            'Votos 9na Posición',
-            'Votos 10ma Posición',
+            'Primera Elección',
+            'Segunda Elección',
+            'Tercera Elección',
             'Total Evaluaciones'
         ];
     }
 
     public function title(): string
     {
-        return $this->cabina ? "Ordenamiento Cabina {$this->cabina}" : "Ordenamiento General";
+        return $this->cabina ?
+            "Resumen Ordenamiento Cabina {$this->cabina}" :
+            "Resumen Ordenamiento General";
     }
 
     public function styles(Worksheet $sheet)
@@ -166,11 +154,45 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
             ]
         ]);
 
-        // Estilo para el contenido
+        // Estilo para las columnas de posiciones (primera, segunda y tercera elección)
+        $positionColumns = ['C', 'D', 'E'];
+        $colors = [
+            'C6E0B4', // Verde claro para 1ra posición
+            'D9E1F2', // Azul claro para 2da posición
+            'FFF2CC'  // Amarillo claro para 3ra posición
+        ];
+
+        foreach ($positionColumns as $index => $column) {
+            $sheet->getStyle($column . '2:' . $column . $lastRow)->applyFromArray([
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'color' => ['rgb' => $colors[$index]]
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+                ]
+            ]);
+        }
+
+        // Estilo para el resto del contenido
         $sheet->getStyle('A2:' . $lastColumn . $lastRow)->applyFromArray([
             'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER
+            ]
+        ]);
+
+        // Estilo para la columna de atributo y muestra (alineación izquierda)
+        $sheet->getStyle('A2:B' . $lastRow)->applyFromArray([
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT
+            ]
+        ]);
+
+        // Estilo para la columna de total (negrita y centrado)
+        $sheet->getStyle('F2:F' . $lastRow)->applyFromArray([
+            'font' => ['bold' => true],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
             ]
         ]);
 
@@ -183,25 +205,11 @@ class ResultadosOrdenamientoSheet implements FromCollection, WithTitle, WithHead
             ]
         ]);
 
-        // Colorear las columnas de votos
-        $colores = [
-            'C6E0B4', // Verde claro para 1ra posición
-            'D9E1F2', // Azul claro para 2da posición
-            'FFF2CC', // Amarillo claro para 3ra posición
-            'FFE4E1'  // Rojo claro para 4ta posición
-        ];
+        // Ajustar altura de filas
+        $sheet->getDefaultRowDimension()->setRowHeight(20);
 
-        // Aplicar colores a las columnas de votos (C hasta L para las 10 posiciones)
-        for ($i = 0; $i < 10; $i++) {
-            $columna = chr(67 + $i); // Comienza desde la columna C
-            $color = $colores[$i % count($colores)];
-            $sheet->getStyle($columna . '2:' . $columna . $lastRow)->applyFromArray([
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'color' => ['rgb' => $color]
-                ]
-            ]);
-        }
+        // Agregar filtros automáticos
+        $sheet->setAutoFilter('A1:' . $lastColumn . '1');
 
         return $sheet;
     }
