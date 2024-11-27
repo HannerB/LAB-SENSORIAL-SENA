@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Muestra;
+use Illuminate\Support\Facades\DB;
 
 class MuestraController extends Controller
 {
@@ -20,38 +21,42 @@ class MuestraController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'cod_muestra' => 'required|string|max:50',
-            'prueba' => 'required|integer',
-            'atributo' => 'nullable|string|max:250',
-            'producto_id' => 'required|exists:productos,id_producto'
-        ]);
+        try {
+            $muestra = new Muestra();
+            $muestra->cod_muestra = $request->cod_muestra;
+            $muestra->producto_id = $request->producto_id;
+            $muestra->prueba = $request->prueba;
 
-        // Si es una muestra de ordenamiento y no se especificó un atributo,
-        // buscar el atributo de otras muestras de ordenamiento del mismo producto
-        if ($request->input('prueba') == 3 && empty($request->input('atributo'))) {
-            $atributoExistente = Muestra::where('producto_id', $request->input('producto_id'))
-                ->where('prueba', 3)
-                ->whereNotNull('atributo')
-                ->value('atributo');
+            // Manejar atributos para prueba de ordenamiento
+            if ($request->prueba == 3) {
+                $atributos = $request->input('atributos', []);
+                $muestra->tiene_sabor = in_array('sabor', $atributos);
+                $muestra->tiene_olor = in_array('olor', $atributos);
+                $muestra->tiene_color = in_array('color', $atributos);
+                $muestra->tiene_textura = in_array('textura', $atributos);
+                $muestra->tiene_apariencia = in_array('apariencia', $atributos);
 
-            $atributo = $atributoExistente ?: $request->input('atributo');
-        } else {
-            $atributo = $request->input('atributo');
+                // Validar que al menos un atributo esté seleccionado
+                if (count($atributos) == 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Debe seleccionar al menos un atributo para la prueba de ordenamiento'
+                    ], 422);
+                }
+            }
+
+            $muestra->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Muestra creada exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al crear la muestra: ' . $e->getMessage()
+            ], 500);
         }
-
-        $muestra = Muestra::create([
-            'cod_muestra' => $request->input('cod_muestra'),
-            'prueba' => $request->input('prueba'),
-            'atributo' => $atributo,
-            'producto_id' => $request->input('producto_id'),
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Muestra guardada correctamente.',
-            'muestra' => $muestra
-        ], 201);
     }
 
     public function edit(Muestra $muestra)
@@ -97,41 +102,56 @@ class MuestraController extends Controller
 
     public function getMuestrasByProducto($id)
     {
-        $muestrasTriangular = Muestra::where('producto_id', $id)->where('prueba', 1)->get();
-        $muestrasDuoTrio = Muestra::where('producto_id', $id)->where('prueba', 2)->get();
-        $muestrasOrdenamiento = Muestra::where('producto_id', $id)->where('prueba', 3)->get();
+        try {
+            $muestras = [
+                'triangular' => Muestra::where('producto_id', $id)
+                    ->where('prueba', 1)
+                    ->get(),
+                'duo_trio' => Muestra::where('producto_id', $id)
+                    ->where('prueba', 2)
+                    ->get(),
+                'ordenamiento' => Muestra::where('producto_id', $id)
+                    ->where('prueba', 3)
+                    ->get()
+            ];
 
-        return response()->json([
-            'triangular' => $muestrasTriangular,
-            'duo_trio' => $muestrasDuoTrio,
-            'ordenamiento' => $muestrasOrdenamiento
-        ]);
+            return response()->json($muestras);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function actualizarAtributo(Request $request)
     {
+        DB::beginTransaction();
         try {
-            $request->validate([
-                'producto_id' => 'required|exists:productos,id_producto',
-                'atributo' => 'required|string|in:Sabor,Olor,Color,Textura,Apariencia'
-            ]);
+            $productoId = $request->producto_id;
+            $atributos = $request->atributos;
 
-            $productoId = $request->input('producto_id');
-            $atributo = $request->input('atributo');
+            // Actualizar todas las muestras de ordenamiento del producto
+            $muestras = Muestra::where('producto_id', $productoId)
+                ->where('prueba', 3)
+                ->get();
 
-            // Actualizar todas las muestras de ordenamiento para este producto
-            Muestra::where('producto_id', $productoId)
-                ->where('prueba', 3) // Solo muestras de ordenamiento
-                ->update(['atributo' => $atributo]);
+            foreach ($muestras as $muestra) {
+                $muestra->tiene_sabor = in_array('sabor', $atributos);
+                $muestra->tiene_olor = in_array('olor', $atributos);
+                $muestra->tiene_color = in_array('color', $atributos);
+                $muestra->tiene_textura = in_array('textura', $atributos);
+                $muestra->tiene_apariencia = in_array('apariencia', $atributos);
+                $muestra->save();
+            }
 
+            DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Atributo actualizado correctamente'
+                'message' => 'Atributos actualizados exitosamente'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error al actualizar el atributo: ' . $e->getMessage()
+                'message' => 'Error al actualizar los atributos: ' . $e->getMessage()
             ], 500);
         }
     }

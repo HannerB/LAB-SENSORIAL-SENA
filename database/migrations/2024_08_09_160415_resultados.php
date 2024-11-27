@@ -12,11 +12,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('producto')->nullable();
             $table->tinyInteger('prueba')->comment('1=TRIANGULAR,2=DUO-TRIO,3=ORDENAMIENTO');
-            $table->string('atributo', 50);
             $table->string('cod_muestra', 50)->nullable();
             $table->string('resultado', 50)->nullable();
             $table->date('fecha')->nullable();
             $table->integer('cabina');
+            // Campo para almacenar qué atributo se está evaluando en ordenamiento
+            $table->string('atributo_evaluado', 50)->nullable();
 
             $table->foreign('producto')->references('id_producto')->on('productos')->onDelete('set null');
         });
@@ -27,4 +28,3 @@ return new class extends Migration
         Schema::dropIfExists('resultados');
     }
 };
-

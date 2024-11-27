@@ -7,13 +7,34 @@ use Illuminate\Database\Eloquent\Model;
 class Resultado extends Model
 {
     protected $table = 'resultados';
-    protected $fillable = ['producto', 'prueba', 'atributo', 'cod_muestra', 'resultado', 'fecha', 'cabina'];
+    public $timestamps = false;
 
-    public $timestamps = false; // Desactivar timestamps
+    protected $fillable = [
+        'producto',
+        'prueba',
+        'cod_muestra',
+        'resultado',
+        'fecha',
+        'cabina',
+        'atributo_evaluado'
+    ];
 
+    protected $casts = [
+        'fecha' => 'date'
+    ];
 
-    public function producto()
+    public function productoRelacion()
     {
         return $this->belongsTo(Producto::class, 'producto', 'id_producto');
+    }
+
+    public function scopeOrdenamiento($query)
+    {
+        return $query->where('prueba', 3);
+    }
+
+    public function scopePorAtributo($query, $atributo)
+    {
+        return $query->where('atributo_evaluado', $atributo);
     }
 }

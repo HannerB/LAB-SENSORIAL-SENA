@@ -1,4 +1,4 @@
-    <?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,8 +13,13 @@ return new class extends Migration
             $table->string('cod_muestra', 50);
             $table->unsignedBigInteger('producto_id')->nullable();
             $table->tinyInteger('prueba')->comment('1=TRIANGULAR,2=DUO-TRIO,3=ORDENAMIENTO');
-            $table->string('atributo', 250)->nullable();
-        
+            // Columnas para cada atributo
+            $table->boolean('tiene_sabor')->default(false);
+            $table->boolean('tiene_olor')->default(false);
+            $table->boolean('tiene_color')->default(false);
+            $table->boolean('tiene_textura')->default(false);
+            $table->boolean('tiene_apariencia')->default(false);
+
             $table->foreign('producto_id')->references('id_producto')->on('productos')->onDelete('set null');
         });
     }

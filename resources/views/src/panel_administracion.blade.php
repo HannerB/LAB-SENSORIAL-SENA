@@ -280,9 +280,9 @@
                             <!-- Contenedor del modal -->
                             <div
                                 class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden 
-       shadow-xl transform transition-all duration-300 ease-out 
-       opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 
-       sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                                shadow-xl transform transition-all duration-300 ease-out 
+                                opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 
+                                sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
                                 <!-- Cabecera del Modal -->
                                 <div class="bg-green-50 px-6 py-4 border-b border-green-100">
                                     <div class="flex items-center justify-between">
@@ -347,170 +347,398 @@
                                     <div class="space-y-6">
                                         <h4 class="text-lg font-medium text-gray-900">Gestión de Muestras</h4>
 
-                                        <!-- Formulario de Nueva Muestra -->
-                                        <form id="form-muestras" method="POST"
-                                            action="{{ route('muestra.store') }}"
-                                            class="bg-gray-50 rounded-lg p-6 space-y-4">
-                                            @csrf
-                                            <input type="hidden" id="producto-id-muestra" name="producto_id">
-
-                                            <!-- Código de Muestra -->
-                                            <div class="space-y-2">
-                                                <label for="codigo-muestra"
-                                                    class="block text-sm font-medium text-gray-700">
-                                                    Código de Muestra
-                                                </label>
-                                                <div class="flex space-x-2">
-                                                    <input type="text" id="codigo-muestra" name="cod_muestra"
-                                                        required
-                                                        class="flex-1 rounded-md border-gray-300 shadow-sm 
-                                         focus:border-green-500 focus:ring-green-500">
-                                                    <button type="button" id="btn-generar-codigo"
-                                                        class="inline-flex items-center px-4 py-2 border border-gray-300 
-                                          text-sm font-medium rounded-md text-gray-700 bg-white 
-                                          hover:bg-gray-50 focus:outline-none focus:ring-2 
-                                          focus:ring-offset-2 focus:ring-green-500">
-                                                        Generar Código
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Tipo de Prueba -->
-                                            <div class="space-y-2">
-                                                <label for="tipo-prueba"
-                                                    class="block text-sm font-medium text-gray-700">
-                                                    Tipo de Prueba
-                                                </label>
-                                                <select id="tipo-prueba" name="prueba" required
-                                                    class="w-full rounded-md border-gray-300 shadow-sm 
-                                      focus:border-green-500 focus:ring-green-500">
-                                                    <option value="1">Prueba Triangular</option>
-                                                    <option value="2">Prueba Duo-Trio</option>
-                                                    <option value="3">Prueba Ordenamiento</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Atributo (solo visible para prueba de ordenamiento) -->
-                                            <div id="atributo-container" class="space-y-2 hidden">
-                                                <label for="atributo" class="block text-sm font-medium text-gray-700">
-                                                    Atributo
-                                                </label>
-                                                <select id="atributo" name="atributo"
-                                                    class="w-full rounded-md border-gray-300 shadow-sm 
-                                      focus:border-green-500 focus:ring-green-500">
-                                                    <option value="">Seleccione un atributo</option>
-                                                    <option value="Sabor">Sabor</option>
-                                                    <option value="Olor">Olor</option>
-                                                    <option value="Color">Color</option>
-                                                    <option value="Textura">Textura</option>
-                                                    <option value="Apariencia">Apariencia</option>
-                                                </select>
-                                            </div>
-
-                                            <!-- Botón de Guardar -->
-                                            <div class="flex justify-end">
-                                                <button type="submit" id="btn-guardar-muestra"
-                                                    class="inline-flex items-center px-4 py-2 border border-transparent 
-                                      text-sm font-medium rounded-md text-white bg-green-600 
-                                      hover:bg-green-700 focus:outline-none focus:ring-2 
-                                      focus:ring-offset-2 focus:ring-green-500 
-                                      transition-all duration-200">
-                                                    <svg class="mr-2 h-5 w-5" viewBox="0 0 20 20"
-                                                        fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    Guardar Muestra
-                                                </button>
-                                            </div>
-                                        </form>
-
-                                        <!-- Tablas de Muestras -->
-                                        <div class="space-y-6">
-                                            <!-- Tabla Prueba Triangular -->
-                                            <div class="bg-white rounded-lg shadow overflow-hidden">
-                                                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                                                    <h5 class="text-sm font-medium text-gray-700">Muestras de Prueba
-                                                        Triangular
+                                        <!-- Tabla Prueba Triangular con su Formulario -->
+                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                                            <div class="px-6 py-4 bg-gradient-to-r from-green-500 to-green-600">
+                                                <div class="flex items-center justify-between">
+                                                    <h5 class="text-lg font-semibold text-white flex items-center">
+                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M4 7h16M4 12h16M4 17h7" />
+                                                        </svg>
+                                                        Muestras de Prueba Triangular
                                                     </h5>
-                                                </div>
-                                                <div class="overflow-x-auto">
-                                                    <table class="min-w-full divide-y divide-gray-200">
-                                                        <thead class="bg-gray-50">
-                                                            <tr>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    #</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Código</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Acciones</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="cuerpo-table-uno"
-                                                            class="bg-white divide-y divide-gray-200"></tbody>
-                                                    </table>
+                                                    <span
+                                                        class="px-3 py-1 bg-green-400 rounded-full text-white text-sm"
+                                                        id="triangular-count">
+                                                        0 muestras
+                                                    </span>
                                                 </div>
                                             </div>
 
-                                            <!-- Tabla Prueba Duo-Trio -->
-                                            <div class="bg-white rounded-lg shadow overflow-hidden">
-                                                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                                                    <h5 class="text-sm font-medium text-gray-700">Muestras de Prueba
-                                                        Duo-Trio
+                                            <!-- Formulario Triangular -->
+                                            <div class="p-4 bg-green-50 border-b border-green-100">
+                                                <form id="form-triangular"
+                                                    class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                                                    <input type="hidden" name="prueba" value="1">
+                                                    <input type="hidden" name="producto_id"
+                                                        id="producto-id-triangular">
+
+                                                    <div class="flex-1 relative">
+                                                        <input type="text" name="cod_muestra"
+                                                            class="pl-10 w-full rounded-lg border-gray-300 focus:ring-green-500 focus:border-green-500"
+                                                            placeholder="Código de muestra triangular" required>
+                                                        <span
+                                                            class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex space-x-2">
+                                                        <button type="button"
+                                                            class="btn-generar-codigo inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                            Generar Código
+                                                        </button>
+
+                                                        <button type="submit"
+                                                            class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            Agregar Muestra
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Tabla de muestras triangulares -->
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                #</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Código</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="cuerpo-table-uno"
+                                                        class="bg-white divide-y divide-gray-200"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tabla Prueba Duo-Trio con su Formulario -->
+                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                                            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
+                                                <div class="flex items-center justify-between">
+                                                    <h5 class="text-lg font-semibold text-white flex items-center">
+                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="M8 7h12M8 12h12M8 17h12" />
+                                                        </svg>
+                                                        Muestras de Prueba Duo-Trio
                                                     </h5>
-                                                </div>
-                                                <div class="overflow-x-auto">
-                                                    <table class="min-w-full divide-y divide-gray-200">
-                                                        <thead class="bg-gray-50">
-                                                            <tr>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    #</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Código</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Acciones</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="cuerpo-table-dos"
-                                                            class="bg-white divide-y divide-gray-200"></tbody>
-                                                    </table>
+                                                    <span class="px-3 py-1 bg-blue-400 rounded-full text-white text-sm"
+                                                        id="duo-trio-count">
+                                                        0 muestras
+                                                    </span>
                                                 </div>
                                             </div>
 
-                                            <!-- Tabla Prueba Ordenamiento -->
-                                            <div class="bg-white rounded-lg shadow overflow-hidden">
-                                                <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                                                    <h5 class="text-sm font-medium text-gray-700">Muestras de Prueba de
-                                                        Ordenamiento</h5>
+                                            <!-- Formulario Duo-Trio -->
+                                            <div class="p-4 bg-blue-50 border-b border-blue-100">
+                                                <form id="form-duo-trio"
+                                                    class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                                                    <input type="hidden" name="prueba" value="2">
+                                                    <input type="hidden" name="producto_id"
+                                                        id="producto-id-duo-trio">
+
+                                                    <div class="flex-1 relative">
+                                                        <input type="text" name="cod_muestra"
+                                                            class="pl-10 w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                                            placeholder="Código de muestra duo-trio" required>
+                                                        <span
+                                                            class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                                                stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex space-x-2">
+                                                        <button type="button"
+                                                            class="btn-generar-codigo inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                            Generar Código
+                                                        </button>
+
+                                                        <button type="submit"
+                                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            Agregar Muestra
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Tabla de muestras duo-trio -->
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                #</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Código</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="cuerpo-table-dos"
+                                                        class="bg-white divide-y divide-gray-200"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tabla Prueba Ordenamiento con su Formulario -->
+                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                                            <div class="px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600">
+                                                <div class="flex items-center justify-between">
+                                                    <h5 class="text-lg font-semibold text-white flex items-center">
+                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                                            stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                                                        </svg>
+                                                        Muestras de Prueba de Ordenamiento
+                                                    </h5>
+                                                    <span
+                                                        class="px-3 py-1 bg-purple-400 rounded-full text-white text-sm"
+                                                        id="ordenamiento-count">
+                                                        0/10 muestras
+                                                    </span>
                                                 </div>
-                                                <div class="overflow-x-auto">
-                                                    <table class="min-w-full divide-y divide-gray-200">
-                                                        <thead class="bg-gray-50">
-                                                            <tr>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    #</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Código</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Atributo</th>
-                                                                <th
-                                                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                    Acciones</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="cuerpo-table-tres"
-                                                            class="bg-white divide-y divide-gray-200"></tbody>
-                                                    </table>
+                                            </div>
+
+                                            <!-- Formulario Ordenamiento -->
+                                            <div class="p-4 bg-purple-50 border-b border-purple-100">
+                                                <form id="form-ordenamiento" class="space-y-4">
+                                                    <input type="hidden" name="prueba" value="3">
+                                                    <input type="hidden" name="producto_id"
+                                                        id="producto-id-ordenamiento">
+
+                                                    <!-- Input código -->
+                                                    <div
+                                                        class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                                                        <div class="flex-1 relative">
+                                                            <input type="text" name="cod_muestra"
+                                                                class="pl-10 w-full rounded-lg border-gray-300 focus:ring-purple-500 focus:border-purple-500"
+                                                                placeholder="Código de muestra ordenamiento" required>
+                                                            <span
+                                                                class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                                                <svg class="h-5 w-5" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="flex space-x-2">
+                                                            <button type="button"
+                                                                class="btn-generar-codigo inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                                <svg class="w-5 h-5 mr-2" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round"
+                                                                        stroke-linejoin="round" stroke-width="2"
+                                                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                                </svg>
+                                                                Generar Código
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Atributos -->
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                                        <!-- Sabor -->
+                                                        <div
+                                                            class="transform transition-all duration-200 hover:scale-105">
+                                                            <label
+                                                                class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                                                <span class="text-2xl mr-3">🍽️</span>
+                                                                <div class="flex-1">
+                                                                    <div class="text-lg font-medium text-gray-900">
+                                                                        Sabor</div>
+                                                                    <div class="text-sm text-gray-500">Características
+                                                                        gustativas del producto</div>
+                                                                </div>
+                                                                <input type="checkbox" name="atributos[]"
+                                                                    value="sabor"
+                                                                    class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Olor -->
+                                                        <div
+                                                            class="transform transition-all duration-200 hover:scale-105">
+                                                            <label
+                                                                class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                                                <span class="text-2xl mr-3">👃</span>
+                                                                <div class="flex-1">
+                                                                    <div class="text-lg font-medium text-gray-900">Olor
+                                                                    </div>
+                                                                    <div class="text-sm text-gray-500">Características
+                                                                        olfativas</div>
+                                                                </div>
+                                                                <input type="checkbox" name="atributos[]"
+                                                                    value="olor"
+                                                                    class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Color -->
+                                                        <div
+                                                            class="transform transition-all duration-200 hover:scale-105">
+                                                            <label
+                                                                class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                                                <span class="text-2xl mr-3">🎨</span>
+                                                                <div class="flex-1">
+                                                                    <div class="text-lg font-medium text-gray-900">
+                                                                        Color</div>
+                                                                    <div class="text-sm text-gray-500">Apariencia
+                                                                        visual y tonalidad</div>
+                                                                </div>
+                                                                <input type="checkbox" name="atributos[]"
+                                                                    value="color"
+                                                                    class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Textura -->
+                                                        <div
+                                                            class="transform transition-all duration-200 hover:scale-105">
+                                                            <label
+                                                                class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                                                <span class="text-2xl mr-3">✋</span>
+                                                                <div class="flex-1">
+                                                                    <div class="text-lg font-medium text-gray-900">
+                                                                        Textura</div>
+                                                                    <div class="text-sm text-gray-500">Características
+                                                                        al tacto</div>
+                                                                </div>
+                                                                <input type="checkbox" name="atributos[]"
+                                                                    value="textura"
+                                                                    class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Apariencia -->
+                                                        <div
+                                                            class="transform transition-all duration-200 hover:scale-105">
+                                                            <label
+                                                                class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                                                <span class="text-2xl mr-3">👁️</span>
+                                                                <div class="flex-1">
+                                                                    <div class="text-lg font-medium text-gray-900">
+                                                                        Apariencia</div>
+                                                                    <div class="text-sm text-gray-500">Aspecto general
+                                                                        del producto</div>
+                                                                </div>
+                                                                <input type="checkbox" name="atributos[]"
+                                                                    value="apariencia"
+                                                                    class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="flex justify-end space-x-2">
+                                                        <button type="button" id="btn-actualizar-atributos"
+                                                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                            </svg>
+                                                            Actualizar Atributos
+                                                        </button>
+
+                                                        <button type="submit"
+                                                            class="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200">
+                                                            <svg class="w-5 h-5 mr-2" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M12 4v16m8-8H4" />
+                                                            </svg>
+                                                            Agregar Muestra
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Tabla de muestras ordenamiento -->
+                                            <div class="overflow-x-auto">
+                                                <table class="min-w-full divide-y divide-gray-200">
+                                                    <thead class="bg-gray-50">
+                                                        <tr>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                #</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Código</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Atributos</th>
+                                                            <th
+                                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="cuerpo-table-tres"
+                                                        class="bg-white divide-y divide-gray-200"></tbody>
+                                                </table>
+                                            </div>
+
+                                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                                                <div class="flex items-center justify-between text-sm text-gray-600">
+                                                    <span>
+                                                        <svg class="w-5 h-5 inline-block mr-1 text-yellow-500"
+                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        Mínimo 3 muestras, máximo 10
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -542,137 +770,6 @@
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
     <script src="{{ asset('js/scriptMuestras.js') }}"></script>
 
-    <script>
-        // Configuración inicial de la tabla
-        const tableConfig = {
-            searchInput: document.getElementById('table-search'),
-            productsTable: document.querySelector('table'),
-            sortButtons: document.querySelectorAll('[data-sort]'),
-            sortState: {
-                column: null,
-                isAsc: true
-            }
-        };
-
-        function initializeTableFeatures() {
-            // Búsqueda en tiempo real
-            if (tableConfig.searchInput) {
-                tableConfig.searchInput.addEventListener('input', debounce(function(e) {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const rows = tableConfig.productsTable.querySelectorAll('tbody tr');
-
-                    rows.forEach(row => {
-                        const id = row.querySelector('td[data-id]')?.textContent || '';
-                        const nombre = row.querySelector('td[data-nombre]')?.textContent || '';
-                        const text = `${id} ${nombre}`.toLowerCase();
-
-                        row.classList.toggle('hidden', !text.includes(searchTerm));
-                    });
-
-                    updateEmptyState();
-                }, 300));
-            }
-
-            // Ordenamiento de columnas
-            tableConfig.sortButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const column = this.dataset.sort;
-                    const isAsc = tableConfig.sortState.column === column ? !tableConfig.sortState.isAsc :
-                        true;
-
-                    // Actualizar estado
-                    tableConfig.sortState.column = column;
-                    tableConfig.sortState.isAsc = isAsc;
-
-                    sortTable(column, isAsc);
-                    updateSortIcons();
-                });
-            });
-
-            // Inicializar estado vacío
-            updateEmptyState();
-        }
-
-        function sortTable(column, isAsc) {
-            const tbody = tableConfig.productsTable.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr:not(.empty-state)'));
-
-            rows.sort((a, b) => {
-                const aVal = a.querySelector(`td[data-${column}]`)?.textContent || '';
-                const bVal = b.querySelector(`td[data-${column}]`)?.textContent || '';
-
-                return isAsc ?
-                    aVal.localeCompare(bVal, undefined, {
-                        numeric: true
-                    }) :
-                    bVal.localeCompare(aVal, undefined, {
-                        numeric: true
-                    });
-            });
-
-            tbody.append(...rows);
-        }
-
-        function updateSortIcons() {
-            tableConfig.sortButtons.forEach(button => {
-                const column = button.dataset.sort;
-                const isCurrentColumn = column === tableConfig.sortState.column;
-                const ascIcon = button.querySelector('.sort-asc');
-                const descIcon = button.querySelector('.sort-desc');
-
-                if (isCurrentColumn) {
-                    ascIcon.classList.toggle('hidden', !tableConfig.sortState.isAsc);
-                    descIcon.classList.toggle('hidden', tableConfig.sortState.isAsc);
-                } else {
-                    ascIcon.classList.add('hidden');
-                    descIcon.classList.add('hidden');
-                }
-            });
-        }
-
-        function updateEmptyState() {
-            const tbody = tableConfig.productsTable.querySelector('tbody');
-            const rows = tbody.querySelectorAll('tr:not(.empty-state)');
-            const visibleRows = Array.from(rows).filter(row => !row.classList.contains('hidden'));
-            let emptyState = tbody.querySelector('.empty-state');
-
-            if (visibleRows.length === 0) {
-                if (!emptyState) {
-                    emptyState = document.createElement('tr');
-                    emptyState.className = 'empty-state';
-                    emptyState.innerHTML = `
-               <td colspan="3" class="px-6 py-8 text-center">
-                   <div class="flex flex-col items-center">
-                       <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                       </svg>
-                       <span class="mt-2 text-gray-500">No se encontraron productos</span>
-                   </div>
-               </td>
-           `;
-                }
-                tbody.appendChild(emptyState);
-            } else if (emptyState) {
-                emptyState.remove();
-            }
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Inicializar características de la tabla
-        document.addEventListener('DOMContentLoaded', initializeTableFeatures);
-    </script>
 </body>
 
 </html>
