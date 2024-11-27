@@ -34,16 +34,23 @@ class ProductoController extends Controller
         return view('producto.edit', compact('producto'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $producto = Producto::findOrFail($id);
         $data = $request->validate([
-            'nombre' => 'required|string|max:50',
+            'productos' => 'required|array',
+            'productos.*.id_producto' => 'required|exists:productos,id_producto',
+            'productos.*.nombre' => 'required|string|max:50',
         ]);
 
-        $producto->update($data);
+        foreach ($data['productos'] as $productoData) {
+            $producto = Producto::findOrFail($productoData['id_producto']);
+            $producto->update(['nombre' => $productoData['nombre']]);
+        }
 
-        return response()->json(['success' => true], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Productos actualizados correctamente.',
+        ]);
     }
 
 
