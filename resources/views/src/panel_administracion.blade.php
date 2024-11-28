@@ -13,6 +13,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         const rutaActualizarConfiguracion = "{{ route('configuracion.update', 1) }}";
+        const configuracion = {
+            producto_habilitado: {{ $configuracion->producto_habilitado ?? 'null' }}
+        };
     </script>
 </head>
 
@@ -43,7 +46,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center space-x-4">
-                    <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.png') }}" alt="SENA Logo"
+                    <img src="{{ asset('img/logo-de-Sena-sin-fondo-Blanco.webp') }}" alt="SENA Logo"
                         class="h-12 w-auto transition-transform duration-300 hover:scale-105">
                     <div class="hidden md:block">
                         <h1 class="text-white font-semibold text-xl">
@@ -253,9 +256,9 @@
                                             </button>
 
                                             <button
-                                                class="btn-habilitar group relative flex items-center justify-center p-2 rounded-full transition-colors duration-200 {{ $producto->habilitado ? 'text-red-600 hover:bg-red-600' : 'text-green-600 hover:bg-green-600' }} hover:text-white"
+                                                class="btn-habilitar group relative flex items-center justify-center p-2 rounded-full transition-colors duration-200 {{ $producto->habilitado == 1 ? 'text-red-600 hover:bg-red-600' : 'text-green-600 hover:bg-green-600' }} hover:text-white"
                                                 data-id="{{ $producto->id_producto }}"
-                                                data-habilitado="{{ $producto->habilitado }}">
+                                                data-habilitado="{{ $producto->habilitado == 1 ? 'true' : 'false' }}">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -775,6 +778,7 @@
     <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
     <script src="{{ asset('js/scriptMuestras.js') }}"></script>
+    <script src="{{ asset('js/scriptProductoEstado.js') }}"></script>
 
     <script>
         // Manejar el envío del formulario de actualización de nombre

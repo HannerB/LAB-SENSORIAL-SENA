@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Configuracion;
 use App\Models\Muestra;
+use App\Models\Producto;
 use Illuminate\Support\Facades\Session;
 
 class ConfiguracionController extends Controller
@@ -22,6 +23,21 @@ class ConfiguracionController extends Controller
         $muestrasOrdenamiento = $muestras->where('prueba', 3);
 
         return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento', 'numeroCabina'));
+    }
+
+    public function formIndex2()
+    {
+        $configuracion = Configuracion::first();
+        $productoHabilitado = $configuracion ? $configuracion->producto_habilitado : null;
+
+        $productos = Producto::select('productos.*')
+            ->selectRaw(
+                'CASE WHEN id_producto = ? THEN true ELSE false END as habilitado',
+                [$productoHabilitado]
+            )
+            ->get();
+
+        return view('panel_administracion', compact('productos'));
     }
 
     public function create()

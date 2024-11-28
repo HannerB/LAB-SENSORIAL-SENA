@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${muestra.cod_muestra}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
+                        <button style="background-color: #EF4444" class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
                                      text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 
                                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                                 data-id="${muestra.id_muestras}">
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${index + 1}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${muestra.cod_muestra}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
+                        <button style="background-color: #EF4444" class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
                                      text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 
                                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                                 data-id="${muestra.id_muestras}">
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${muestra.cod_muestra}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${atributos.join(', ')}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <button class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
+                        <button style="background-color: #EF4444" class="btn-eliminar-muestra inline-flex items-center px-3 py-2 border border-transparent 
                                      text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 
                                      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                                 data-id="${muestra.id_muestras}">
