@@ -102,7 +102,7 @@
 
         <!-- Main Content Sections -->
         <div id="test-sections" class="space-y-8">
-            <!-- Triangular Test -->
+            <!-- Prueba Triangular -->
             <section id="sect1" class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500">
                 <div class="max-w-4xl mx-auto">
                     <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
@@ -117,7 +117,7 @@
                             </label>
                             <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
                                 class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 
-                                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-medium text-gray-700">
@@ -125,8 +125,8 @@
                             </label>
                             <input type="text" id="nombrePanelista1"
                                 class="mt-1 block w-full rounded-md border-gray-300 
-                                          shadow-sm focus:border-sena-green focus:ring-sena-green
-                                          placeholder-gray-400"
+                          shadow-sm focus:border-sena-green focus:ring-sena-green
+                          placeholder-gray-400"
                                 placeholder="Ingrese su nombre completo">
                         </div>
                         <div class="space-y-2">
@@ -135,7 +135,7 @@
                             </label>
                             <input type="date" id="fechaPanelista1"
                                 class="mt-1 block w-full rounded-md border-gray-300 
-                                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
                         </div>
                     </div>
 
@@ -151,7 +151,7 @@
                                 <input type="text" id="productoPrueba1" readonly
                                     value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
                                     class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
-                                              shadow-sm text-gray-700">
+                              shadow-sm text-gray-700">
                             </div>
                         </div>
                     </div>
@@ -169,9 +169,8 @@
                             <div class="ml-3">
                                 <p class="text-sm text-blue-700">
                                     Frente a usted hay tres muestras de
-                                    <span class="font-medium">
-                                        {{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}
-                                    </span>.
+                                    <span
+                                        class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}</span>.
                                     Dos son iguales y una diferente. Por favor, saboree cada una con cuidado y
                                     seleccione la muestra diferente.
                                 </p>
@@ -205,11 +204,11 @@
                                                 <input type="radio" name="muestra_diferente"
                                                     value="{{ $muestra->cod_muestra }}"
                                                     class="h-4 w-4 text-sena-green border-gray-300 
-                                                              focus:ring-sena-green cursor-pointer
-                                                              transition-all duration-200">
+                                              focus:ring-sena-green cursor-pointer
+                                              transition-all duration-200">
                                                 <span
                                                     class="text-sm text-gray-700 group-hover:text-sena-green
-                                                           transition-colors duration-200">
+                                           transition-colors duration-200">
                                                     Diferente
                                                 </span>
                                             </label>
@@ -233,20 +232,32 @@
                         </label>
                         <textarea id="comentario-triangular" rows="4"
                             class="block w-full rounded-md border-gray-300 shadow-sm 
-                                         focus:border-sena-green focus:ring-sena-green 
-                                         transition-colors duration-200
-                                         placeholder-gray-400"
+                         focus:border-sena-green focus:ring-sena-green 
+                         transition-colors duration-200
+                         placeholder-gray-400"
                             placeholder="Ingrese sus observaciones aquí..."></textarea>
                     </div>
 
                     <!-- Navigation -->
-                    <div class="flex justify-end">
+                    <div class="flex justify-between space-x-4">
+                        <button id="btnguardar-triangular"
+                            class="inline-flex items-center px-6 py-3 border border-transparent 
+                       text-base font-medium rounded-md shadow-sm text-white 
+                       bg-sena-green hover:bg-green-700 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                       transition-all duration-200 transform hover:scale-105">
+                            <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Guardar Prueba Triangular
+                        </button>
                         <button id="btnsiguiente1"
                             class="inline-flex items-center px-6 py-3 border border-transparent 
-                                       text-base font-medium rounded-md shadow-sm text-white 
-                                       bg-sena-green hover:bg-green-700 focus:outline-none 
-                                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
-                                       transition-all duration-200 transform hover:scale-105">
+                       text-base font-medium rounded-md shadow-sm text-white 
+                       bg-blue-600 hover:bg-blue-700 focus:outline-none 
+                       focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                       transition-all duration-200">
                             Siguiente
                             <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -384,19 +395,34 @@
                             </svg>
                             Anterior
                         </button>
-                        <button id="btnsiguiente2"
-                            class="inline-flex items-center px-6 py-3 border border-transparent
-                       text-base font-medium rounded-md shadow-sm text-white
-                       bg-sena-green hover:bg-green-700 focus:outline-none
-                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
-                       transition-all duration-200 transform hover:scale-105">
-                            Siguiente
-                            <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </button>
+
+                        <div class="flex space-x-4">
+                            <button id="btnguardar-duo"
+                                class="inline-flex items-center px-6 py-3 border border-transparent
+                           text-base font-medium rounded-md shadow-sm text-white
+                           bg-sena-green hover:bg-green-700 focus:outline-none
+                           focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                           transition-all duration-200 transform hover:scale-105">
+                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Guardar Prueba Duo-Trio
+                            </button>
+                            <button id="btnsiguiente2"
+                                class="inline-flex items-center px-6 py-3 border border-transparent
+                           text-base font-medium rounded-md shadow-sm text-white
+                           bg-blue-600 hover:bg-blue-700 focus:outline-none
+                           focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                           transition-all duration-200">
+                                Siguiente
+                                <svg class="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -438,7 +464,7 @@
                                 <p class="text-sm text-blue-700">
                                     Frente a usted hay {{ count($muestrasOrdenamiento) }} muestras de
                                     <span
-                                        class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : 'nombre del producto' }}</span>
+                                        class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}</span>
                                     que debe ordenar en forma creciente de acuerdo al grado de
                                     <span
                                         class="font-medium lowercase">{{ $muestrasOrdenamiento->first() ? $muestrasOrdenamiento->first()->atributo : 'no especificado' }}</span>.
@@ -496,74 +522,8 @@
                                                                     Intensidad alta
                                                                 @break
                                                             @endswitch
-                                                        @elseif(count($muestrasOrdenamiento) == 6)
-                                                            @switch($i)
-                                                                @case(1)
-                                                                    Muy baja intensidad
-                                                                @break
-
-                                                                @case(2)
-                                                                    Baja intensidad
-                                                                @break
-
-                                                                @case(3)
-                                                                    Media-baja intensidad
-                                                                @break
-
-                                                                @case(4)
-                                                                    Media-alta intensidad
-                                                                @break
-
-                                                                @case(5)
-                                                                    Alta intensidad
-                                                                @break
-
-                                                                @case(6)
-                                                                    Muy alta intensidad
-                                                                @break
-                                                            @endswitch
                                                         @else
-                                                            @switch($i)
-                                                                @case(1)
-                                                                    Intensidad mínima
-                                                                @break
-
-                                                                @case(2)
-                                                                    Muy baja intensidad
-                                                                @break
-
-                                                                @case(3)
-                                                                    Baja intensidad
-                                                                @break
-
-                                                                @case(4)
-                                                                    Media-baja intensidad
-                                                                @break
-
-                                                                @case(5)
-                                                                    Media intensidad
-                                                                @break
-
-                                                                @case(6)
-                                                                    Media-alta intensidad
-                                                                @break
-
-                                                                @case(7)
-                                                                    Alta intensidad
-                                                                @break
-
-                                                                @case(8)
-                                                                    Muy alta intensidad
-                                                                @break
-
-                                                                @case(9)
-                                                                    Intensidad extrema
-                                                                @break
-
-                                                                @case(10)
-                                                                    Intensidad máxima
-                                                                @break
-                                                            @endswitch
+                                                            {{ getIntensidadTexto($i, count($muestrasOrdenamiento)) }}
                                                         @endif
                                                     </option>
                                                 @endfor
@@ -594,7 +554,7 @@
                                 placeholder="Ingrese sus observaciones aquí..."></textarea>
                         </div>
 
-                        <!-- Navigation and Submit -->
+                        <!-- Navigation -->
                         <div class="flex justify-between">
                             <button onclick="cambiarFormulario('sect2','sect3')"
                                 class="inline-flex items-center px-6 py-3 border border-gray-300
@@ -609,24 +569,24 @@
                                 </svg>
                                 Anterior
                             </button>
-                            <button id="btnguardar-todo"
+
+                            <button id="btnguardar-ordenamiento"
                                 class="inline-flex items-center px-6 py-3 border border-transparent
                        text-base font-medium rounded-md shadow-sm text-white
                        bg-sena-green hover:bg-green-700 focus:outline-none
                        focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
                        transition-all duration-200 transform hover:scale-105">
-                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
+                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                Guardar Todo
+                                Guardar Prueba de Ordenamiento
                             </button>
                         </div>
                     </div>
                 </section>
             </div>
-        </div>
+
     </body>
 
     </html>
@@ -693,8 +653,6 @@
                     }
                 });
             }
-
-            // Actualizar cuando se cambia de sección
 
         }
     </script>
