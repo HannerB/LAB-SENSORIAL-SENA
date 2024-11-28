@@ -35,12 +35,6 @@
         </div>
     </div>
 
-    @if (session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
-            <p>{{ session('success') }}</p>
-        </div>
-    @endif
-
     <!-- Navbar -->
     <nav class="bg-sena-green shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,6 +66,13 @@
     <!-- Contenido Principal -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+        @if (session('success'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+                <p>{{ session('success') }}</p>
+            </div>
+        @endif
+
+
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
                 Panel de Administración
@@ -84,7 +85,7 @@
                         <label for="cabina" class="text-sm font-medium text-gray-700">
                             Número de Cabina:
                         </label>
-                        <input type="number" id="cabina" min="1" max="3" value="1"
+                        <input type="number" id="cabina" min="1" value="1"
                             class="w-20 rounded-md border-gray-300 shadow-sm 
                 focus:border-green-500 focus:ring-green-500">
                     </div>
@@ -105,7 +106,7 @@
 
             <!-- Botones de acción -->
             <div class="flex justify-end space-x-4 mb-8">
-                <button type="submit" id="btn-submit"
+                <button type="submit" id="btnguardar"
                     class="inline-flex items-center px-4 py-2 border border-transparent 
                    text-sm font-medium rounded-md text-white bg-green-600 
                    hover:bg-green-700 transition-all duration-200 shadow-sm">
@@ -779,55 +780,7 @@
     <script src="{{ asset('js/scriptAdministracion.js') }}"></script>
     <script src="{{ asset('js/scriptMuestras.js') }}"></script>
     <script src="{{ asset('js/scriptProductoEstado.js') }}"></script>
-
-    <script>
-        // Manejar el envío del formulario de actualización de nombre
-        $('#form-producto-modal').on('submit', function(e) {
-            e.preventDefault();
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            const formData = {
-                productos: [{
-                    id_producto: $('#productoId').val(),
-                    nombre: $('#nombreProductoModal').val()
-                }]
-            };
-
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'PUT',
-                data: JSON.stringify(formData),
-                contentType: 'application/json; charset=UTF-8',
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Éxito',
-                            text: response.message,
-                            confirmButtonColor: '#10B981'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Hubo un problema al actualizar el nombre del producto.',
-                        confirmButtonColor: '#EF4444'
-                    });
-                }
-            });
-        });
-    </script>
+    <script src="{{ asset('js/scriptCabina.js') }}"></script>
 
 </body>
 

@@ -25,21 +25,6 @@ class ConfiguracionController extends Controller
         return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento', 'numeroCabina'));
     }
 
-    public function formIndex2()
-    {
-        $configuracion = Configuracion::first();
-        $productoHabilitado = $configuracion ? $configuracion->producto_habilitado : null;
-
-        $productos = Producto::select('productos.*')
-            ->selectRaw(
-                'CASE WHEN id_producto = ? THEN true ELSE false END as habilitado',
-                [$productoHabilitado]
-            )
-            ->get();
-
-        return view('panel_administracion', compact('productos'));
-    }
-
     public function create()
     {
         return view('configuracion.create');

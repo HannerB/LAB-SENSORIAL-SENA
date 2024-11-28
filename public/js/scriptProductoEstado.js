@@ -69,4 +69,52 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    $('#form-producto-modal').on('submit', function (e) {
+        e.preventDefault();
+
+        const idProducto = $('#productoId').val();
+        const nombreProducto = $('#nombreProductoModal').val();
+
+        // Mostrar overlay de carga
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.classList.remove('hidden');
+        loadingOverlay.classList.add('flex');
+
+        $.ajax({
+            url: `${window.location.origin}/productos/${idProducto}`,
+            method: 'PUT',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                nombre: nombreProducto
+            }),
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Éxito',
+                        text: response.message,
+                        confirmButtonColor: '#10B981'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Hubo un problema al actualizar el nombre del producto.',
+                    confirmButtonColor: '#EF4444'
+                });
+            },
+            complete: function () {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.classList.remove('flex');
+            }
+        });
+    });
 });
