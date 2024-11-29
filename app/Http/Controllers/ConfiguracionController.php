@@ -7,6 +7,8 @@ use App\Models\Configuracion;
 use App\Models\Muestra;
 use App\Models\Producto;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ConfiguracionController extends Controller
 {
@@ -109,9 +111,38 @@ class ConfiguracionController extends Controller
             return redirect()->route('login')->with('alerta', 'Debes iniciar sesión primero.');
         }
 
-        $configuracion = Configuracion::first(); // Obtiene la configuración actual
-        $productoHabilitado = $configuracion ? $configuracion->producto : null;
+        try {
+            $configuracion = Configuracion::first();
+            $productoHabilitado = $configuracion ? $configuracion->producto : null;
+            $numeroCabinas = $configuracion ? $configuracion->num_cabina : 1;
 
-        return view('src.panel_resultados', compact('productoHabilitado'));
+            // Si hay un producto habilitado, obtener las cabinas que tienen calificaciones para ese producto
+            if ($productoHabilitado) {
+                $cabinasUsadas = DB::table('calificaciones')
+                    ->where('producto', $productoHabilitado->id_producto)
+                    ->select('cabina')
+                    ->distinct()
+                    ->orderBy('cabina')
+                    ->pluck('cabina')
+                    ->toArray();
+
+                // Asegurar que incluimos las cabinas configuradas y las que tienen datos
+                $todasLasCabinas = range(1, $numeroCabinas);
+                $cabinasDisponibles = array_unique(array_merge($todasLasCabinas, $cabinasUsadas));
+                sort($cabinasDisponibles);
+            } else {
+                $cabinasDisponibles = range(1, $numeroCabinas);
+            }
+
+            return view('src.panel_resultados', compact(
+                'productoHabilitado',
+                'numeroCabinas',
+                'cabinasDisponibles'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Error al cargar el panel de resultados: ' . $e->getMessage());
+            return redirect()->route('login')
+                ->with('error', 'Error al cargar el panel de resultados: ' . $e->getMessage());
+        }
     }
 }

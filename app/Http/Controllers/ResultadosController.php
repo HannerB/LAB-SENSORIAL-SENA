@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Resultado;
 use App\Models\Muestra;
 use App\Models\Calificacion;
+use App\Models\Configuracion;
 
 class ResultadosController extends Controller
 {
@@ -321,11 +322,15 @@ class ResultadosController extends Controller
             ->whereDate('fecha', $fecha)
             ->get();
 
+        // Obtener el número de cabinas de la configuración
+        $configuracion = Configuracion::first();
+        $numCabinas = $configuracion ? $configuracion->num_cabina : 1;
+
         // Agrupar calificaciones por cabina
         $resultadosPorCabina = [];
 
-        // Procesar los resultados para cada cabina (1, 2 y 3)
-        for ($cabina = 1; $cabina <= 3; $cabina++) {
+        // Procesar los resultados para cada cabina
+        for ($cabina = 1; $cabina <= $numCabinas; $cabina++) {
             $calificacionesCabina = $calificacionesTotales->where('cabina', $cabina);
             $resultadosCabina = $this->procesarResultados($muestras, $calificacionesCabina, $productoId, $fecha, $cabina);
             foreach ($resultadosCabina as $tipo => $resultados) {

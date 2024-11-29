@@ -62,12 +62,17 @@
                         </label>
                         <select id="cabinas-filtro"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
-                                       focus:border-sena-green focus:ring-sena-green">
+                                focus:border-sena-green focus:ring-sena-green">
                             <option value="select">Seleccione cabina</option>
                             <option value="all">Todas las cabinas</option>
-                            <option value="1">Cabina 1</option>
-                            <option value="2">Cabina 2</option>
-                            <option value="3">Cabina 3</option>
+                            @foreach ($cabinasDisponibles as $cabina)
+                                <option value="{{ $cabina }}">
+                                    Cabina {{ $cabina }}
+                                    @if (in_array($cabina, $cabinasUsadas ?? []))
+                                        (Con datos)
+                                    @endif
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
