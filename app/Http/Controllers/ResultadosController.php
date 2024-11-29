@@ -43,6 +43,11 @@ class ResultadosController extends Controller
             $producto_id = $request->producto_id;
             $cabina = $request->cabina;
 
+            // Si la cabina es 'all', obtenemos todas las cabinas que tienen datos
+            if ($cabina === 'all') {
+                return $this->generarResultadosTodasCabinas($fecha, $producto_id);
+            }
+
             // Obtener todas las muestras para este producto
             $muestrasTriangulares = Muestra::where('producto_id', $producto_id)
                 ->where('prueba', 1)
@@ -52,18 +57,20 @@ class ResultadosController extends Controller
                 ->where('prueba', 2)
                 ->get();
 
-            // Obtener las calificaciones
-            $calificacionesTriangulares = Calificacion::where('producto', $producto_id)
-                ->where('prueba', 1)
-                ->where('fecha', $fecha)
-                ->where('cabina', $cabina)
-                ->get();
+            // Base query para las calificaciones
+            $baseQuery = Calificacion::where('producto', $producto_id)
+                ->where('fecha', $fecha);
 
-            $calificacionesDuoTrio = Calificacion::where('producto', $producto_id)
-                ->where('prueba', 2)
-                ->where('fecha', $fecha)
-                ->where('cabina', $cabina)
-                ->get();
+            if ($cabina !== 'all') {
+                $baseQuery->where('cabina', $cabina);
+            }
+
+            // Obtener calificaciones para cada tipo de prueba
+            $calificacionesTriangulares = clone $baseQuery;
+            $calificacionesTriangulares = $calificacionesTriangulares->where('prueba', 1)->get();
+
+            $calificacionesDuoTrio = clone $baseQuery;
+            $calificacionesDuoTrio = $calificacionesDuoTrio->where('prueba', 2)->get();
 
             // Preparar resultados triangulares
             $resultadosTriangulares = [];
@@ -105,6 +112,128 @@ class ResultadosController extends Controller
             Log::error('Error en generación de resultados: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
+    }
+
+    private function generarResultadosTodasCabinas($fecha, $producto_id)
+    {
+        try {
+            // Obtener todas las cabinas que tienen datos para este producto y fecha
+            $cabinasUsadas = DB::table('calificaciones')
+                ->where('producto', $producto_id)
+                ->where('fecha', $fecha)
+                ->select('cabina')
+                ->distinct()
+                ->pluck('cabina');
+
+            // Obtener todas las muestras
+            $muestrasTriangulares = Muestra::where('producto_id', $producto_id)
+                ->where('prueba', 1)
+                ->get();
+
+            $muestrasDuoTrio = Muestra::where('producto_id', $producto_id)
+                ->where('prueba', 2)
+                ->get();
+
+            // Obtener calificaciones de todas las cabinas
+            $calificacionesTriangulares = Calificacion::where('producto', $producto_id)
+                ->where('fecha', $fecha)
+                ->where('prueba', 1)
+                ->get();
+
+            $calificacionesDuoTrio = Calificacion::where('producto', $producto_id)
+                ->where('fecha', $fecha)
+                ->where('prueba', 2)
+                ->get();
+
+            // Preparar resultados triangulares
+            $resultadosTriangulares = [];
+            foreach ($muestrasTriangulares as $muestra) {
+                $votos = $calificacionesTriangulares
+                    ->where('cod_muestra', $muestra->cod_muestra)
+                    ->count();
+
+                $resultadosTriangulares[] = [
+                    'cod_muestra' => $muestra->cod_muestra,
+                    'resultado' => $votos,
+                    'total_evaluaciones' => $calificacionesTriangulares->count()
+                ];
+            }
+
+            // Preparar resultados duo-trio
+            $resultadosDuoTrio = [];
+            foreach ($muestrasDuoTrio as $muestra) {
+                $votos = $calificacionesDuoTrio
+                    ->where('cod_muestra', $muestra->cod_muestra)
+                    ->count();
+
+                $resultadosDuoTrio[] = [
+                    'cod_muestra' => $muestra->cod_muestra,
+                    'resultado' => $votos,
+                    'total_evaluaciones' => $calificacionesDuoTrio->count()
+                ];
+            }
+
+            // Obtener resultados de ordenamiento consolidados
+            $resultadosOrdenamiento = $this->obtenerResultadosOrdenamientoTodasCabinas($producto_id, $fecha);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'triangulares' => $resultadosTriangulares,
+                    'duoTrio' => $resultadosDuoTrio,
+                    'ordenamiento' => $resultadosOrdenamiento
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error en generación de resultados para todas las cabinas: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    private function obtenerResultadosOrdenamientoTodasCabinas($producto_id, $fecha)
+    {
+        $muestras = Muestra::where('producto_id', $producto_id)
+            ->where('prueba', 3)
+            ->get();
+
+        $resultados = [];
+
+        foreach ($muestras as $muestra) {
+            foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                $tieneAtributo = 'tiene_' . $atributo;
+                if (!$muestra->$tieneAtributo) continue;
+
+                $valorAtributo = "valor_{$atributo}";
+
+                // Obtener todas las calificaciones sin filtrar por cabina
+                $calificaciones = DB::table('calificaciones')
+                    ->where('producto', $producto_id)
+                    ->where('prueba', 3)
+                    ->where('fecha', $fecha)
+                    ->where('cod_muestra', $muestra->cod_muestra)
+                    ->whereNotNull($valorAtributo)
+                    ->select($valorAtributo)
+                    ->get();
+
+                if ($calificaciones->isNotEmpty()) {
+                    $total = $calificaciones->sum($valorAtributo);
+                    $count = $calificaciones->count();
+
+                    $resultados[] = [
+                        'atributo' => ucfirst($atributo),
+                        'cod_muestra' => $muestra->cod_muestra,
+                        'promedio' => round($total / $count, 2),
+                        'total_evaluaciones' => $count
+                    ];
+                }
+            }
+        }
+
+        return collect($resultados)
+            ->groupBy('atributo')
+            ->map(function ($grupo) {
+                return $grupo->sortBy('promedio')->values();
+            });
     }
 
     private function formatearRespuesta($tipoPrueba, $codMuestras)
