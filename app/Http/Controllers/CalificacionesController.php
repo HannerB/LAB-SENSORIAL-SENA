@@ -21,41 +21,40 @@ class CalificacionesController extends Controller
         DB::beginTransaction();
         try {
             if ($request->prueba == 3) {
-                // Para pruebas de ordenamiento, crear una calificación por cada atributo
-                $muestra = Muestra::where('producto_id', $request->producto)
-                    ->where('prueba', 3)
-                    ->first();
-
-                if (!$muestra) {
-                    throw new \Exception('No se encontró la muestra de ordenamiento');
-                }
-
-                foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
-                    $tieneAtributo = 'tiene_' . $atributo;
-                    if ($muestra->$tieneAtributo) {
-                        Calificacion::create([
-                            'idpane' => $request->idpane,
-                            'producto' => $request->producto,
-                            'prueba' => $request->prueba,
-                            'cod_muestras' => $request->cod_muestras,
-                            'comentario' => $request->comentario,
-                            'fecha' => $request->fecha,
-                            'cabina' => $request->cabina,
-                            'atributo_evaluado' => $atributo
-                        ]);
-                    }
-                }
-            } else {
-                // Para pruebas triangular y duo-trio
+                // Sin cambios para ordenamiento
                 Calificacion::create([
                     'idpane' => $request->idpane,
                     'producto' => $request->producto,
                     'prueba' => $request->prueba,
-                    'cod_muestras' => $request->cod_muestras,
+                    'cod_muestra' => $request->cod_muestra,
+                    'valor_sabor' => $request->valor_sabor,
+                    'valor_olor' => $request->valor_olor,
+                    'valor_color' => $request->valor_color,
+                    'valor_textura' => $request->valor_textura,
+                    'valor_apariencia' => $request->valor_apariencia,
                     'comentario' => $request->comentario,
                     'fecha' => $request->fecha,
                     'cabina' => $request->cabina
                 ]);
+            } else {
+                // Modificado para triangular y duo-trio
+                $calificacion = new Calificacion([
+                    'idpane' => $request->idpane,
+                    'producto' => $request->producto,
+                    'prueba' => $request->prueba,
+                    'cod_muestra' => $request->cod_muestra,
+                    'comentario' => $request->comentario,
+                    'fecha' => $request->fecha,
+                    'cabina' => $request->cabina
+                ]);
+
+                if ($request->prueba == 1) {
+                    $calificacion->es_diferente = true;
+                } else if ($request->prueba == 2) {
+                    $calificacion->es_igual_referencia = true;
+                }
+
+                $calificacion->save();
             }
 
             DB::commit();
@@ -64,7 +63,7 @@ class CalificacionesController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error al guardar calificación: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }

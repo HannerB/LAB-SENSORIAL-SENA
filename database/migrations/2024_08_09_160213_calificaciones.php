@@ -13,12 +13,22 @@ return new class extends Migration
             $table->unsignedBigInteger('idpane')->nullable();
             $table->unsignedBigInteger('producto');
             $table->tinyInteger('prueba')->comment('1=TRIANGULAR,2=DUO-TRIO,3=ORDENAMIENTO');
-            $table->string('cod_muestras', 250);
+            $table->string('cod_muestra', 50);  // Cambiado de cod_muestras a cod_muestra
+
+            // Valores de calificación para cada atributo
+            $table->integer('valor_sabor')->nullable();
+            $table->integer('valor_olor')->nullable();
+            $table->integer('valor_color')->nullable();
+            $table->integer('valor_textura')->nullable();
+            $table->integer('valor_apariencia')->nullable();
+
+            // Para pruebas triangular y duo-trio
+            $table->boolean('es_diferente')->nullable();  // Para prueba triangular
+            $table->boolean('es_igual_referencia')->nullable();  // Para prueba duo-trio
+
             $table->string('comentario', 250)->nullable();
             $table->date('fecha')->nullable();
             $table->integer('cabina');
-            // Campo para identificar qué atributo se está evaluando en ordenamiento
-            $table->string('atributo_evaluado', 50)->nullable();
             $table->timestamps();
 
             $table->foreign('idpane')->references('idpane')->on('panelistas')->onDelete('set null');

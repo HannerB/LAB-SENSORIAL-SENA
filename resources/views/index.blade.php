@@ -123,7 +123,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Nombre Completo
                             </label>
-                            <input type="text" id="nombrePanelista1"
+                            <input type="text" id="nombrePanelistaTriangular"
                                 class="mt-1 block w-full rounded-md border-gray-300 
                           shadow-sm focus:border-sena-green focus:ring-sena-green
                           placeholder-gray-400"
@@ -133,7 +133,7 @@
                             <label class="block text-sm font-medium text-gray-700">
                                 Fecha
                             </label>
-                            <input type="date" id="fechaPanelista1"
+                            <input type="date" id="fechaPanelistaTriangular"
                                 class="mt-1 block w-full rounded-md border-gray-300 
                           shadow-sm focus:border-sena-green focus:ring-sena-green">
                         </div>
@@ -277,6 +277,36 @@
                         Prueba Duo-Trio
                     </h2>
 
+                    <!-- Panelist Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Número de Cabina
+                            </label>
+                            <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
+                                class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Nombre Completo
+                            </label>
+                            <input type="text" id="nombrePanelistaDuo"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green
+                          placeholder-gray-400"
+                                placeholder="Ingrese su nombre completo">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Fecha
+                            </label>
+                            <input type="date" id="fechaPanelistaDuo"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                    </div>
+
                     <!-- Product Information -->
                     <div class="bg-gray-50 rounded-lg p-6 mb-8">
                         <div class="flex items-center space-x-4">
@@ -382,7 +412,7 @@
 
                     <!-- Navigation -->
                     <div class="flex justify-between">
-                        <button onclick="cambiarFormulario('sect1','sect2')"
+                        <button data-nav="sect1,sect2"
                             class="inline-flex items-center px-6 py-3 border border-gray-300
                        text-base font-medium rounded-md shadow-sm text-gray-700
                        bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
@@ -434,6 +464,36 @@
                     <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
                         Prueba de Ordenamiento
                     </h2>
+
+                    <!-- Panelist Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Número de Cabina
+                            </label>
+                            <input type="number" id="cabina" value="{{ $numeroCabina }}" readonly
+                                class="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Nombre Completo
+                            </label>
+                            <input type="text" id="nombrePanelistaOrden"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green
+                          placeholder-gray-400"
+                                placeholder="Ingrese su nombre completo">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Fecha
+                            </label>
+                            <input type="date" id="fechaPanelistaOrden"
+                                class="mt-1 block w-full rounded-md border-gray-300 
+                          shadow-sm focus:border-sena-green focus:ring-sena-green">
+                        </div>
+                    </div>
 
                     <!-- Product Information -->
                     <div class="bg-gray-50 rounded-lg p-6 mb-8">
@@ -488,7 +548,7 @@
                                     </th>
                                     <th scope="col"
                                         class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Orden de Intensidad
+                                        Atributos a Evaluar
                                     </th>
                                 </tr>
                             </thead>
@@ -498,161 +558,168 @@
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                                             {{ $muestra->cod_muestra }}
                                         </td>
-                                        <td class="px-3 py-4 text-sm text-gray-500">
-                                            <select name="orden_muestra_{{ $muestra->cod_muestra }}"
-                                                class="orden-muestra mt-1 block w-full rounded-md border-gray-300 
-                                           focus:border-sena-green focus:ring-sena-green text-sm
-                                           transition-colors duration-200"
-                                                required>
-                                                <option value="" selected disabled>Seleccione el orden</option>
-                                                @for ($i = 1; $i <= count($muestrasOrdenamiento); $i++)
-                                                    <option value="{{ $i }}">
-                                                        {{ $i }} -
-                                                        @if (count($muestrasOrdenamiento) == 3)
-                                                            @switch($i)
-                                                                @case(1)
-                                                                    Intensidad baja
-                                                                @break
+                                        <td class="px-3 py-4">
+                                            <div class="space-y-4">
+                                                @if ($muestra->tiene_sabor)
+                                                    <div class="flex items-center space-x-4">
+                                                        <label
+                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Sabor:</label>
+                                                        <div class="flex gap-4">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <label class="inline-flex items-center">
+                                                                    <input type="radio"
+                                                                        name="sabor_{{ $muestra->cod_muestra }}"
+                                                                        value="{{ $i }}"
+                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
+                                                                    <span
+                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
+                                                                </label>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                @endif
 
-                                                                @case(2)
-                                                                    Intensidad media
-                                                                @break
+                                                @if ($muestra->tiene_olor)
+                                                    <div class="flex items-center space-x-4">
+                                                        <label
+                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Olor:</label>
+                                                        <div class="flex gap-4">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <label class="inline-flex items-center">
+                                                                    <input type="radio"
+                                                                        name="olor_{{ $muestra->cod_muestra }}"
+                                                                        value="{{ $i }}"
+                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
+                                                                    <span
+                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
+                                                                </label>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                @endif
 
-                                                                @case(3)
-                                                                    Intensidad alta
-                                                                @break
-                                                            @endswitch
-                                                        @else
-                                                            {{ getIntensidadTexto($i, count($muestrasOrdenamiento)) }}
-                                                        @endif
-                                                    </option>
-                                                @endfor
-                                            </select>
+                                                @if ($muestra->tiene_color)
+                                                    <div class="flex items-center space-x-4">
+                                                        <label
+                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Color:</label>
+                                                        <div class="flex gap-4">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <label class="inline-flex items-center">
+                                                                    <input type="radio"
+                                                                        name="color_{{ $muestra->cod_muestra }}"
+                                                                        value="{{ $i }}"
+                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
+                                                                    <span
+                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
+                                                                </label>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                @if ($muestra->tiene_textura)
+                                                    <div class="flex items-center space-x-4">
+                                                        <label
+                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Textura:</label>
+                                                        <div class="flex gap-4">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <label class="inline-flex items-center">
+                                                                    <input type="radio"
+                                                                        name="textura_{{ $muestra->cod_muestra }}"
+                                                                        value="{{ $i }}"
+                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
+                                                                    <span
+                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
+                                                                </label>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                @endif
+
+                                                @if ($muestra->tiene_apariencia)
+                                                    <div class="flex items-center space-x-4">
+                                                        <label
+                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Apariencia:</label>
+                                                        <div class="flex gap-4">
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <label class="inline-flex items-center">
+                                                                    <input type="radio"
+                                                                        name="apariencia_{{ $muestra->cod_muestra }}"
+                                                                        value="{{ $i }}"
+                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
+                                                                    <span
+                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
+                                                                </label>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="2" class="px-3 py-4 text-sm text-gray-500 text-center">
-                                                No hay muestras disponibles para la prueba de Ordenamiento.
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Comments Section -->
-                        <div class="space-y-2 mb-8">
-                            <label for="comentario-orden" class="block text-sm font-medium text-gray-700">
-                                Comentarios
-                            </label>
-                            <textarea id="comentario-orden" rows="4"
-                                class="block w-full rounded-md border-gray-300 shadow-sm 
-                       focus:border-sena-green focus:ring-sena-green 
-                       transition-colors duration-200
-                       placeholder-gray-400"
-                                placeholder="Ingrese sus observaciones aquí..."></textarea>
-                        </div>
-
-                        <!-- Navigation -->
-                        <div class="flex justify-between">
-                            <button onclick="cambiarFormulario('sect2','sect3')"
-                                class="inline-flex items-center px-6 py-3 border border-gray-300
-                       text-base font-medium rounded-md shadow-sm text-gray-700
-                       bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
-                       focus:ring-offset-2 focus:ring-sena-green
-                       transition-all duration-200">
-                                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-                                </svg>
-                                Anterior
-                            </button>
-
-                            <button id="btnguardar-ordenamiento"
-                                class="inline-flex items-center px-6 py-3 border border-transparent
-                       text-base font-medium rounded-md shadow-sm text-white
-                       bg-sena-green hover:bg-green-700 focus:outline-none
-                       focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
-                       transition-all duration-200 transform hover:scale-105">
-                                <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                Guardar Prueba de Ordenamiento
-                            </button>
-                        </div>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-3 py-4 text-sm text-gray-500 text-center">
+                                            No hay muestras disponibles para la prueba de Ordenamiento.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                </section>
-            </div>
 
-    </body>
+                    <!-- Comments Section -->
+                    <div class="space-y-2 mb-8">
+                        <label for="comentario-orden" class="block text-sm font-medium text-gray-700">
+                            Comentarios
+                        </label>
+                        <textarea id="comentario-orden" rows="4"
+                            class="block w-full rounded-md border-gray-300 shadow-sm 
+                                focus:border-sena-green focus:ring-sena-green 
+                                transition-colors duration-200
+                                placeholder-gray-400"
+                            placeholder="Ingrese sus observaciones aquí..."></textarea>
+                    </div>
 
-    </html>
+                    <!-- Navigation -->
+                    <div class="flex justify-between">
+                        <button data-nav="sect2,sect3"
+                            class="inline-flex items-center px-6 py-3 border border-gray-300
+                                    text-base font-medium rounded-md shadow-sm text-gray-700
+                                    bg-white hover:bg-gray-50 focus:outline-none focus:ring-2
+                                    focus:ring-offset-2 focus:ring-sena-green
+                                    transition-all duration-200">
+                            <svg class="mr-2 -ml-1 h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+                            </svg>
+                            Anterior
+                        </button>
 
-    <!-- Scripts -->
-    @vite(['resources/js/app.js'])
-    <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
-    <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
-    <script src="{{ asset('js/scriptMain.js') }}"></script>
+                        <button id="btnguardar-ordenamiento"
+                            class="inline-flex items-center px-6 py-3 border border-transparent
+                                    text-base font-medium rounded-md shadow-sm text-white
+                                    bg-sena-green hover:bg-green-700 focus:outline-none
+                                    focus:ring-2 focus:ring-offset-2 focus:ring-sena-green
+                                    transition-all duration-200 transform hover:scale-105">
+                            <svg class="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                            Guardar Prueba de Ordenamiento
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
 
-    <!-- Script for ordering test intensity descriptions -->
-    <script>
-        function getIntensidadTexto(posicion, total) {
-            if (total === 3) {
-                const descripciones = {
-                    1: 'Intensidad baja',
-                    2: 'Intensidad media',
-                    3: 'Intensidad alta'
-                };
-                return descripciones[posicion];
-            } else if (total === 6) {
-                const descripciones = {
-                    1: 'Muy baja intensidad',
-                    2: 'Baja intensidad',
-                    3: 'Media-baja intensidad',
-                    4: 'Media-alta intensidad',
-                    5: 'Alta intensidad',
-                    6: 'Muy alta intensidad'
-                };
-                return descripciones[posicion];
-            } else if (total === 10) {
-                const descripciones = {
-                    1: 'Intensidad mínima',
-                    2: 'Muy baja intensidad',
-                    3: 'Baja intensidad',
-                    4: 'Media-baja intensidad',
-                    5: 'Media intensidad',
-                    6: 'Media-alta intensidad',
-                    7: 'Alta intensidad',
-                    8: 'Muy alta intensidad',
-                    9: 'Intensidad extrema',
-                    10: 'Intensidad máxima'
-                };
-                return descripciones[posicion];
-            }
-            return 'Intensidad no especificada';
-        }
+        <!-- Scripts -->
+        @vite(['resources/js/app.js'])
+        <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
+        <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
+        <script src="{{ asset('js/scriptMain.js') }}"></script>
 
-        function actualizarEstadosPruebas() {
-            const progressBar = document.querySelector('.bg-sena-green');
-            const steps = document.querySelectorAll('.step');
+</body>
 
-            function actualizarProgreso(paso) {
-                const width = ((paso - 1) / 2) * 100;
-                progressBar.style.width = `${width}%`;
-
-                steps.forEach((step, index) => {
-                    if (index < paso) {
-                        step.classList.remove('bg-gray-300');
-                        step.classList.add('bg-sena-green');
-                    } else {
-                        step.classList.remove('bg-sena-green');
-                        step.classList.add('bg-gray-300');
-                    }
-                });
-            }
-
-        }
-    </script>
+</html>

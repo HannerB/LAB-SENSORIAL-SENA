@@ -18,7 +18,6 @@ $(document).ready(function () {
         }
 
         progressBar.style.width = width;
-
         steps.forEach((step, index) => {
             if (index < paso) {
                 step.classList.remove('bg-gray-300');
@@ -30,7 +29,35 @@ $(document).ready(function () {
         });
     }
 
-    // Eventos de navegación
+    function validarDatosBasicos(prueba) {
+        const datos = {
+            1: {
+                nombre: $('#nombrePanelistaTriangular').val(),
+                fecha: $('#fechaPanelistaTriangular').val()
+            },
+            2: {
+                nombre: $('#nombrePanelistaDuo').val(),
+                fecha: $('#fechaPanelistaDuo').val()
+            },
+            3: {
+                nombre: $('#nombrePanelistaOrden').val(),
+                fecha: $('#fechaPanelistaOrden').val()
+            }
+        };
+
+        const data = datos[prueba];
+        if (!data.nombre || !data.fecha) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Datos incompletos',
+                text: 'Por favor, completa nombre y fecha.',
+                confirmButtonColor: '#198754'
+            });
+            return false;
+        }
+        return data;
+    }
+
     $("#btnsiguiente1").on('click', function () {
         cambiarFormulario('sect2', 'sect1');
     });
@@ -39,57 +66,16 @@ $(document).ready(function () {
         cambiarFormulario('sect3', 'sect2');
     });
 
-    // Botones de retroceso
-    $("[onclick*='cambiarFormulario']").on('click', function (e) {
+    $("[data-nav]").on('click', function (e) {
         e.preventDefault();
-        const [formIr, formActual] = $(this).attr('onclick')
-            .match(/cambiarFormulario\('(.+)',\s*'(.+)'\)/i)
-            .slice(1);
+        const [formIr, formActual] = $(this).data('nav').split(',');
         cambiarFormulario(formIr, formActual);
     });
 
-    // Manejo de ordenamiento
-    $('.orden-muestra').on('change', actualizarOpciones);
-
-    function actualizarOpciones() {
-        let seleccionados = [];
-        $('.orden-muestra').each(function () {
-            let valor = $(this).val();
-            if (valor) seleccionados.push(valor);
-        });
-
-        $('.orden-muestra').each(function () {
-            let $this = $(this);
-            let valorSeleccionado = $this.val();
-            $this.find('option').each(function () {
-                let valorOpcion = $(this).attr('value');
-                $(this).prop('disabled', seleccionados.includes(valorOpcion) && valorOpcion !== valorSeleccionado);
-            });
-        });
-    }
-
-    // Validación de datos básicos
-    function validarDatosBasicos() {
-        const nombrePanelista = $('#nombrePanelista1').val();
-        const fechaPanelista = $('#fechaPanelista1').val();
-
-        if (!nombrePanelista || !fechaPanelista) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Datos incompletos',
-                text: 'Por favor, completa el nombre y la fecha del panelista.',
-                confirmButtonColor: '#198754'
-            });
-            return false;
-        }
-        return true;
-    }
-
-    // Guardado individual de pruebas
     $("#btnguardar-triangular").on('click', function () {
-        if (!validarDatosBasicos()) return;
-        const muestraSeleccionada = $('input[name="muestra_diferente"]:checked').val();
-        if (!muestraSeleccionada) {
+        if (!validarDatosBasicos(1)) return;
+        const esDiferente = $('input[name="muestra_diferente"]:checked').val();
+        if (!esDiferente) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Datos incompletos',
@@ -98,13 +84,13 @@ $(document).ready(function () {
             });
             return;
         }
-        guardarPrueba(1, muestraSeleccionada, $('#comentario-triangular').val());
+        guardarCalificacion(1, esDiferente, 'es_diferente', $('#comentario-triangular').val());
     });
 
     $("#btnguardar-duo").on('click', function () {
-        if (!validarDatosBasicos()) return;
-        const muestraSeleccionada = $('input[name="muestra_igual_referencia"]:checked').val();
-        if (!muestraSeleccionada) {
+        if (!validarDatosBasicos(2)) return;
+        const esIgual = $('input[name="muestra_igual_referencia"]:checked').val();
+        if (!esIgual) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Datos incompletos',
@@ -113,149 +99,171 @@ $(document).ready(function () {
             });
             return;
         }
-        guardarPrueba(2, muestraSeleccionada, $('#comentario-duo').val());
+        guardarCalificacion(2, esIgual, 'es_igual_referencia', $('#comentario-duo').val());
     });
 
     $("#btnguardar-ordenamiento").on('click', function () {
-        if (!validarDatosBasicos()) return;
-        const ordenMuestras = formatearResultadosOrdenamiento();
-        if (!ordenMuestras) {
+        if (!validarDatosBasicos(3)) return;
+        const resultados = formatearResultadosOrdenamiento();
+        if (!resultados) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Datos incompletos',
-                text: 'Por favor, completa el orden de todas las muestras.',
+                text: 'Por favor, evalúa todos los atributos de cada muestra',
                 confirmButtonColor: '#198754'
             });
             return;
         }
-        guardarPrueba(3, ordenMuestras, $('#comentario-orden').val());
+        guardarPruebaOrdenamiento(resultados, $('#comentario-orden').val());
     });
 
-    function guardarPrueba(tipoPrueba, codMuestras, comentario) {
-        const nombrePanelista = $('#nombrePanelista1').val();
-        const fechaPanelista = $('#fechaPanelista1').val();
-        const productoID = $('#productoIDPrueba1').val();
-        const cabinaSeleccionada = $('#cabina').val();
+    function formatearResultadosOrdenamiento() {
+        const resultados = [];
+        let todasCalificadas = true;
 
-        $.ajax({
-            url: '/muestras/' + productoID,
-            type: 'GET',
-            success: function (response) {
-                const atributo = response[tipoPrueba === 1 ? 'triangular' : tipoPrueba === 2 ? 'duo_trio' : 'ordenamiento'][0]?.atributo
-                    || (tipoPrueba === 1 ? 'Dulzura' : tipoPrueba === 2 ? 'Similaridad' : 'Dulzura');
+        $('#cuerpo-selectores-ordenamiento tr').each(function () {
+            const muestra = $(this).find('td:first').text().trim();
+            const valores = {
+                cod_muestra: muestra,
+                valor_sabor: $(`input[name="sabor_${muestra}"]:checked`).val(),
+                valor_olor: $(`input[name="olor_${muestra}"]:checked`).val(),
+                valor_color: $(`input[name="color_${muestra}"]:checked`).val(),
+                valor_textura: $(`input[name="textura_${muestra}"]:checked`).val(),
+                valor_apariencia: $(`input[name="apariencia_${muestra}"]:checked`).val()
+            };
 
-                guardarCalificacionIndividual({
-                    nombrePanelista,
-                    fechaPanelista,
-                    productoID,
-                    tipoPrueba,
-                    codMuestras,
-                    comentario,
-                    cabinaSeleccionada,
-                    atributo
-                });
-            },
-            error: function () {
-                Swal.fire('Error', 'Hubo un problema al obtener los atributos de las muestras', 'error');
-            }
+            Object.entries(valores).forEach(([attr, val]) => {
+                if (attr !== 'cod_muestra' &&
+                    $(`input[name="${attr.replace('valor_', '')}_${muestra}"]`).length > 0 &&
+                    !val) {
+                    todasCalificadas = false;
+                }
+            });
+
+            resultados.push(valores);
         });
+
+        return todasCalificadas ? resultados : null;
     }
 
-    function guardarCalificacionIndividual(datos) {
+    function guardarPruebaOrdenamiento(resultados, comentario) {
+        const datos = validarDatosBasicos(3);
+        if (!datos) return;
+
         $.ajax({
             url: window.routes.panelistasStore,
-            type: 'POST',
+            method: 'POST',
             data: {
-                nombres: datos.nombrePanelista,
-                fecha: datos.fechaPanelista,
+                nombres: datos.nombre,
+                fecha: datos.fecha,
                 _token: window.csrfToken
             },
             success: function (response) {
                 if (response.idpane) {
-                    $.ajax({
-                        url: window.routes.calificacionStore,
-                        type: 'POST',
-                        data: {
-                            idpane: response.idpane,
-                            producto: datos.productoID,
-                            prueba: datos.tipoPrueba,
-                            atributo: datos.atributo,
-                            cod_muestras: datos.codMuestras,
-                            comentario: datos.comentario,
-                            fecha: datos.fechaPanelista,
-                            cabina: datos.cabinaSeleccionada,
-                            _token: window.csrfToken
-                        },
-                        success: function () {
-                            limpiarFormularioPrueba(datos.tipoPrueba);
-                        },
-                        error: function () {
-                            Swal.fire('Error', 'Hubo un problema al guardar la calificación', 'error');
-                        }
+                    let guardadas = 0;
+                    resultados.forEach(muestra => {
+                        $.ajax({
+                            url: window.routes.calificacionStore,
+                            method: 'POST',
+                            data: {
+                                idpane: response.idpane,
+                                producto: $('#productoIDPrueba1').val(),
+                                prueba: 3,
+                                cod_muestra: muestra.cod_muestra,
+                                valor_sabor: muestra.valor_sabor,
+                                valor_olor: muestra.valor_olor,
+                                valor_color: muestra.valor_color,
+                                valor_textura: muestra.valor_textura,
+                                valor_apariencia: muestra.valor_apariencia,
+                                comentario: comentario,
+                                fecha: datos.fecha,
+                                cabina: $('#cabina').val(),
+                                _token: window.csrfToken
+                            },
+                            success: function () {
+                                guardadas++;
+                                if (guardadas === resultados.length) {
+                                    limpiarFormularioPrueba(3);
+                                }
+                            },
+                            error: () => Swal.fire('Error', 'Error al guardar las calificaciones', 'error')
+                        });
                     });
                 }
             },
-            error: function () {
-                Swal.fire('Error', 'No se pudo guardar la información del panelista', 'error');
-            }
+            error: () => Swal.fire('Error', 'Error al guardar el panelista', 'error')
         });
     }
 
-    function limpiarFormularioPrueba(tipoPrueba) {
-        // Limpiar datos básicos del panelista
-        $('#nombrePanelista1').val('');
-        $('#fechaPanelista1').val('');
+    function guardarCalificacion(prueba, valor, campo, comentario) {
+        const datos = validarDatosBasicos(prueba);
+        if (!datos) return;
 
-        // Limpiar datos específicos de cada prueba
-        switch (tipoPrueba) {
+        $.ajax({
+            url: window.routes.panelistasStore,
+            method: 'POST',
+            data: {
+                nombres: datos.nombre,
+                fecha: datos.fecha,
+                _token: window.csrfToken
+            },
+            success: function (response) {
+                if (response.idpane) {
+                    const data = {
+                        idpane: response.idpane,
+                        producto: $('#productoIDPrueba1').val(),
+                        prueba: prueba,
+                        cod_muestra: valor,
+                        comentario: comentario,
+                        fecha: datos.fecha,
+                        cabina: $('#cabina').val(),
+                        _token: window.csrfToken
+                    };
+                    data[campo] = true;
+
+                    $.ajax({
+                        url: window.routes.calificacionStore,
+                        method: 'POST',
+                        data: data,
+                        success: () => limpiarFormularioPrueba(prueba),
+                        error: () => Swal.fire('Error', 'Error al guardar la calificación', 'error')
+                    });
+                }
+            },
+            error: () => Swal.fire('Error', 'Error al guardar el panelista', 'error')
+        });
+    }
+
+    function limpiarFormularioPrueba(prueba) {
+        switch (prueba) {
             case 1:
+                $('#nombrePanelistaTriangular').val('');
+                $('#fechaPanelistaTriangular').val('');
                 $('input[name="muestra_diferente"]').prop('checked', false);
                 $('#comentario-triangular').val('');
                 break;
             case 2:
+                $('#nombrePanelistaDuo').val('');
+                $('#fechaPanelistaDuo').val('');
                 $('input[name="muestra_igual_referencia"]').prop('checked', false);
                 $('#comentario-duo').val('');
                 break;
             case 3:
-                $('.orden-muestra').val('');
+                $('#nombrePanelistaOrden').val('');
+                $('#fechaPanelistaOrden').val('');
+                $('input[type="radio"]').prop('checked', false);
                 $('#comentario-orden').val('');
-                actualizarOpciones();
                 break;
         }
 
-        // Mostrar mensaje de éxito y confirmación de limpieza
         Swal.fire({
             icon: 'success',
             title: '¡Prueba guardada!',
-            // text: 'Los datos han sido limpiados. Puede iniciar una nueva evaluación.',
             confirmButtonColor: '#198754',
             timer: 2000,
             timerProgressBar: true
         });
     }
 
-    function formatearResultadosOrdenamiento() {
-        const resultadosTemp = [];
-        const selects = document.querySelectorAll('.orden-muestra');
-
-        selects.forEach(function (select) {
-            const codMuestra = select.closest('tr').querySelector('td:first-child').textContent.trim();
-            const orden = parseInt(select.value);
-            if (orden) {
-                resultadosTemp.push({
-                    codigo: codMuestra,
-                    orden: orden,
-                });
-            }
-        });
-
-        if (resultadosTemp.length === 0) return null;
-
-        resultadosTemp.sort((a, b) => a.orden - b.orden);
-        return resultadosTemp.map(item => item.codigo).join(',');
-    }
-
-    // Inicialización
-    actualizarOpciones();
     actualizarProgreso('sect1');
 });

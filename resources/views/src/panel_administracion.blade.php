@@ -315,8 +315,7 @@
                                 <!-- Contenido del Modal -->
                                 <div class="px-6 py-4">
                                     <!-- Formulario de Actualización de Nombre -->
-                                    <form id="form-producto-modal" class="mb-8" method="POST"
-                                        action="{{ route('productos.update', $producto->id_producto) }}">
+                                    <form id="form-producto-modal" class="mb-8" method="POST">
                                         @csrf
                                         @method('PUT')
                                         <input type="hidden" id="productoId" name="id_producto">
