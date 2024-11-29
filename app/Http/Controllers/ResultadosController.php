@@ -236,45 +236,78 @@ class ResultadosController extends Controller
             $productoId = $request->input('producto_id');
             $cabina = $request->input('cabina');
 
-            Log::info('Iniciando consulta de resultados por panelista', [
-                'test_type' => $testType,
-                'fecha' => $fecha,
-                'producto_id' => $productoId,
-                'cabina' => $cabina
-            ]);
-
+            // Query base
             $query = DB::table('calificaciones')
                 ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
-                ->whereDate('calificaciones.fecha', $fecha)
-                ->where('calificaciones.producto', $productoId);
+                ->where('calificaciones.fecha', $fecha)
+                ->where('calificaciones.producto', $productoId)
+                ->where('calificaciones.prueba', $testType);
 
-            // Si no es 'all', filtrar por cabina específica
             if ($cabina !== 'all') {
                 $query->where('calificaciones.cabina', $cabina);
             }
 
-            if ($testType && in_array($testType, ['1', '2', '3'])) {
-                $query->where('calificaciones.prueba', $testType);
-            }
-
             $results = $query->select(
                 'panelistas.nombres as nombre_panelista',
-                'calificaciones.cod_muestras',
-                'calificaciones.prueba',
-                'calificaciones.cabina'
-            )->get()->map(function ($item) {
+                'calificaciones.cabina',
+                'calificaciones.cod_muestra',
+                'calificaciones.valor_sabor',
+                'calificaciones.valor_olor',
+                'calificaciones.valor_color',
+                'calificaciones.valor_textura',
+                'calificaciones.valor_apariencia',
+                'calificaciones.fecha'
+            )->get();
+
+            // Formatear resultados según el tipo de prueba
+            $formattedResults = $results->map(function ($item) use ($testType) {
+                $respuesta = '';
+
+                switch ($testType) {
+                    case '1': // Triangular
+                        $respuesta = "Muestra diferente seleccionada: {$item->cod_muestra}";
+                        break;
+
+                    case '2': // Duo-Trio
+                        $respuesta = "Muestra igual a referencia: {$item->cod_muestra}";
+                        break;
+
+                    case '3': // Ordenamiento
+                        $respuestasAtributos = [];
+
+                        if ($item->valor_sabor)
+                            $respuestasAtributos[] = "Sabor: {$item->valor_sabor}";
+                        if ($item->valor_olor)
+                            $respuestasAtributos[] = "Olor: {$item->valor_olor}";
+                        if ($item->valor_color)
+                            $respuestasAtributos[] = "Color: {$item->valor_color}";
+                        if ($item->valor_textura)
+                            $respuestasAtributos[] = "Textura: {$item->valor_textura}";
+                        if ($item->valor_apariencia)
+                            $respuestasAtributos[] = "Apariencia: {$item->valor_apariencia}";
+
+                        $respuesta = "Muestra {$item->cod_muestra}: " . implode(' | ', $respuestasAtributos);
+                        break;
+                }
+
                 return [
                     'nombre_panelista' => $item->nombre_panelista,
-                    'respuesta' => $this->formatearRespuesta($item->prueba, $item->cod_muestras),
-                    'cabina' => $item->cabina
+                    'cabina' => $item->cabina,
+                    'respuesta' => $respuesta,
+                    'fecha_evaluacion' => $item->fecha
                 ];
             });
 
-            Log::info('Consulta de resultados por panelista exitosa', ['count' => $results->count()]);
-            return response()->json(['success' => true, 'data' => $results]);
+            return response()->json([
+                'success' => true,
+                'data' => $formattedResults
+            ]);
         } catch (\Exception $e) {
-            Log::error('Error al mostrar resultados de panelistas: ' . $e->getMessage());
-            return response()->json(['error' => 'Error al obtener los resultados: ' . $e->getMessage()], 500);
+            Log::error('Error en mostrarResultadosPanelistas: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los resultados: ' . $e->getMessage()
+            ], 500);
         }
     }
 

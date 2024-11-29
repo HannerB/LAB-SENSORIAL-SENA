@@ -64,49 +64,104 @@ $(document).ready(function () {
         var productoId = $('#productos-filtro').val();
         var cabina = $('#cabinas-filtro').val();
 
-        if (testType !== 'select') {
-            $.ajax({
-                url: '/mostrar-resultados-panelistas',
-                method: 'GET',
-                data: {
-                    test_type: testType,
-                    fecha: fecha,
-                    producto_id: productoId,
-                    cabina: cabina
-                },
-                success: function (response) {
-                    $('#listado-personas-prueba').empty();
-                    if (response.data && response.data.length > 0) {
-                        response.data.forEach(function (item, index) {
-                            $('#listado-personas-prueba').append(`
-                            <tr>
-                                <th scope="row">${index + 1}</th>
-                                <td>${item.nombre_panelista}</td>
-                                <td>${item.cabina === 'all' ? 'Todas' : 'Cabina ' + item.cabina}</td>
-                                <td>${item.respuesta}</td>
-                            </tr>
-                        `);
-                        });
-                        $('.tabla-personas').show();
-                    } else {
-                        $('#listado-personas-prueba').append(`
-                        <tr>
-                            <td colspan="4" class="text-center">No se encontraron resultados para esta prueba.</td>
-                        </tr>
-                    `);
-                        $('.tabla-personas').show();
-                    }
-                },
-                error: function (xhr) {
-                    console.error('Error:', xhr);
-                    Swal.fire('Error', 'Ocurrió un error al obtener los resultados de los panelistas.', 'error');
-                }
-            });
-        } else {
+        if (testType === 'select') {
             $('#listado-personas-prueba').empty();
             $('.tabla-personas').hide();
+            return;
         }
+
+        // Mostrar indicador de carga
+        Swal.fire({
+            title: 'Cargando resultados...',
+            text: 'Obteniendo datos de los panelistas',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: '/mostrar-resultados-panelistas',
+            method: 'GET',
+            data: {
+                test_type: testType,
+                fecha: fecha,
+                producto_id: productoId,
+                cabina: cabina
+            },
+            success: function (response) {
+                Swal.close();
+                $('#listado-personas-prueba').empty();
+
+                if (response.success && response.data && response.data.length > 0) {
+                    response.data.forEach(function (item, index) {
+                        $('#listado-personas-prueba').append(`
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-sm font-medium text-gray-700">
+                                        ${index + 1}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0">
+                                            <span class="h-10 w-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center">
+                                                <i class="fas fa-user"></i>
+                                            </span>
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                ${item.nombre_panelista}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                Evaluación del ${new Date(item.fecha_evaluacion).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-door-open mr-2"></i>
+                                        Cabina ${item.cabina}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        ${formatearRespuesta(item.respuesta)}
+                                    </div>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                    $('#empty-state').addClass('hidden');
+                } else {
+                    $('#empty-state').removeClass('hidden');
+                }
+
+                $('.tabla-personas').show();
+            },
+            error: function (xhr) {
+                Swal.fire('Error', 'Ocurrió un error al obtener los resultados de los panelistas.', 'error');
+            }
+        });
     });
+
+    // Función auxiliar para formatear las respuestas
+    function formatearRespuesta(respuesta) {
+        if (respuesta.includes('|')) {
+            // Es una prueba de ordenamiento
+            return respuesta.split('|').map(attr =>
+                `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2 mb-1">
+                ${attr.trim()}
+             </span>`
+            ).join('');
+        } else {
+            // Es una prueba triangular o duo-trio
+            return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    ${respuesta}
+                </span>`;
+        }
+    }
 
     function mostrarResultados(response) {
         // Limpiar las tablas existentes

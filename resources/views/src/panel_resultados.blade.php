@@ -209,41 +209,54 @@
 
         <!-- Sección de Resultados por Panelista -->
         <div id="resultado-pruebas-personas" class="bg-white rounded-lg shadow-lg p-6 hidden">
-            <div class="mb-6">
-                <form class="max-w-lg mx-auto">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Seleccione la prueba para ver los resultados de los panelistas
-                    </label>
-                    <select id="tipo-prueba-resultado"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm 
-                           focus:border-sena-green focus:ring-sena-green">
-                        <option value="select">SELECCIONE LA PRUEBA</option>
-                        <option value="1">PRUEBA TRIANGULAR</option>
-                        <option value="2">PRUEBA DUO-TRIO</option>
-                        <option value="3">PRUEBA ORDENAMIENTO</option>
-                    </select>
-                </form>
+            <!-- Encabezado con icono y título -->
+            <div class="mb-8 text-center">
+                <div class="inline-block p-3 bg-green-50 rounded-full mb-4">
+                    <i class="fas fa-users text-2xl text-sena-green"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">Resultados Individuales por Panelista</h3>
+                <p class="text-sm text-gray-600 mt-1">Visualización detallada de las evaluaciones realizadas</p>
             </div>
 
-            <div class="overflow-x-auto">
+            <!-- Selector de Prueba con Diseño Mejorado -->
+            <div class="mb-8">
+                <div class="max-w-lg mx-auto bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 items-center">
+                        <i class="fas fa-flask mr-2 text-sena-green"></i>
+                        Tipo de Prueba a Visualizar
+                    </label>
+                    <select id="tipo-prueba-resultado"
+                        class="block w-full rounded-lg border-gray-300 shadow-sm 
+                       focus:border-sena-green focus:ring-sena-green
+                       bg-white py-2.5">
+                        <option value="select">Seleccione el tipo de prueba</option>
+                        <option value="1">📐 Prueba Triangular</option>
+                        <option value="2">⚖️ Prueba Duo-Trio</option>
+                        <option value="3">📊 Prueba de Ordenamiento</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabla de Resultados con Diseño Mejorado -->
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-800">
+                    <thead class="bg-gray-50">
                         <tr>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
                                 #
                             </th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                Nombre
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Panelista
                             </th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32">
                                 Cabina
                             </th>
                             <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                Respuesta
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Resultado de Evaluación
                             </th>
                         </tr>
                     </thead>
@@ -251,6 +264,16 @@
                         <!-- Los resultados se cargarán dinámicamente -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Estado vacío mejorado -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <div class="inline-block p-4 bg-gray-50 rounded-full mb-4">
+                    <i class="fas fa-clipboard-list text-4xl text-gray-400"></i>
+                </div>
+                <h4 class="text-lg font-medium text-gray-900">No hay resultados disponibles</h4>
+                <p class="text-sm text-gray-500 mt-1">Seleccione una prueba para ver los resultados de los panelistas
+                </p>
             </div>
         </div>
     </div>
