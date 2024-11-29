@@ -226,7 +226,7 @@ $(document).ready(function () {
 
             Object.entries(response.data.ordenamiento).forEach(([atributo, resultados]) => {
                 const section = `
-            <div class="mb-6 border-b pb-4">
+            <div style="padding-top:15px" class="mb-6 border-b pb-4">
                 <h4 class="text-lg font-semibold mb-3 flex items-center">
                     <span class="bg-gray-100 px-3 py-1 rounded-lg">
                         ${atributo}
