@@ -525,9 +525,7 @@
                                     Frente a usted hay {{ count($muestrasOrdenamiento) }} muestras de
                                     <span
                                         class="font-medium">{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}</span>
-                                    que debe ordenar en forma creciente de acuerdo al grado de
-                                    <span
-                                        class="font-medium lowercase">{{ $muestrasOrdenamiento->first() ? $muestrasOrdenamiento->first()->atributo : 'no especificado' }}</span>.
+                                    que debe ordenar en forma creciente de acuerdo al grado de cada atributo.
                                 </p>
                                 <p class="text-sm text-blue-700">
                                     Cada muestra debe llevar un orden diferente. No se permite que dos muestras tengan
@@ -537,18 +535,36 @@
                         </div>
                     </div>
 
+                    <!-- Selected Attributes Overview -->
+                    <div class="bg-indigo-50 rounded-lg p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-indigo-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Atributos a Evaluar en esta Prueba
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo)
+                                @if ($muestrasOrdenamiento->first()->{"tiene_$atributo"})
+                                    <div class="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm">
+                                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                                        <span
+                                            class="text-sm font-medium text-gray-700 capitalize">{{ $atributo }}</span>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+
                     <!-- Samples Table -->
                     <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg mb-8">
                         <table class="min-w-full divide-y divide-gray-300">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col"
-                                        class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">
-                                        Muestra
+                                    <th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Muestra
                                     </th>
-                                    <th scope="col"
-                                        class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                        Atributos a Evaluar
+                                    <th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Evaluación
                                     </th>
                                 </tr>
                             </thead>
@@ -558,102 +574,41 @@
                                         <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900">
                                             {{ $muestra->cod_muestra }}
                                         </td>
-                                        <td class="px-3 py-4">
-                                            <div class="space-y-4">
-                                                @if ($muestra->tiene_sabor)
-                                                    <div class="flex items-center space-x-4">
-                                                        <label
-                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Sabor:</label>
-                                                        <div class="flex gap-4">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <label class="inline-flex items-center">
-                                                                    <input type="radio"
-                                                                        name="sabor_{{ $muestra->cod_muestra }}"
-                                                                        value="{{ $i }}"
-                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
-                                                                    <span
-                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
-                                                                </label>
-                                                            @endfor
+                                        <td class="px-6 py-4">
+                                            <div class="space-y-6">
+                                                @foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo)
+                                                    @if ($muestra->{"tiene_$atributo"})
+                                                        <div class="bg-gray-50 p-4 rounded-lg">
+                                                            <label
+                                                                class="block text-sm font-medium text-gray-700 mb-3 capitalize">
+                                                                {{ $atributo }}
+                                                            </label>
+                                                            <div
+                                                                class="flex items-center justify-between bg-white rounded-lg p-3">
+                                                                @for ($i = 1; $i <= 5; $i++)
+                                                                    <div class="flex flex-col items-center">
+                                                                        <label class="relative">
+                                                                            <input type="radio"
+                                                                                name="{{ $atributo }}_{{ $muestra->cod_muestra }}"
+                                                                                value="{{ $i }}"
+                                                                                class="sr-only peer">
+                                                                            <div
+                                                                                class="w-12 h-12 flex items-center justify-center rounded-lg border-2 cursor-pointer
+                                                                    peer-checked:bg-sena-green peer-checked:border-sena-green peer-checked:text-white
+                                                                    peer-focus:ring-2 peer-focus:ring-sena-green peer-focus:ring-offset-2
+                                                                    transition-all duration-200">
+                                                                                {{ $i }}
+                                                                            </div>
+                                                                        </label>
+                                                                        <span class="mt-1 text-xs text-gray-500">
+                                                                            {{ $i === 1 ? 'Muy bajo' : ($i === 2 ? 'Bajo' : ($i === 3 ? 'Medio' : ($i === 4 ? 'Alto' : 'Muy alto'))) }}
+                                                                        </span>
+                                                                    </div>
+                                                                @endfor
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($muestra->tiene_olor)
-                                                    <div class="flex items-center space-x-4">
-                                                        <label
-                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Olor:</label>
-                                                        <div class="flex gap-4">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <label class="inline-flex items-center">
-                                                                    <input type="radio"
-                                                                        name="olor_{{ $muestra->cod_muestra }}"
-                                                                        value="{{ $i }}"
-                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
-                                                                    <span
-                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
-                                                                </label>
-                                                            @endfor
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($muestra->tiene_color)
-                                                    <div class="flex items-center space-x-4">
-                                                        <label
-                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Color:</label>
-                                                        <div class="flex gap-4">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <label class="inline-flex items-center">
-                                                                    <input type="radio"
-                                                                        name="color_{{ $muestra->cod_muestra }}"
-                                                                        value="{{ $i }}"
-                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
-                                                                    <span
-                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
-                                                                </label>
-                                                            @endfor
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($muestra->tiene_textura)
-                                                    <div class="flex items-center space-x-4">
-                                                        <label
-                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Textura:</label>
-                                                        <div class="flex gap-4">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <label class="inline-flex items-center">
-                                                                    <input type="radio"
-                                                                        name="textura_{{ $muestra->cod_muestra }}"
-                                                                        value="{{ $i }}"
-                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
-                                                                    <span
-                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
-                                                                </label>
-                                                            @endfor
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($muestra->tiene_apariencia)
-                                                    <div class="flex items-center space-x-4">
-                                                        <label
-                                                            class="min-w-[100px] text-sm font-medium text-gray-700">Apariencia:</label>
-                                                        <div class="flex gap-4">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <label class="inline-flex items-center">
-                                                                    <input type="radio"
-                                                                        name="apariencia_{{ $muestra->cod_muestra }}"
-                                                                        value="{{ $i }}"
-                                                                        class="form-radio text-sena-green focus:ring-sena-green h-4 w-4">
-                                                                    <span
-                                                                        class="ml-2 text-sm text-gray-700">{{ $i }}</span>
-                                                                </label>
-                                                            @endfor
-                                                        </div>
-                                                    </div>
-                                                @endif
+                                                    @endif
+                                                @endforeach
                                             </div>
                                         </td>
                                     </tr>
