@@ -546,14 +546,28 @@
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             @foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo)
-                                @if ($muestrasOrdenamiento->first()->{"tiene_$atributo"})
-                                    <div class="flex items-center space-x-2 bg-white p-3 rounded-lg shadow-sm">
-                                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                                        <span
-                                            class="text-sm font-medium text-gray-700 capitalize">{{ $atributo }}</span>
-                                    </div>
-                                @endif
-                            @endforeach
+                            @if ($muestrasOrdenamiento->isNotEmpty() && $muestrasOrdenamiento->first()->{"tiene_$atributo"})
+                                <div class="transform transition-all duration-200 hover:scale-105">
+                                    <label class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
+                                        <span class="text-2xl mr-3">
+                                            @if ($atributo == 'sabor') 🍽️ @elseif ($atributo == 'olor') 👃 @elseif ($atributo == 'color') 🎨 @elseif ($atributo == 'textura') ✋ @elseif ($atributo == 'apariencia') 👁️ @endif
+                                        </span>
+                                        <div class="flex-1">
+                                            <div class="text-lg font-medium text-gray-900 capitalize">{{ $atributo }}</div>
+                                            <div class="text-sm text-gray-500">
+                                                @if ($atributo == 'sabor')
+                                                @elseif ($atributo == 'olor')
+                                                @elseif ($atributo == 'color')
+                                                @elseif ($atributo == 'textura')
+                                                @elseif ($atributo == 'apariencia') 
+                                                @endif
+                                            </div>
+                                        </div>
+                                        {{-- <input type="checkbox" name="atributos[]" value="{{ $atributo }}" class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-300 focus:ring-purple-500"> --}}
+                                    </label>
+                                </div>
+                            @endif
+                        @endforeach
                         </div>
                     </div>
 
