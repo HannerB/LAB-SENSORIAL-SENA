@@ -31,7 +31,8 @@ class ResultadosSheet implements FromCollection, WithTitle, WithHeadings, WithMa
     public function collection()
     {
         try {
-            $query = Calificacion::with(['panelista', 'producto'])
+            // Modificado para usar with solo con panelista
+            $query = Calificacion::with('panelista')
                 ->where('fecha', $this->fecha)
                 ->where('producto', $this->productoId)
                 ->where('cabina', $this->cabina);
@@ -42,7 +43,6 @@ class ResultadosSheet implements FromCollection, WithTitle, WithHeadings, WithMa
 
             $resultados = $query->orderBy('prueba')->orderBy('fecha')->get();
 
-            // Siempre retornamos al menos una fila
             if ($resultados->isEmpty()) {
                 return collect([[
                     'fecha' => $this->fecha,
@@ -101,35 +101,53 @@ class ResultadosSheet implements FromCollection, WithTitle, WithHeadings, WithMa
             3 => 'Prueba de Ordenamiento'
         ][$calificacion->prueba] ?? 'Desconocido';
 
-        $resultado = '';
-        switch ($calificacion->prueba) {
-            case 1:
-                $resultado = "Muestra seleccionada: " . $calificacion->cod_muestras;
-                break;
-            case 2:
-                $resultado = "Muestra igual a referencia: " . $calificacion->cod_muestras;
-                break;
-            case 3:
-                $muestras = explode(',', $calificacion->cod_muestras);
-                $resultado = "Orden: " . implode(' > ', $muestras);
-                break;
-        }
-
+        // Obtener el nombre del producto directamente de la tabla productos
         $nombreProducto = DB::table('productos')
             ->where('id_producto', $calificacion->producto)
             ->value('nombre') ?? 'N/A';
+
+        // Generar resultado basado en el tipo de prueba
+        $resultado = $this->generarResultado($calificacion);
 
         return [
             $calificacion->fecha,
             $calificacion->panelista->nombres ?? 'N/A',
             $nombreProducto,
             $tipoPrueba,
-            $calificacion->atributo,
-            $calificacion->cod_muestras,
+            $calificacion->atributo ?? '-',
+            $calificacion->cod_muestra ?? '-',
             $calificacion->comentario ?? 'Sin comentarios',
             $calificacion->cabina,
             $resultado
         ];
+    }
+
+    protected function generarResultado($calificacion)
+    {
+        switch ($calificacion->prueba) {
+            case 1: // Triangular
+                return $calificacion->es_diferente ?
+                    "Muestra diferente: {$calificacion->cod_muestra}" :
+                    "No seleccionada como diferente";
+
+            case 2: // Duo-Trio
+                return $calificacion->es_igual_referencia ?
+                    "Igual a referencia: {$calificacion->cod_muestra}" :
+                    "No seleccionada como igual";
+
+            case 3: // Ordenamiento
+                $valores = [];
+                if ($calificacion->valor_sabor) $valores[] = "Sabor: {$calificacion->valor_sabor}";
+                if ($calificacion->valor_olor) $valores[] = "Olor: {$calificacion->valor_olor}";
+                if ($calificacion->valor_color) $valores[] = "Color: {$calificacion->valor_color}";
+                if ($calificacion->valor_textura) $valores[] = "Textura: {$calificacion->valor_textura}";
+                if ($calificacion->valor_apariencia) $valores[] = "Apariencia: {$calificacion->valor_apariencia}";
+
+                return implode(" | ", $valores);
+
+            default:
+                return '-';
+        }
     }
 
     public function styles(Worksheet $sheet)
