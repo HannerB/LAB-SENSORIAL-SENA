@@ -33,13 +33,11 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
     public function collection()
     {
         try {
-            // Obtener todas las muestras para este producto y prueba de ordenamiento
             $muestras = Muestra::where('producto_id', $this->productoId)
                 ->where('prueba', 3)
                 ->orderBy(DB::raw('CAST(cod_muestra AS UNSIGNED)'))
                 ->get();
 
-            // Consulta base para calificaciones
             $query = Calificacion::with('panelista')
                 ->where('fecha', $this->fecha)
                 ->where('producto', $this->productoId)
@@ -57,51 +55,43 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
 
             $rows = new Collection();
 
-            // Agregar encabezados principales
+            // Crear encabezados más detallados
             $mainHeaders = ['', 'Panelista'];
-            foreach ($muestras as $muestra) {
-                $mainHeaders[] = "Muestra {$muestra->cod_muestra}";
-                $mainHeaders[] = '';
-                $mainHeaders[] = '';
-                $mainHeaders[] = '';
-                $mainHeaders[] = '';
-            }
-            $rows->push($mainHeaders);
-
-            // Agregar encabezados de atributos
             $attrHeaders = ['', ''];
+
             foreach ($muestras as $muestra) {
-                foreach (['Sabor', 'Olor', 'Color', 'Textura', 'Apariencia'] as $atributo) {
-                    if ($muestra->{"tiene_" . strtolower($atributo)}) {
-                        $attrHeaders[] = $atributo;
-                    } else {
-                        $attrHeaders[] = '';
+                $atributosActivos = [];
+                foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                    if ($muestra->{"tiene_$atributo"}) {
+                        $mainHeaders[] = "Muestra {$muestra->cod_muestra}";
+                        $attrHeaders[] = ucfirst($atributo);
+                        $atributosActivos[] = $atributo;
                     }
                 }
             }
+
+            $rows->push($mainHeaders);
             $rows->push($attrHeaders);
 
-            // Procesar cada panelista con numeración iniciando desde A3
+            // Procesar cada panelista
             $panelistas = $calificaciones->groupBy('idpane');
-            $contadorPanelista = 1; // Iniciamos el contador desde 1
+            $contadorPanelista = 1;
 
             foreach ($panelistas as $idpane => $calificacionesPanelista) {
                 $panelista = $calificacionesPanelista->first()->panelista;
                 $row = [
-                    $contadorPanelista++, // Usamos el contador y luego lo incrementamos
+                    $contadorPanelista++,
                     $panelista ? $panelista->nombres : 'N/A'
                 ];
 
-                // Agregar calificaciones para cada muestra y atributo
                 foreach ($muestras as $muestra) {
                     $calificacion = $calificacionesPanelista->where('cod_muestra', $muestra->cod_muestra)->first();
+
                     foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
                         if ($muestra->{"tiene_$atributo"}) {
                             $campo = "valor_$atributo";
                             $valor = $calificacion ? $calificacion->$campo : '-';
                             $row[] = is_numeric($valor) ? $valor : '-';
-                        } else {
-                            $row[] = '';
                         }
                     }
                 }
@@ -109,15 +99,11 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
                 $rows->push($row);
             }
 
-            // Agregar filas de estadísticas
-            $promedios = $this->calcularEstadisticas($calificaciones, $muestras, 'avg');
-            $medianas = $this->calcularEstadisticas($calificaciones, $muestras, 'median');
-            $modas = $this->calcularEstadisticas($calificaciones, $muestras, 'mode');
-
-            $rows->push([]);
-            $rows->push($promedios);
-            $rows->push($medianas);
-            $rows->push($modas);
+            // Agregar estadísticas
+            $rows->push([]);  // Fila vacía antes de estadísticas
+            $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'avg'));
+            $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'median'));
+            $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'mode'));
 
             return $rows;
         } catch (\Exception $e) {
@@ -139,14 +125,15 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
         foreach ($muestras as $muestra) {
             foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
                 if (!$muestra->{"tiene_$atributo"}) {
-                    $fila[] = '';
                     continue;
                 }
 
-                $campo = 'valor_' . $atributo;
-                $valores = $calificaciones->where('cod_muestra', $muestra->cod_muestra)->pluck($campo)->filter(function ($valor) {
-                    return is_numeric($valor);
-                });
+                $campo = "valor_$atributo";
+                $valores = $calificaciones->where('cod_muestra', $muestra->cod_muestra)
+                    ->pluck($campo)
+                    ->filter(function ($valor) {
+                        return is_numeric($valor);
+                    });
 
                 if ($valores->isEmpty()) {
                     $fila[] = '-';
@@ -172,17 +159,15 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
 
     protected function getEmptyCollection($muestras)
     {
-        $numAtributos = $muestras->sum(function ($muestra) {
-            return collect(['sabor', 'olor', 'color', 'textura', 'apariencia'])
-                ->filter(function ($atributo) use ($muestra) {
-                    return $muestra->{"tiene_$atributo"};
-                })
-                ->count();
-        });
-
-        return new Collection([
-            ['', 'Panelista', ...array_fill(0, $numAtributos, '-')]
-        ]);
+        $headers = ['', 'Panelista'];
+        foreach ($muestras as $muestra) {
+            foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                if ($muestra->{"tiene_$atributo"}) {
+                    $headers[] = "Muestra {$muestra->cod_muestra} - " . ucfirst($atributo);
+                }
+            }
+        }
+        return new Collection([$headers, array_fill(0, count($headers), '')]);
     }
 
     public function headings(): array
@@ -197,24 +182,69 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
             "Evaluación Sensorial - General";
     }
 
+    protected function generateRandomColor()
+    {
+        // Lista de colores pastel predefinidos
+        $colors = [
+            'FFB6C1', // Rosa claro
+            'B0E0E6', // Azul polvo
+            'DDA0DD', // Ciruela
+            'F0E68C', // Caqui
+            '98FB98', // Verde pálido
+            'FFA07A', // Salmón claro
+            'E6E6FA', // Lavanda
+            'FFE4B5', // Mocasín
+            'AFEEEE', // Turquesa pálido
+            'D8BFD8', // Cardo
+            'F0FFF0', // Miel rocío
+            'FFF0F5', // Rubor lavanda
+            'F5DEB3', // Trigo
+            'E0FFFF', // Cian claro
+            'FFDAB9', // Melocotón
+            'B8860B', // Dorado oscuro
+            'C0C0C0', // Plateado
+            '87CEEB', // Azul cielo
+            'ADD8E6', // Azul claro
+            '9370DB'  // Púrpura medio
+        ];
+
+        return $colors[array_rand($colors)];
+    }
+
+    protected function lightenColor($hex, $percent)
+    {
+        // Convertir hex a RGB
+        $rgb = array_map('hexdec', str_split(str_replace('#', '', $hex), 2));
+
+        // Aclarar cada componente
+        foreach ($rgb as &$color) {
+            $color = min(255, $color + ($percent / 100) * (255 - $color));
+            $color = str_pad(dechex(round($color)), 2, '0', STR_PAD_LEFT);
+        }
+
+        return implode('', $rgb);
+    }
+
+
     public function styles(Worksheet $sheet)
     {
         $lastRow = $sheet->getHighestRow();
         $lastColumn = $sheet->getHighestColumn();
 
-        // Estilo para encabezados principales
-        $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+        // Estilo base para los encabezados principales
+        $sheet->getStyle('A1:B1')->applyFromArray([
             'font' => ['bold' => true],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'color' => ['rgb' => 'E0E0E0']
             ],
             'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER
             ]
         ]);
 
-        // Estilo para encabezados de atributos
+        // Estilo para los encabezados de atributos
         $sheet->getStyle('A2:' . $lastColumn . '2')->applyFromArray([
             'font' => ['bold' => true, 'italic' => true],
             'fill' => [
@@ -222,11 +252,12 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
                 'color' => ['rgb' => 'F5F5F5']
             ],
             'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER
             ]
         ]);
 
-        // Estilos para filas de estadísticas
+        // Estilos para las filas de estadísticas
         $statsRows = [$lastRow - 2, $lastRow - 1, $lastRow];
         foreach ($statsRows as $row) {
             $sheet->getStyle('A' . $row . ':' . $lastColumn . $row)->applyFromArray([
@@ -250,10 +281,66 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
             ]
         ]);
 
-        // Centrar números y valores, empezando desde A3
+        // Centrar números y valores
         $sheet->getStyle("A3:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle("C3:{$lastColumn}{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
+        // Fusionar celdas para encabezados de muestras
+        $this->mergeSampleHeaders($sheet);
+
         return $sheet;
+    }
+
+    protected function mergeSampleHeaders($sheet)
+    {
+        $column = 'C';
+        $muestras = Muestra::where('producto_id', $this->productoId)
+            ->where('prueba', 3)
+            ->orderBy(DB::raw('CAST(cod_muestra AS UNSIGNED)'))
+            ->get();
+
+        foreach ($muestras as $muestra) {
+            $atributosActivos = 0;
+            foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                if ($muestra->{"tiene_$atributo"}) {
+                    $atributosActivos++;
+                }
+            }
+
+            if ($atributosActivos > 0) {
+                $endColumn = chr(ord($column) + $atributosActivos - 1);
+                if ($column != $endColumn) {
+                    $sheet->mergeCells("{$column}1:{$endColumn}1");
+                }
+
+                // Aplicar color aleatorio al encabezado de la muestra
+                $randomColor = $this->generateRandomColor();
+                $sheet->getStyle("{$column}1:{$endColumn}1")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'color' => ['rgb' => $randomColor]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => '000000'] // Texto negro para mejor contraste
+                    ]
+                ]);
+
+                // Aplicar un color más claro para la fila de atributos
+                $sheet->getStyle("{$column}2:{$endColumn}2")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'color' => ['rgb' => $this->lightenColor($randomColor, 30)]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'italic' => true,
+                        'color' => ['rgb' => '000000']
+                    ]
+                ]);
+
+                $column = chr(ord($endColumn) + 1);
+            }
+        }
     }
 }
