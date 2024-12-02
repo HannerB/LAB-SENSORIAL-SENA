@@ -101,25 +101,63 @@ class ResultadosSheet implements FromCollection, WithTitle, WithHeadings, WithMa
             3 => 'Prueba de Ordenamiento'
         ][$calificacion->prueba] ?? 'Desconocido';
 
-        // Obtener el nombre del producto directamente de la tabla productos
+        // Obtener el nombre del producto
         $nombreProducto = DB::table('productos')
             ->where('id_producto', $calificacion->producto)
             ->value('nombre') ?? 'N/A';
 
-        // Generar resultado basado en el tipo de prueba
-        $resultado = $this->generarResultado($calificacion);
+        // Para prueba de ordenamiento, obtener los atributos evaluados
+        $atributo = $this->obtenerAtributosEvaluados($calificacion);
 
         return [
             $calificacion->fecha,
             $calificacion->panelista->nombres ?? 'N/A',
             $nombreProducto,
             $tipoPrueba,
-            $calificacion->atributo ?? '-',
+            $atributo,
             $calificacion->cod_muestra ?? '-',
             $calificacion->comentario ?? 'Sin comentarios',
             $calificacion->cabina,
-            $resultado
+            $this->generarResultado($calificacion)
         ];
+    }
+
+    protected function obtenerAtributosEvaluados($calificacion)
+    {
+        if ($calificacion->prueba != 3) {
+            return '-';
+        }
+
+        // Obtener la muestra correspondiente para verificar qué atributos están habilitados
+        $muestra = DB::table('muestras')
+            ->where('producto_id', $calificacion->producto)
+            ->where('prueba', 3)
+            ->where('cod_muestra', $calificacion->cod_muestra)
+            ->first();
+
+        if (!$muestra) {
+            return '-';
+        }
+
+        $atributosEvaluados = [];
+
+        if ($muestra->tiene_sabor && $calificacion->valor_sabor !== null) {
+            $atributosEvaluados[] = 'Sabor';
+        }
+        if ($muestra->tiene_olor && $calificacion->valor_olor !== null) {
+            $atributosEvaluados[] = 'Olor';
+        }
+        if ($muestra->tiene_color && $calificacion->valor_color !== null) {
+            $atributosEvaluados[] = 'Color';
+        }
+        if ($muestra->tiene_textura && $calificacion->valor_textura !== null) {
+            $atributosEvaluados[] = 'Textura';
+        }
+        if ($muestra->tiene_apariencia && $calificacion->valor_apariencia !== null) {
+            $atributosEvaluados[] = 'Apariencia';
+        }
+
+        return empty($atributosEvaluados) ? '-' : implode(', ', $atributosEvaluados);
     }
 
     protected function generarResultado($calificacion)
@@ -137,13 +175,13 @@ class ResultadosSheet implements FromCollection, WithTitle, WithHeadings, WithMa
 
             case 3: // Ordenamiento
                 $valores = [];
-                if ($calificacion->valor_sabor) $valores[] = "Sabor: {$calificacion->valor_sabor}";
-                if ($calificacion->valor_olor) $valores[] = "Olor: {$calificacion->valor_olor}";
-                if ($calificacion->valor_color) $valores[] = "Color: {$calificacion->valor_color}";
-                if ($calificacion->valor_textura) $valores[] = "Textura: {$calificacion->valor_textura}";
-                if ($calificacion->valor_apariencia) $valores[] = "Apariencia: {$calificacion->valor_apariencia}";
+                if ($calificacion->valor_sabor !== null) $valores[] = "Sabor: {$calificacion->valor_sabor}";
+                if ($calificacion->valor_olor !== null) $valores[] = "Olor: {$calificacion->valor_olor}";
+                if ($calificacion->valor_color !== null) $valores[] = "Color: {$calificacion->valor_color}";
+                if ($calificacion->valor_textura !== null) $valores[] = "Textura: {$calificacion->valor_textura}";
+                if ($calificacion->valor_apariencia !== null) $valores[] = "Apariencia: {$calificacion->valor_apariencia}";
 
-                return implode(" | ", $valores);
+                return empty($valores) ? '-' : implode(" | ", $valores);
 
             default:
                 return '-';

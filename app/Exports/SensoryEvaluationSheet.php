@@ -102,8 +102,10 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
             // Agregar estadísticas
             $rows->push([]);  // Fila vacía antes de estadísticas
             $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'avg'));
+            $rows->push($this->calcularPromediosPorMuestra($calificaciones, $muestras));
             $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'median'));
             $rows->push($this->calcularEstadisticas($calificaciones, $muestras, 'mode'));
+            $rows->push([]);  // Fila vacía antes de los promedios por muestra
 
             return $rows;
         } catch (\Exception $e) {
@@ -121,8 +123,11 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
         ][$funcion];
 
         $fila = [$estadisticas, ''];
+        $promediosMuestra = [];
 
         foreach ($muestras as $muestra) {
+            $promediosAtributos = []; // Array para guardar los promedios de cada atributo
+
             foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
                 if (!$muestra->{"tiene_$atributo"}) {
                     continue;
@@ -140,7 +145,9 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
                 } else {
                     switch ($funcion) {
                         case 'avg':
-                            $fila[] = number_format($valores->avg(), 2);
+                            $promedio = $valores->avg();
+                            $fila[] = number_format($promedio, 2);
+                            $promediosAtributos[] = $promedio;
                             break;
                         case 'median':
                             $fila[] = number_format($valores->median(), 2);
@@ -150,6 +157,60 @@ class SensoryEvaluationSheet implements FromCollection, WithTitle, WithHeadings,
                             $fila[] = is_array($moda) ? implode(', ', $moda) : $moda;
                             break;
                     }
+                }
+            }
+
+            // Calcular promedio de los promedios para esta muestra
+            if ($funcion === 'avg' && !empty($promediosAtributos)) {
+                $promedioMuestra = array_sum($promediosAtributos) / count($promediosAtributos);
+                $promediosMuestra[] = $promedioMuestra;
+            }
+        }
+
+        return $fila;
+    }
+
+    protected function calcularPromediosPorMuestra($calificaciones, $muestras)
+    {
+        $fila = ['PROMEDIO MUESTRA', ''];
+
+        foreach ($muestras as $muestra) {
+            $promediosAtributos = [];
+            $atributosActivos = 0;
+
+            // Primero contar cuántos atributos activos hay
+            foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                if ($muestra->{"tiene_$atributo"}) {
+                    $atributosActivos++;
+
+                    $campo = "valor_$atributo";
+                    $valores = $calificaciones->where('cod_muestra', $muestra->cod_muestra)
+                        ->pluck($campo)
+                        ->filter(function ($valor) {
+                            return is_numeric($valor);
+                        });
+
+                    if (!$valores->isEmpty()) {
+                        $promediosAtributos[] = $valores->avg();
+                    }
+                }
+            }
+
+            // Calcular el promedio de la muestra
+            if (!empty($promediosAtributos)) {
+                $promedioMuestra = number_format(array_sum($promediosAtributos) / count($promediosAtributos), 2);
+
+                // Agregar el promedio en la primera columna del grupo
+                $fila[] = $promedioMuestra;
+
+                // Agregar espacios vacíos para el resto de los atributos de esta muestra
+                for ($i = 1; $i < $atributosActivos; $i++) {
+                    $fila[] = '';
+                }
+            } else {
+                // Si no hay promedios, llenar con espacios vacíos
+                for ($i = 0; $i < $atributosActivos; $i++) {
+                    $fila[] = '';
                 }
             }
         }
