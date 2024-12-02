@@ -25,6 +25,7 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
     protected $spacingColumns = 3; // Número de columnas de separación
     protected $firstSectionColumns = [];
     protected $secondSectionColumns = [];
+    protected $thirdSectionColumns = []; // Añadimos esta propiedad
 
     public function __construct($fecha, $productoId, $tipoPrueba)
     {
@@ -38,13 +39,22 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
         try {
             $firstSection = $this->getDetailedRatings();
             $secondSection = $this->getPreferences();
+            $thirdSection = $this->getPreferenceStats();
 
             // Guardar el número de columnas de cada sección
             $this->firstSectionColumns = range('A', chr(64 + count($firstSection[0])));
-            $startChar = chr(64 + count($firstSection[0]) + $this->spacingColumns + 1);
-            $this->secondSectionColumns = range($startChar, chr(64 + count($firstSection[0]) + $this->spacingColumns + count($secondSection[0])));
 
-            return $this->combinarSecciones($firstSection, $secondSection);
+            // Calcular columnas para la segunda sección
+            $startChar = chr(64 + count($firstSection[0]) + $this->spacingColumns + 1);
+            $endChar = chr(64 + count($firstSection[0]) + $this->spacingColumns + count($secondSection[0]));
+            $this->secondSectionColumns = range($startChar, $endChar);
+
+            // Calcular columnas para la tercera sección
+            $startChar = chr(64 + count($firstSection[0]) + $this->spacingColumns + count($secondSection[0]) + $this->spacingColumns + 1);
+            $endChar = chr(64 + count($firstSection[0]) + $this->spacingColumns + count($secondSection[0]) + $this->spacingColumns + count($thirdSection[0]));
+            $this->thirdSectionColumns = range($startChar, $endChar);
+
+            return $this->combinarSecciones($firstSection, $secondSection, $thirdSection);
         } catch (\Exception $e) {
             return new Collection([['Error: ' . $e->getMessage()]]);
         }
@@ -73,9 +83,11 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
         // Crear encabezados dinámicos
         $headers = ['#', 'Panelista', 'Panelista', 'Muestra', ...$atributos];
         $rows = new Collection([$headers]);
-        $counter = 1;
 
         foreach ($muestras as $muestra) {
+            // Reiniciar el contador para cada muestra
+            $counter = 1;
+
             $calificaciones = DB::table('calificaciones')
                 ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
                 ->select(
@@ -111,11 +123,16 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
 
                 $rows->push($row);
             }
+
+            // Agregar una fila vacía después de cada muestra (excepto la última)
+            if (!$muestra->is($muestras->last())) {
+                $emptyRow = array_fill(0, count($headers), '');
+                $rows->push($emptyRow);
+            }
         }
 
         return $rows;
     }
-
     protected function getPreferences()
     {
         $rows = new Collection();
@@ -170,10 +187,10 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
         return $rows;
     }
 
-    protected function combinarSecciones($firstSection, $secondSection)
+    protected function combinarSecciones($firstSection, $secondSection, $thirdSection)
     {
         $combinedRows = new Collection();
-        $maxRows = max($firstSection->count(), $secondSection->count());
+        $maxRows = max($firstSection->count(), $secondSection->count(), $thirdSection->count());
 
         for ($i = 0; $i < $maxRows; $i++) {
             $row = [];
@@ -185,7 +202,7 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
                 $row = array_fill(0, count($firstSection[0]), '');
             }
 
-            // Agregar columnas de separación
+            // Agregar columnas de separación para la segunda sección
             for ($j = 0; $j < $this->spacingColumns; $j++) {
                 $row[] = '';
             }
@@ -193,6 +210,20 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
             // Agregar datos de la segunda sección
             if ($i < $secondSection->count()) {
                 $row = array_merge($row, $secondSection[$i]);
+            } else {
+                $row = array_merge($row, array_fill(0, count($secondSection[0] ?? []), ''));
+            }
+
+            // Agregar columnas de separación para la tercera sección
+            for ($j = 0; $j < $this->spacingColumns; $j++) {
+                $row[] = '';
+            }
+
+            // Agregar datos de la tercera sección
+            if ($i < $thirdSection->count()) {
+                $row = array_merge($row, $thirdSection[$i]);
+            } else {
+                $row = array_merge($row, array_fill(0, count($thirdSection[0] ?? []), ''));
             }
 
             $combinedRows->push($row);
@@ -217,7 +248,13 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
         $this->applyBorders($sheet, $this->secondSectionColumns[0] . '1:' . end($this->secondSectionColumns) . $lastRow);
         $this->applyAlternatingRows($sheet, $this->secondSectionColumns[0], end($this->secondSectionColumns), $lastRow);
 
-        // Nombres alineados a la izquierda en ambas secciones
+        // Aplicar estilos para la tercera sección
+        $this->applyHeaderStyles($sheet, $this->thirdSectionColumns[0] . '1:' . end($this->thirdSectionColumns) . '1');
+        $this->applyContentStyles($sheet, $this->thirdSectionColumns[0] . '2:' . end($this->thirdSectionColumns) . $lastRow);
+        $this->applyBorders($sheet, $this->thirdSectionColumns[0] . '1:' . end($this->thirdSectionColumns) . $lastRow);
+        $this->applyAlternatingRows($sheet, $this->thirdSectionColumns[0], end($this->thirdSectionColumns), $lastRow);
+
+        // Nombres alineados a la izquierda en las secciones
         $sheet->getStyle('B2:B' . $lastRow)->applyFromArray([
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]
         ]);
@@ -227,6 +264,11 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]
         ]);
 
+        // Formatear números en la tercera sección
+        $proportionsColumn = $this->thirdSectionColumns[2];
+        $sheet->getStyle($proportionsColumn . '2:' . $proportionsColumn . $lastRow)->getNumberFormat()
+            ->setFormatCode('0.00');
+
         // Ocultar columna de ID de panelista
         $sheet->getColumnDimension('C')->setVisible(false);
 
@@ -235,7 +277,6 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
 
         return $sheet;
     }
-
 
     protected function applyHeaderStyles($sheet, $range)
     {
@@ -283,6 +324,79 @@ class ResultadosResumenSheet implements FromCollection, WithTitle, WithHeadings,
                 ]);
             }
         }
+    }
+
+    protected function getPreferenceStats()
+    {
+        // Encabezados para la sección de estadísticas
+        $headers = ['Muestra', 'Preference Counts', 'Proportions', 'Total'];
+        $rows = new Collection([$headers]);
+
+        // Obtener las preferencias de los panelistas (de la sección 2)
+        $preferencias = DB::table('calificaciones')
+            ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
+            ->where('calificaciones.fecha', $this->fecha)
+            ->where('calificaciones.producto', $this->productoId)
+            ->where('calificaciones.prueba', 3)
+            ->select(
+                'calificaciones.idpane',
+                'calificaciones.cod_muestra',
+                'calificaciones.valor_sabor',
+                'calificaciones.valor_olor',
+                'calificaciones.valor_color',
+                'calificaciones.valor_textura',
+                'calificaciones.valor_apariencia'
+            )
+            ->get();
+
+        // Agrupar por panelista y encontrar sus preferencias
+        $muestrasPreferidas = [];
+        $conteoMuestras = [];
+
+        foreach ($preferencias->groupBy('idpane') as $idPanelista => $calificacionesPanelista) {
+            $sumasPorMuestra = [];
+
+            // Calcular suma de valores por muestra para este panelista
+            foreach ($calificacionesPanelista as $calificacion) {
+                $suma = ($calificacion->valor_sabor ?? 0) +
+                    ($calificacion->valor_olor ?? 0) +
+                    ($calificacion->valor_color ?? 0) +
+                    ($calificacion->valor_textura ?? 0) +
+                    ($calificacion->valor_apariencia ?? 0);
+                $sumasPorMuestra[$calificacion->cod_muestra] = $suma;
+            }
+
+            // Encontrar la muestra preferida del panelista
+            arsort($sumasPorMuestra);
+            $muestraPreferida = key($sumasPorMuestra);
+
+            // Contar las preferencias
+            if (!isset($conteoMuestras[$muestraPreferida])) {
+                $conteoMuestras[$muestraPreferida] = 0;
+            }
+            $conteoMuestras[$muestraPreferida]++;
+        }
+
+        // Calcular total de preferencias (total de panelistas)
+        $totalPreferencias = count($preferencias->groupBy('idpane'));
+
+        // Ordenar las muestras por código
+        ksort($conteoMuestras);
+
+        // Agregar filas para cada muestra
+        foreach ($conteoMuestras as $muestra => $conteo) {
+            $proporcion = $totalPreferencias > 0 ?
+                round($conteo / $totalPreferencias, 2) : 0;
+
+            $rows->push([
+                $muestra,
+                $conteo,
+                $proporcion,
+                $totalPreferencias
+            ]);
+        }
+
+        return $rows;
     }
 
     public function headings(): array
