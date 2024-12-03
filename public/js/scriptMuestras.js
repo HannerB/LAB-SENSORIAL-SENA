@@ -173,16 +173,16 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('_token', csrfToken);
 
         // Validar atributos seleccionados
-        const atributos = formData.getAll('atributos[]');
-        if (atributos.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Atención',
-                text: 'Debe seleccionar al menos un atributo para la prueba de ordenamiento',
-                confirmButtonColor: '#10B981'
-            });
-            return;
-        }
+        // const atributos = formData.getAll('atributos[]');
+        // if (atributos.length === 0) {
+        //     Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Atención',
+        //         text: 'Debe seleccionar al menos un atributo para la prueba de ordenamiento',
+        //         confirmButtonColor: '#10B981'
+        //     });
+        //     return;
+        // }
 
         try {
             const response = await fetch('/muestra', {

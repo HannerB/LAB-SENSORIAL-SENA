@@ -36,13 +36,13 @@ class MuestraController extends Controller
                 $muestra->tiene_textura = in_array('textura', $atributos);
                 $muestra->tiene_apariencia = in_array('apariencia', $atributos);
 
-                // Validar que al menos un atributo esté seleccionado
-                if (count($atributos) == 0) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Debe seleccionar al menos un atributo para la prueba de ordenamiento'
-                    ], 422);
-                }
+                // // Validar que al menos un atributo esté seleccionado
+                // if (count($atributos) == 0) {
+                //     return response()->json([
+                //         'success' => false,
+                //         'message' => 'Debe seleccionar al menos un atributo para la prueba de ordenamiento'
+                //     ], 422);
+                // }
             }
 
             $muestra->save();

@@ -528,8 +528,8 @@
                                     que debe ordenar en forma creciente de acuerdo al grado de cada atributo.
                                 </p>
                                 <p class="text-sm text-blue-700">
-                                    Cada muestra debe llevar un orden diferente. No se permite que dos muestras tengan
-                                    el mismo orden.
+                                    {{-- Cada muestra debe llevar un orden diferente. No se permite que dos muestras tengan
+                                    el mismo orden. --}}
                                 </p>
                             </div>
                         </div>
