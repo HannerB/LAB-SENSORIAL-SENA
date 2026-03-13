@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso Administración - SENA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body class="h-full bg-gradient-to-br from-gray-100 to-gray-200">
@@ -28,12 +29,7 @@
                     class="group flex items-center px-4 py-2 border-2 border-white text-white rounded-lg
                           hover:bg-white hover:text-sena-green transition-all duration-300 ease-in-out
                           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2 transform group-hover:scale-110 transition-transform" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
+                    <i class="fas fa-arrow-left mr-2 transform group-hover:scale-110 transition-transform"></i>
                     Volver al Formulario
                 </a>
             </div>
@@ -72,11 +68,7 @@
                                           text-gray-900 placeholder-gray-400"
                                 placeholder="Ingrese su contraseña" required>
                             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
+                                <i class="fas fa-lock text-gray-400"></i>
                             </div>
                         </div>
                     </div>
@@ -98,16 +90,13 @@
                     <!-- Submit Button -->
                     <div>
                         <button type="submit"
-                            class="w-full flex justify-center items-center px-6 py-3 
+                            class="w-full flex justify-center items-center px-6 py-3
                                        border border-transparent text-base font-medium rounded-lg
-                                       text-white bg-sena-green hover:bg-green-700 
-                                       focus:outline-none focus:ring-2 focus:ring-offset-2 
-                                       focus:ring-sena-green transition-all duration-200 
+                                       text-white bg-sena-green hover:bg-green-700
+                                       focus:outline-none focus:ring-2 focus:ring-offset-2
+                                       focus:ring-sena-green transition-all duration-200
                                        ease-in-out transform hover:scale-[1.02]">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                            </svg>
+                            <i class="fas fa-sign-in-alt mr-2"></i>
                             Iniciar Sesión
                         </button>
                     </div>

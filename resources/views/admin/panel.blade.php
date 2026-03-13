@@ -11,6 +11,7 @@
 
     <title>Panel de Administración - SENA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         const rutaActualizarConfiguracion = "{{ route('configuracion.update', 1) }}";
         const configuracion = {
@@ -166,13 +167,10 @@
             </div>
 
             <!-- Tabla -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="px-6 py-4 bg-gradient-to-r from-sena-green to-green-600">
-                    <h3 class="text-lg font-semibold text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
+            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div class="px-6 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-700 flex items-center">
+                        <i class="fas fa-box-open mr-2 text-sena-green"></i>
                         Listado de Productos
                     </h3>
                 </div>
@@ -294,7 +292,7 @@
                                 opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95 
                                 sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
                                 <!-- Cabecera del Modal -->
-                                <div class="bg-green-50 px-6 py-4 border-b border-green-100">
+                                <div class="bg-white px-6 py-4 border-b border-gray-200">
                                     <div class="flex items-center justify-between">
                                         <h3 class="text-lg font-semibold text-gray-900">
                                             Configuración de Producto
@@ -357,19 +355,15 @@
                                         <h4 class="text-lg font-medium text-gray-900">Gestión de Muestras</h4>
 
                                         <!-- Tabla Prueba Triangular con su Formulario -->
-                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                                            <div class="px-6 py-4 bg-gradient-to-r from-green-500 to-green-600">
-                                                <div class="flex items-center justify-between">
-                                                    <h5 class="text-lg font-semibold text-white flex items-center">
-                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M4 7h16M4 12h16M4 17h7" />
-                                                        </svg>
+                                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <div class="px-5 py-3 bg-white border-l-4 border-green-500 flex items-center justify-between">
+                                                <div class="flex items-center justify-between w-full">
+                                                    <h5 class="text-sm font-semibold text-green-700 flex items-center">
+                                                        <i class="fas fa-shapes mr-2"></i>
                                                         Muestras de Prueba Triangular
                                                     </h5>
                                                     <span
-                                                        class="px-3 py-1 bg-green-400 rounded-full text-white text-sm"
+                                                        class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium"
                                                         id="triangular-count">
                                                         0 muestras
                                                     </span>
@@ -447,18 +441,14 @@
                                         </div>
 
                                         <!-- Tabla Prueba Duo-Trio con su Formulario -->
-                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                                            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600">
-                                                <div class="flex items-center justify-between">
-                                                    <h5 class="text-lg font-semibold text-white flex items-center">
-                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M8 7h12M8 12h12M8 17h12" />
-                                                        </svg>
+                                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <div class="px-5 py-3 bg-white border-l-4 border-blue-500 flex items-center justify-between">
+                                                <div class="flex items-center justify-between w-full">
+                                                    <h5 class="text-sm font-semibold text-blue-700 flex items-center">
+                                                        <i class="fas fa-equals mr-2"></i>
                                                         Muestras de Prueba Duo-Trio
                                                     </h5>
-                                                    <span class="px-3 py-1 bg-blue-400 rounded-full text-white text-sm"
+                                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
                                                         id="duo-trio-count">
                                                         0 muestras
                                                     </span>
@@ -536,20 +526,15 @@
                                         </div>
 
                                         <!-- Tabla Prueba Ordenamiento con su Formulario -->
-                                        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                                            <div class="px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600">
-                                                <div class="flex items-center justify-between">
-                                                    <h5 class="text-lg font-semibold text-white flex items-center">
-                                                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
-                                                            stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                                                        </svg>
+                                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <div class="px-5 py-3 bg-white border-l-4 border-purple-500 flex items-center justify-between">
+                                                <div class="flex items-center justify-between w-full">
+                                                    <h5 class="text-sm font-semibold text-purple-700 flex items-center">
+                                                        <i class="fas fa-sort-amount-up mr-2"></i>
                                                         Muestras de Prueba de Ordenamiento
                                                     </h5>
                                                     <span
-                                                        class="px-3 py-1 bg-purple-400 rounded-full text-white text-sm"
+                                                        class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium"
                                                         id="ordenamiento-count">
                                                         0/10 muestras
                                                     </span>
@@ -602,12 +587,10 @@
                                                             class="transform transition-all duration-200 hover:scale-105">
                                                             <label
                                                                 class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                                                <span class="text-2xl mr-3">🍽️</span>
+                                                                <i class="fas fa-utensils text-xl mr-3 text-purple-400"></i>
                                                                 <div class="flex-1">
-                                                                    <div class="text-lg font-medium text-gray-900">
-                                                                        Sabor</div>
-                                                                    <div class="text-sm text-gray-500">Características
-                                                                        gustativas del producto</div>
+                                                                    <div class="text-sm font-medium text-gray-900">Sabor</div>
+                                                                    <div class="text-xs text-gray-500">Características gustativas</div>
                                                                 </div>
                                                                 <input type="checkbox" name="atributos[]"
                                                                     value="sabor"
@@ -620,12 +603,10 @@
                                                             class="transform transition-all duration-200 hover:scale-105">
                                                             <label
                                                                 class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                                                <span class="text-2xl mr-3">👃</span>
+                                                                <i class="fas fa-wind text-xl mr-3 text-purple-400"></i>
                                                                 <div class="flex-1">
-                                                                    <div class="text-lg font-medium text-gray-900">Olor
-                                                                    </div>
-                                                                    <div class="text-sm text-gray-500">Características
-                                                                        olfativas</div>
+                                                                    <div class="text-sm font-medium text-gray-900">Olor</div>
+                                                                    <div class="text-xs text-gray-500">Características olfativas</div>
                                                                 </div>
                                                                 <input type="checkbox" name="atributos[]"
                                                                     value="olor"
@@ -638,12 +619,10 @@
                                                             class="transform transition-all duration-200 hover:scale-105">
                                                             <label
                                                                 class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                                                <span class="text-2xl mr-3">🎨</span>
+                                                                <i class="fas fa-palette text-xl mr-3 text-purple-400"></i>
                                                                 <div class="flex-1">
-                                                                    <div class="text-lg font-medium text-gray-900">
-                                                                        Color</div>
-                                                                    <div class="text-sm text-gray-500">Apariencia
-                                                                        visual y tonalidad</div>
+                                                                    <div class="text-sm font-medium text-gray-900">Color</div>
+                                                                    <div class="text-xs text-gray-500">Apariencia visual y tonalidad</div>
                                                                 </div>
                                                                 <input type="checkbox" name="atributos[]"
                                                                     value="color"
@@ -656,12 +635,10 @@
                                                             class="transform transition-all duration-200 hover:scale-105">
                                                             <label
                                                                 class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                                                <span class="text-2xl mr-3">✋</span>
+                                                                <i class="fas fa-hand-paper text-xl mr-3 text-purple-400"></i>
                                                                 <div class="flex-1">
-                                                                    <div class="text-lg font-medium text-gray-900">
-                                                                        Textura</div>
-                                                                    <div class="text-sm text-gray-500">Características
-                                                                        al tacto</div>
+                                                                    <div class="text-sm font-medium text-gray-900">Textura</div>
+                                                                    <div class="text-xs text-gray-500">Características al tacto</div>
                                                                 </div>
                                                                 <input type="checkbox" name="atributos[]"
                                                                     value="textura"
@@ -674,12 +651,10 @@
                                                             class="transform transition-all duration-200 hover:scale-105">
                                                             <label
                                                                 class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                                                <span class="text-2xl mr-3">👁️</span>
-                                                                <div class="flex-1">
-                                                                    <div class="text-lg font-medium text-gray-900">
-                                                                        Apariencia</div>
-                                                                    <div class="text-sm text-gray-500">Aspecto general
-                                                                        del producto</div>
+                                                                <i class="fas fa-eye text-xl mr-3 text-purple-400"></i>
+<div class="flex-1">
+                                                                    <div class="text-sm font-medium text-gray-900">Apariencia</div>
+                                                                    <div class="text-xs text-gray-500">Aspecto general del producto</div>
                                                                 </div>
                                                                 <input type="checkbox" name="atributos[]"
                                                                     value="apariencia"
@@ -737,19 +712,6 @@
                                                 </table>
                                             </div>
 
-                                            {{-- <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                                                <div class="flex items-center justify-between text-sm text-gray-600">
-                                                    <span>
-                                                        <svg class="w-5 h-5 inline-block mr-1 text-yellow-500"
-                                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        Mínimo 3 muestras, máximo 10
-                                                    </span>
-                                                </div>
-                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>

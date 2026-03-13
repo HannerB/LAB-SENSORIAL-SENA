@@ -15,8 +15,8 @@ class ConfiguracionTableSeeder extends Seeder
     {
         DB::table('configuracion')->insert([
             [
-                'num_cabina' => 1,
-                'producto_habilitado' => null,
+                'num_cabina' => 3,
+                'producto_habilitado' => 3,
                 'clave_acceso' => '123'
             ]
         ]);

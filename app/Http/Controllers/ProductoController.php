@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Configuracion;
 
 class ProductoController extends Controller
 {
     public function index()
     {
         $productos = Producto::all();
-        return view('src.panel_administracion', compact('productos'));
+        $configuracion = Configuracion::first();
+        return view('admin.panel', compact('productos', 'configuracion'));
     }
 
     public function create()

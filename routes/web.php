@@ -21,7 +21,7 @@ use App\Http\Controllers\PanelistaController;
 */
 
 Route::get('/', function () {
-    return view('index'); // Esta es la vista index.blade.php
+    return view('evaluacion.index');
 })->name('index');
 
 Route::get('login', [ConfiguracionController::class, 'showLoginForm'])->name('login');
@@ -33,7 +33,7 @@ Route::post('login', [ConfiguracionController::class, 'authenticate'])->name('au
 Route::get('admin/resultados', function () {
     if (Session::has('accesoadmin') && Session::get('accesoadmin') === true) {
         // Retornar la vista del panel administrativo
-        return view('src.panel_resultados'); // Asegúrate de tener esta vista creada
+        return view('admin.resultados');
     } else {
         return redirect()->route('login')->with('alerta', 'Debes iniciar sesión primero.');
     }
@@ -81,10 +81,11 @@ Route::delete('calificacion/{calificacion}', [CalificacionesController::class, '
 // Rutas para Resultado
 Route::get('/panel/resultados', function () {
     $productoHabilitado = App\Models\Producto::where('habilitado', true)->first();
-    return view('panel_resultados', compact('productoHabilitado'));
+    return view('admin.resultados', compact('productoHabilitado'));
 })->name('panel.resultados');
 Route::get('resultado/create', [ResultadosController::class, 'create'])->name('resultado.create');
 route::post('resultado/generar', [ResultadosController::class, 'generarResultados'])->name('resultado.generar');
+Route::get('/resultado/totales', [ResultadosController::class, 'generarResultadosTotales'])->name('resultado.totales');
 route::get('/mostrar-resultados', [ResultadosController::class, 'mostrarResultados']);
 route::get('/mostrar-resultados-panelistas', [ResultadosController::class, 'mostrarResultadosPanelistas']);
 

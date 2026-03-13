@@ -107,27 +107,27 @@
                 <!-- Botones de Acción -->
                 <div class="flex justify-end space-x-3">
                     <button type="submit"
-                        class="inline-flex items-center px-4 py-2 border border-transparent
-                                   text-sm font-medium rounded-md text-white bg-blue-600
-                                   hover:bg-blue-700 focus:outline-none focus:ring-2
-                                   focus:ring-offset-2 focus:ring-blue-500">
+                        class="inline-flex items-center px-5 py-2.5 border border-transparent
+                                   text-sm font-semibold rounded-md text-white bg-blue-600
+                                   hover:bg-blue-700 shadow-md focus:outline-none focus:ring-2
+                                   focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                         <i class="fas fa-chart-bar mr-2"></i>
                         Generar Resultados
                     </button>
                     <button type="button" id="btnExportar"
-                        class="inline-flex items-center px-4 py-2 border border-transparent
-                                   text-sm font-medium rounded-md text-white bg-green-600
-                                   hover:bg-green-700 focus:outline-none focus:ring-2
-                                   focus:ring-offset-2 focus:ring-green-500">
+                        class="inline-flex items-center px-4 py-2 border border-emerald-600
+                                   text-sm font-medium rounded-md text-emerald-700 bg-white
+                                   hover:bg-emerald-50 focus:outline-none focus:ring-2
+                                   focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-200">
                         <i class="fas fa-file-excel mr-2"></i>
                         Exportar Selección
                     </button>
                     <button type="button" id="btnExportarTodo"
-                        class="inline-flex items-center px-4 py-2 border border-transparent
-                                   text-sm font-medium rounded-md text-white bg-green-600
-                                   hover:bg-green-700 focus:outline-none focus:ring-2
-                                   focus:ring-offset-2 focus:ring-green-500">
-                        <i class="fas fa-file-excel mr-2"></i>
+                        class="inline-flex items-center px-4 py-2 border border-gray-300
+                                   text-sm font-medium rounded-md text-gray-600 bg-white
+                                   hover:bg-gray-50 focus:outline-none focus:ring-2
+                                   focus:ring-offset-2 focus:ring-gray-400 transition-all duration-200">
+                        <i class="fas fa-file-excel mr-2 text-emerald-500"></i>
                         Exportar Todo
                     </button>
                 </div>
@@ -138,10 +138,10 @@
         <div id="resultados-pruebas"
             class="bg-white rounded-lg shadow-lg p-6 mb-8 transform transition-all duration-500 hidden">
             <!-- Prueba Triangular -->
-            <div class="mb-8">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-triangle mr-2 text-sena-green"></i>
-                    PRUEBA TRIANGULAR
+            <div class="mb-8 bg-gray-50 rounded-lg p-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center uppercase tracking-wide">
+                    <i class="fas fa-shapes mr-2 text-green-600"></i>
+                    Prueba Triangular
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -169,10 +169,10 @@
             </div>
 
             <!-- Prueba Duo-Trio -->
-            <div class="mb-8">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-equals mr-2 text-sena-green"></i>
-                    PRUEBA DUO-TRIO
+            <div class="mb-8 bg-gray-50 rounded-lg p-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center uppercase tracking-wide">
+                    <i class="fas fa-equals mr-2 text-blue-600"></i>
+                    Prueba Duo-Trio
                 </h3>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -200,10 +200,10 @@
             </div>
 
             <!-- Prueba Ordenamiento -->
-            <div>
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-sort-amount-up mr-2 text-sena-green"></i>
-                    PRUEBA ORDENAMIENTO
+            <div class="bg-gray-50 rounded-lg p-5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center uppercase tracking-wide">
+                    <i class="fas fa-sort-amount-up mr-2 text-purple-600"></i>
+                    Prueba de Ordenamiento
                 </h3>
                 <!-- Container for dynamic attribute sections -->
                 <div id="ordenamiento-results-container">
@@ -235,9 +235,9 @@
                        focus:border-sena-green focus:ring-sena-green
                        bg-white py-2.5">
                         <option value="select">Seleccione el tipo de prueba</option>
-                        <option value="1">📐 Prueba Triangular</option>
-                        <option value="2">⚖️ Prueba Duo-Trio</option>
-                        <option value="3">📊 Prueba de Ordenamiento</option>
+                        <option value="1">Prueba Triangular</option>
+                        <option value="2">Prueba Duo-Trio</option>
+                        <option value="3">Prueba de Ordenamiento</option>
                     </select>
                 </div>
             </div>

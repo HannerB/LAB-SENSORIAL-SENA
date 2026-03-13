@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluación Sensorial - SENA</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         window.routes = {
             panelistasStore: "{{ route('panelistas.store') }}",
@@ -66,30 +67,30 @@
                 <div class="flex flex-col items-center relative z-10 w-1/3">
                     <div
                         class="w-10 h-10 rounded-full bg-sena-green text-white flex items-center justify-center
-                               transition-all duration-500 ease-in-out relative">
+                               ring-4 ring-green-200 shadow-md transition-all duration-500 ease-in-out relative">
                         <span class="text-sm font-bold">1</span>
                     </div>
-                    <p class="text-sm font-medium text-gray-700 mt-2">Prueba Triangular</p>
+                    <p class="text-sm font-semibold text-sena-green mt-2">Prueba Triangular</p>
                 </div>
 
                 <!-- Step 2: Duo-Trio -->
                 <div class="flex flex-col items-center relative z-10 w-1/3">
                     <div
-                        class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center
-                               transition-all duration-500 ease-in-out">
+                        class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center
+                               ring-2 ring-gray-200 transition-all duration-500 ease-in-out">
                         <span class="text-sm font-bold">2</span>
                     </div>
-                    <p class="text-sm font-medium text-gray-500 mt-2">Prueba Duo-Trio</p>
+                    <p class="text-sm font-medium text-gray-400 mt-2">Prueba Duo-Trio</p>
                 </div>
 
                 <!-- Step 3: Ordering -->
                 <div class="flex flex-col items-center relative z-10 w-1/3">
                     <div
-                        class="w-10 h-10 rounded-full bg-gray-300 text-white flex items-center justify-center
-                               transition-all duration-500 ease-in-out">
+                        class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center
+                               ring-2 ring-gray-200 transition-all duration-500 ease-in-out">
                         <span class="text-sm font-bold">3</span>
                     </div>
-                    <p class="text-sm font-medium text-gray-500 mt-2">Prueba de Ordenamiento</p>
+                    <p class="text-sm font-medium text-gray-400 mt-2">Prueba de Ordenamiento</p>
                 </div>
 
                 <!-- Progress Bar -->
@@ -105,7 +106,7 @@
             <!-- Prueba Triangular -->
             <section id="sect1" class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500">
                 <div class="max-w-4xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide pb-3 border-b-2 border-sena-green">
                         Prueba Triangular
                     </h2>
 
@@ -140,20 +141,16 @@
                     </div>
 
                     <!-- Product Information -->
-                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-grow">
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Producto a Evaluar
-                                </label>
-                                <input type="hidden" id="productoIDPrueba1"
-                                    value="{{ $productoHabilitado ? $productoHabilitado->id_producto : '' }}">
-                                <input type="text" id="productoPrueba1" readonly
-                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
-                              shadow-sm text-gray-700">
-                            </div>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-lg px-5 py-3 mb-8 flex items-center space-x-3">
+                        <i class="fas fa-flask text-indigo-400 text-lg"></i>
+                        <div>
+                            <p class="text-xs text-indigo-500 font-medium uppercase tracking-wide">Producto a Evaluar</p>
+                            <p id="productoPrueba1" class="text-sm font-semibold text-indigo-900">
+                                {{ $productoHabilitado ? $productoHabilitado->nombre : '—' }}
+                            </p>
                         </div>
+                        <input type="hidden" id="productoIDPrueba1"
+                            value="{{ $productoHabilitado ? $productoHabilitado->id_producto : '' }}">
                     </div>
 
                     <!-- Instructions -->
@@ -273,7 +270,7 @@
             <section id="sect2"
                 class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500 hidden">
                 <div class="max-w-4xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide pb-3 border-b-2 border-sena-green">
                         Prueba Duo-Trio
                     </h2>
 
@@ -308,17 +305,13 @@
                     </div>
 
                     <!-- Product Information -->
-                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-grow">
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Producto a Evaluar
-                                </label>
-                                <input type="text" id="productoPrueba2" readonly
-                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
-                               shadow-sm text-gray-700">
-                            </div>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-lg px-5 py-3 mb-8 flex items-center space-x-3">
+                        <i class="fas fa-flask text-indigo-400 text-lg"></i>
+                        <div>
+                            <p class="text-xs text-indigo-500 font-medium uppercase tracking-wide">Producto a Evaluar</p>
+                            <p id="productoPrueba2" class="text-sm font-semibold text-indigo-900">
+                                {{ $productoHabilitado ? $productoHabilitado->nombre : '—' }}
+                            </p>
                         </div>
                     </div>
 
@@ -461,7 +454,7 @@
             <section id="sect3"
                 class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-500 hidden">
                 <div class="max-w-4xl mx-auto">
-                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide">
+                    <h2 class="text-2xl font-bold text-gray-900 text-center mb-8 uppercase tracking-wide pb-3 border-b-2 border-sena-green">
                         Prueba de Ordenamiento
                     </h2>
 
@@ -496,17 +489,13 @@
                     </div>
 
                     <!-- Product Information -->
-                    <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                        <div class="flex items-center space-x-4">
-                            <div class="flex-grow">
-                                <label class="block text-sm font-medium text-gray-700">
-                                    Producto a Evaluar
-                                </label>
-                                <input type="text" id="productoPrueba3" readonly
-                                    value="{{ $productoHabilitado ? $productoHabilitado->nombre : '' }}"
-                                    class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100
-                               shadow-sm text-gray-700">
-                            </div>
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-lg px-5 py-3 mb-8 flex items-center space-x-3">
+                        <i class="fas fa-flask text-indigo-400 text-lg"></i>
+                        <div>
+                            <p class="text-xs text-indigo-500 font-medium uppercase tracking-wide">Producto a Evaluar</p>
+                            <p id="productoPrueba3" class="text-sm font-semibold text-indigo-900">
+                                {{ $productoHabilitado ? $productoHabilitado->nombre : '—' }}
+                            </p>
                         </div>
                     </div>
 
@@ -549,17 +538,22 @@
                             @if ($muestrasOrdenamiento->isNotEmpty() && $muestrasOrdenamiento->first()->{"tiene_$atributo"})
                                 <div class="transform transition-all duration-200 hover:scale-105">
                                     <label class="flex items-center p-4 bg-white rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-500 hover:shadow-md transition-all">
-                                        <span class="text-2xl mr-3">
-                                            @if ($atributo == 'sabor') 🍽️ @elseif ($atributo == 'olor') 👃 @elseif ($atributo == 'color') 🎨 @elseif ($atributo == 'textura') ✋ @elseif ($atributo == 'apariencia') 👁️ @endif
+                                        <span class="text-xl mr-3 text-purple-500">
+                                            @if ($atributo == 'sabor') <i class="fas fa-utensils"></i>
+                                            @elseif ($atributo == 'olor') <i class="fas fa-wind"></i>
+                                            @elseif ($atributo == 'color') <i class="fas fa-palette"></i>
+                                            @elseif ($atributo == 'textura') <i class="fas fa-hand-paper"></i>
+                                            @elseif ($atributo == 'apariencia') <i class="fas fa-eye"></i>
+                                            @endif
                                         </span>
                                         <div class="flex-1">
                                             <div class="text-lg font-medium text-gray-900 capitalize">{{ $atributo }}</div>
-                                            <div class="text-sm text-gray-500">
-                                                @if ($atributo == 'sabor')
-                                                @elseif ($atributo == 'olor')
-                                                @elseif ($atributo == 'color')
-                                                @elseif ($atributo == 'textura')
-                                                @elseif ($atributo == 'apariencia') 
+                                            <div class="text-xs text-gray-500">
+                                                @if ($atributo == 'sabor') Características gustativas
+                                                @elseif ($atributo == 'olor') Características olfativas
+                                                @elseif ($atributo == 'color') Apariencia visual
+                                                @elseif ($atributo == 'textura') Sensación al tacto
+                                                @elseif ($atributo == 'apariencia') Aspecto general
                                                 @endif
                                             </div>
                                         </div>
@@ -608,6 +602,7 @@
                                                                                 class="sr-only peer">
                                                                             <div
                                                                                 class="w-12 h-12 flex items-center justify-center rounded-lg border-2 cursor-pointer
+                                                                    hover:border-sena-green hover:text-sena-green
                                                                     peer-checked:bg-sena-green peer-checked:border-sena-green peer-checked:text-white
                                                                     peer-focus:ring-2 peer-focus:ring-sena-green peer-focus:ring-offset-2
                                                                     transition-all duration-200">
@@ -684,7 +679,6 @@
         </div>
 
         <!-- Scripts -->
-        @vite(['resources/js/app.js'])
         <script src="{{ asset('js/sweetalert2.all.min.js') }}"></script>
         <script src="{{ asset('js/jquery-3.6.1.min.js') }}"></script>
         <script src="{{ asset('js/scriptMain.js') }}"></script>

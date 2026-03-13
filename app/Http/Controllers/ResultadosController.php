@@ -36,6 +36,92 @@ class ResultadosController extends Controller
         return redirect()->route('resultado.index');
     }
 
+    public function generarResultadosTotales(Request $request)
+    {
+        try {
+            $producto_id = $request->producto_id;
+
+            $muestrasTriangulares = Muestra::where('producto_id', $producto_id)
+                ->where('prueba', 1)->get();
+
+            $muestrasDuoTrio = Muestra::where('producto_id', $producto_id)
+                ->where('prueba', 2)->get();
+
+            $calificacionesTriangulares = Calificacion::where('producto', $producto_id)
+                ->where('prueba', 1)->get();
+
+            $calificacionesDuoTrio = Calificacion::where('producto', $producto_id)
+                ->where('prueba', 2)->get();
+
+            $resultadosTriangulares = [];
+            foreach ($muestrasTriangulares as $muestra) {
+                $resultadosTriangulares[] = [
+                    'cod_muestra' => $muestra->cod_muestra,
+                    'resultado' => $calificacionesTriangulares->where('cod_muestra', $muestra->cod_muestra)->count(),
+                    'total_evaluaciones' => $calificacionesTriangulares->count()
+                ];
+            }
+
+            $resultadosDuoTrio = [];
+            foreach ($muestrasDuoTrio as $muestra) {
+                $resultadosDuoTrio[] = [
+                    'cod_muestra' => $muestra->cod_muestra,
+                    'resultado' => $calificacionesDuoTrio->where('cod_muestra', $muestra->cod_muestra)->count(),
+                    'total_evaluaciones' => $calificacionesDuoTrio->count()
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'triangulares' => $resultadosTriangulares,
+                    'duoTrio' => $resultadosDuoTrio,
+                    'ordenamiento' => $this->obtenerResultadosOrdenamientoTotales($producto_id)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error en generarResultadosTotales: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    private function obtenerResultadosOrdenamientoTotales($producto_id)
+    {
+        $muestras = Muestra::where('producto_id', $producto_id)->where('prueba', 3)->get();
+        $resultados = [];
+
+        foreach ($muestras as $muestra) {
+            foreach (['sabor', 'olor', 'color', 'textura', 'apariencia'] as $atributo) {
+                $tieneAtributo = 'tiene_' . $atributo;
+                if (!$muestra->$tieneAtributo) continue;
+
+                $valorAtributo = "valor_{$atributo}";
+                $calificaciones = DB::table('calificaciones')
+                    ->where('producto', $producto_id)
+                    ->where('prueba', 3)
+                    ->where('cod_muestra', $muestra->cod_muestra)
+                    ->whereNotNull($valorAtributo)
+                    ->select($valorAtributo)
+                    ->get();
+
+                if ($calificaciones->isNotEmpty()) {
+                    $total = $calificaciones->sum($valorAtributo);
+                    $count = $calificaciones->count();
+                    $resultados[] = [
+                        'atributo' => ucfirst($atributo),
+                        'cod_muestra' => $muestra->cod_muestra,
+                        'promedio' => round($total / $count, 2),
+                        'total_evaluaciones' => $count
+                    ];
+                }
+            }
+        }
+
+        return collect($resultados)
+            ->groupBy('atributo')
+            ->map(fn($grupo) => $grupo->sortBy('promedio')->values());
+    }
+
     public function generarResultados(Request $request)
     {
         try {
@@ -369,11 +455,14 @@ class ResultadosController extends Controller
             // Query base
             $query = DB::table('calificaciones')
                 ->join('panelistas', 'calificaciones.idpane', '=', 'panelistas.idpane')
-                ->where('calificaciones.fecha', $fecha)
                 ->where('calificaciones.producto', $productoId)
                 ->where('calificaciones.prueba', $testType);
 
-            if ($cabina !== 'all') {
+            if (!empty($fecha)) {
+                $query->where('calificaciones.fecha', $fecha);
+            }
+
+            if ($cabina && $cabina !== 'all' && $cabina !== 'select') {
                 $query->where('calificaciones.cabina', $cabina);
             }
 

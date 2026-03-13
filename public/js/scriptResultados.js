@@ -4,6 +4,25 @@ $(document).ready(function () {
     $('#resultado-pruebas-personas').hide();
     $('.tabla-personas').hide();
 
+    // Auto-cargar resultados totales al abrir la página
+    var productoIdInicial = $('#productos-filtro').val();
+    if (productoIdInicial && productoIdInicial !== 'select') {
+        $.ajax({
+            url: '/resultado/totales',
+            method: 'GET',
+            data: { producto_id: productoIdInicial },
+            success: function (response) {
+                if (response.success) {
+                    mostrarResultados(response);
+                    $('#resultados-pruebas').show();
+                    $('#resultado-pruebas-personas').show();
+                    // Auto-cargar panelistas con prueba triangular por defecto
+                    $('#tipo-prueba-resultado').data('auto', true).val('1').trigger('change');
+                }
+            }
+        });
+    }
+
     $('#filtro-resultados').submit(function (e) {
         e.preventDefault();
 
@@ -70,15 +89,20 @@ $(document).ready(function () {
             return;
         }
 
-        // Mostrar indicador de carga
-        Swal.fire({
-            title: 'Cargando resultados...',
-            text: 'Obteniendo datos de los panelistas',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        var isAuto = $('#tipo-prueba-resultado').data('auto');
+        $('#tipo-prueba-resultado').data('auto', false);
+
+        // Mostrar indicador de carga solo si es interacción del usuario
+        if (!isAuto) {
+            Swal.fire({
+                title: 'Cargando resultados...',
+                text: 'Obteniendo datos de los panelistas',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
 
         $.ajax({
             url: '/mostrar-resultados-panelistas',

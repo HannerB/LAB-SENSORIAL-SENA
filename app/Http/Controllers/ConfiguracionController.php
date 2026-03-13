@@ -24,7 +24,7 @@ class ConfiguracionController extends Controller
         $muestrasDuoTrio = $muestras->where('prueba', 2);
         $muestrasOrdenamiento = $muestras->where('prueba', 3);
 
-        return view('index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento', 'numeroCabina'));
+        return view('evaluacion.index', compact('productoHabilitado', 'muestrasTriangular', 'muestrasDuoTrio', 'muestrasOrdenamiento', 'numeroCabina'));
     }
 
     public function create()
@@ -74,7 +74,7 @@ class ConfiguracionController extends Controller
 
     public function showLoginForm()
     {
-        return view('login');
+        return view('admin.login');
     }
 
     public function authenticate(Request $request)
@@ -134,7 +134,7 @@ class ConfiguracionController extends Controller
                 $cabinasDisponibles = range(1, $numeroCabinas);
             }
 
-            return view('src.panel_resultados', compact(
+            return view('admin.resultados', compact(
                 'productoHabilitado',
                 'numeroCabinas',
                 'cabinasDisponibles'
